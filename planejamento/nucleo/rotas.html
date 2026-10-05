@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Rotas — DashiDrive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        background: { light: '#F8F5F0', dark: '#1a1a1a' },
+                        primary: '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 p-6 transition-colors duration-300">
+    <button onclick="toggleTheme()" class="fixed top-6 right-6 p-3 rounded-full bg-slate-200 dark:bg-slate-800 transition-colors z-50">
+        <span class="dark:hidden">🌙</span>
+        <span class="hidden dark:block">☀️</span>
+    </button>
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-10 text-center">
+            <h1 class="text-4xl font-black text-slate-950 dark:text-white">Mapa de Rotas — DashiDrive</h1>
+            <p class="text-slate-600 dark:text-slate-400 mt-2">Fonte da verdade: <code class="text-xs bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded">src/routes/*</code> · Atualizado 24/07/2026</p>
+            <p class="text-slate-500 dark:text-slate-500 text-sm mt-1">App.tsx → AppRoutes · lazy + Suspense · /mobile|/marketplace|/dev antes do splat *</p>
+        </header>
+
+        <div class="mb-8 flex flex-wrap justify-center gap-4">
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 text-center w-full max-w-[11rem]">
+                <h3 class="font-bold text-sm text-primary">Código (src)</h3>
+                <p class="text-2xl font-black mt-1">54.651</p>
+                <p class="text-xs text-slate-500">linhas · 398 arquivos</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 text-center w-full max-w-[11rem]">
+                <h3 class="font-bold text-sm text-primary">Rotas</h3>
+                <p class="text-2xl font-black mt-1">135</p>
+                <p class="text-xs text-slate-500">mapeadas neste doc</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 text-center w-full max-w-[11rem]">
+                <h3 class="font-bold text-sm text-emerald-500">Módulos</h3>
+                <p class="text-2xl font-black mt-1">8</p>
+                <p class="text-xs text-slate-500">arquivos em routes/</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 text-center w-full max-w-[14rem]">
+                <h3 class="font-bold text-sm text-amber-500">Arquitetura</h3>
+                <p class="text-xs mt-2 text-left text-slate-500 dark:text-slate-400 leading-relaxed">Epic 3–4: rotas separadas + lazy.<br>Epic 10–11: desktop×mobile compartilham services.</p>
+            </div>
+        </div>
+
+        <div class="mb-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 p-4 text-xs text-slate-600 dark:text-slate-400 font-mono overflow-x-auto">
+            src/routes/index.tsx → mobile · marketplace · dev · (PageTransition: public · checkout · gestao · lojista · ajuda · mobileStandalone · *)
+        </div>
+
+        <div class="mb-8">
+            <input type="text" id="searchInput" placeholder="Buscar rotas por nome, caminho ou rota..."
+                   class="w-full p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all">
+        </div>
+
+
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold mb-6 text-emerald-500 border-emerald-500/20 border-b-2 pb-2">🛠️ Área Dev (Cockpit)</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Overview</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Overview.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">KPIs técnicos e feed em tempo real.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev</span>
+                        <a href="/dev" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Empresas</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Companies.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Gestão multi-tenant e impersonate.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/companies</span>
+                        <a href="/dev/companies" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Usuários</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Users.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Gestão global de usuários.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/users</span>
+                        <a href="/dev/users" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Assinaturas</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Billing.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Controle financeiro SaaS.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/billing</span>
+                        <a href="/dev/billing" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Analytics</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Analytics.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Insights de produto.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/analytics</span>
+                        <a href="/dev/analytics" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Logs</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Logs.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Logs de auditoria e access logs.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/logs</span>
+                        <a href="/dev/logs" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Sistema</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/System.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Monitoramento de infra.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/system</span>
+                        <a href="/dev/system" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Feature Flags</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Features.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Flags globais de recursos.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/features</span>
+                        <a href="/dev/features" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Migrations</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Migrations.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Central de migrations.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/migrations</span>
+                        <a href="/dev/migrations" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Suporte</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Support.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Tickets internos.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/support</span>
+                        <a href="/dev/support" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Events</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Events.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Eventos / alertas admin.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/events</span>
+                        <a href="/dev/events" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Settings</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Settings.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Configurações do painel DEV.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/settings</span>
+                        <a href="/dev/settings" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Plan Manager</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/PlanManager.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Gestão de planos SaaS/MKT.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/plans</span>
+                        <a href="/dev/plans" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">WhatsApp</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/WhatsApp.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Clicks e métricas WhatsApp.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/whatsapp</span>
+                        <a href="/dev/whatsapp" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Veículos (admin)</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Veiculos.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Veículos cross-tenant.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/veiculos</span>
+                        <a href="/dev/veiculos" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Broadcast</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Broadcast.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Notificações em massa.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/broadcast</span>
+                        <a href="/dev/broadcast" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Cupons</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Coupons.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Cupons de desconto.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/coupons</span>
+                        <a href="/dev/coupons" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Security</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Security.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Scans e segurança.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/security</span>
+                        <a href="/dev/security" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Chatbot</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Chatbot.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Conversas do chatbot de ajuda.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/chatbot</span>
+                        <a href="/dev/chatbot" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Globe</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/Globe.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Mapa global de acessos (geolocation).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/globe</span>
+                        <a href="/dev/globe" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Webhooks (DEV only)</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/dev/WebhookTest.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Teste de webhooks — só import.meta.env.DEV.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-emerald-500 font-mono truncate">/dev/webhooks</span>
+                        <a href="/dev/webhooks" target="_blank" class="text-xs font-medium bg-emerald-500 hover:bg-emerald-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold mb-6 text-sky-500 border-sky-500/20 border-b-2 pb-2">🌐 Público / Auth</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Landing</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/Landing.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Landing page principal do produto.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-sky-500 font-mono truncate">/</span>
+                        <a href="/" target="_blank" class="text-xs font-medium bg-sky-500 hover:bg-sky-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">LP Marketplace</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/MarketplaceLanding.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Landing do marketplace.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-sky-500 font-mono truncate">/lp-marketplace</span>
+                        <a href="/lp-marketplace" target="_blank" class="text-xs font-medium bg-sky-500 hover:bg-sky-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Login</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/Login.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Autenticação (e-mail/senha + OAuth).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-sky-500 font-mono truncate">/login</span>
+                        <a href="/login" target="_blank" class="text-xs font-medium bg-sky-500 hover:bg-sky-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Bem-vindo</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/BemVindo.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Pós-login / escolha de fluxo (ProtectedRoute, sem empresa).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-sky-500 font-mono truncate">/bem-vindo</span>
+                        <a href="/bem-vindo" target="_blank" class="text-xs font-medium bg-sky-500 hover:bg-sky-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Onboarding</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/Onboarding.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Cadastro de empresa e trial (ProtectedRoute, sem empresa).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-sky-500 font-mono truncate">/onboarding</span>
+                        <a href="/onboarding" target="_blank" class="text-xs font-medium bg-sky-500 hover:bg-sky-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Aceitar convite</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/AcceptInvite.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Aceite de convite de colaborador.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-sky-500 font-mono truncate">/aceitar-convite</span>
+                        <a href="/aceitar-convite" target="_blank" class="text-xs font-medium bg-sky-500 hover:bg-sky-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Vistoria compartilhada</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/VistoriaCompartilhada.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Checklist público via token (sem login).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-sky-500 font-mono truncate">/vistoria/:token</span>
+                        <a href="/vistoria/exemplo" target="_blank" class="text-xs font-medium bg-sky-500 hover:bg-sky-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold mb-6 text-primary border-primary/20 border-b-2 pb-2">🖥️ Gestão (Desktop)</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Dashboard</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/Index.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Home da gestão de frota (desktop).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/dashboard</span>
+                        <a href="/dashboard" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Veículos</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/Veiculos.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Lista da frota.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/veiculos</span>
+                        <a href="/veiculos" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Veículo detalhe</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/VeiculoDetalhe.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Detalhe do veículo.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/veiculos/:id</span>
+                        <a href="/veiculos/exemplo" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Motoristas</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/Motoristas.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Contratos de motoristas (driverService).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/motoristas</span>
+                        <a href="/motoristas" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Motorista detalhe</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/MotoristaDetalhe.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Detalhe do motorista.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/motoristas/:id</span>
+                        <a href="/motoristas/exemplo" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Pagamentos</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/Pagamentos.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Lançamentos e programações (paymentService).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/pagamentos</span>
+                        <a href="/pagamentos" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Financiamento / Seguro</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ParcelaSeguro.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Parcelas de financiamento e seguro.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/financiamento-seguro</span>
+                        <a href="/financiamento-seguro" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Manutenção</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/Manutencao.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Ordens de manutenção (maintenanceService).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/manutencao</span>
+                        <a href="/manutencao" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Lucratividade</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/Lucratividade.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Indicadores financeiros da frota.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/lucratividade</span>
+                        <a href="/lucratividade" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Controle KM</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ControleKm.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Histórico e controle de quilometragem.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/controle-km</span>
+                        <a href="/controle-km" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Alertas</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/Alertas.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Central de notificações (useNotifications).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/alertas</span>
+                        <a href="/alertas" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Notifications</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/Notifications.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Lista de notificações.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/notifications</span>
+                        <a href="/notifications" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Perfil</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/Perfil.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Perfil do usuário e empresa (profileService).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/perfil</span>
+                        <a href="/perfil" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Suporte</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/Suporte.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Tickets de suporte.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/suporte</span>
+                        <a href="/suporte" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Usuários</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/Usuarios.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Colaboradores da empresa.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/usuarios</span>
+                        <a href="/usuarios" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Checklists</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/Checklists.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Lista de vistorias (useChecklistsList).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/checklists</span>
+                        <a href="/checklists" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Checklist novo</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ChecklistNew.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Nova vistoria.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/checklists/novo</span>
+                        <a href="/checklists/novo" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Checklist detalhe</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ChecklistDetail.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Detalhe / continuidade da vistoria.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-primary font-mono truncate">/checklists/:id</span>
+                        <a href="/checklists/exemplo" target="_blank" class="text-xs font-medium bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold mb-6 text-violet-500 border-violet-500/20 border-b-2 pb-2">💳 Checkout</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Seleção de plano</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/checkout/PlanSelection.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Escolha de plano pós-auth.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-violet-500 font-mono truncate">/checkout/plan</span>
+                        <a href="/checkout/plan" target="_blank" class="text-xs font-medium bg-violet-500 hover:bg-violet-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Checkout Gestão Básico</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/checkout/CheckoutGestaoBasico.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Checkout Asaas — plano Básico.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-violet-500 font-mono truncate">/checkout/gestao-basico</span>
+                        <a href="/checkout/gestao-basico" target="_blank" class="text-xs font-medium bg-violet-500 hover:bg-violet-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Checkout Gestão Pro</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/checkout/CheckoutGestaoPro.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Checkout Asaas — plano Pro.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-violet-500 font-mono truncate">/checkout/gestao-pro</span>
+                        <a href="/checkout/gestao-pro" target="_blank" class="text-xs font-medium bg-violet-500 hover:bg-violet-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Checkout Gestão Master</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/checkout/CheckoutGestaoMaster.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Checkout Asaas — plano Master.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-violet-500 font-mono truncate">/checkout/gestao-master</span>
+                        <a href="/checkout/gestao-master" target="_blank" class="text-xs font-medium bg-violet-500 hover:bg-violet-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Checkout Marketplace Free</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/checkout/CheckoutMarketplaceFree.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Checkout marketplace Free.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-violet-500 font-mono truncate">/checkout/marketplace-free</span>
+                        <a href="/checkout/marketplace-free" target="_blank" class="text-xs font-medium bg-violet-500 hover:bg-violet-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Checkout Marketplace Pro</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/checkout/CheckoutMarketplacePro.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Checkout marketplace Pro.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-violet-500 font-mono truncate">/checkout/marketplace-pro</span>
+                        <a href="/checkout/marketplace-pro" target="_blank" class="text-xs font-medium bg-violet-500 hover:bg-violet-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Checkout Marketplace Elite</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/checkout/CheckoutMarketplaceElite.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Checkout marketplace Elite.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-violet-500 font-mono truncate">/checkout/marketplace-elite</span>
+                        <a href="/checkout/marketplace-elite" target="_blank" class="text-xs font-medium bg-violet-500 hover:bg-violet-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Planos (público)</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/checkout/PlanosPage.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Página de planos (sem ProtectedRoute).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-violet-500 font-mono truncate">/planos</span>
+                        <a href="/planos" target="_blank" class="text-xs font-medium bg-violet-500 hover:bg-violet-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold mb-6 text-amber-500 border-amber-500/20 border-b-2 pb-2">📱 Mobile</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Home mobile</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/MobileHome.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Home do app mobile (ProtectedRoute + MobileLayout).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/home</span>
+                        <a href="/mobile/home" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Checklists</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/Checklists.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Lista compartilhada com desktop (useChecklistsList).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/checklists</span>
+                        <a href="/mobile/checklists" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Checklist novo</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/ChecklistNew.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Nova vistoria mobile.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/checklists/novo</span>
+                        <a href="/mobile/checklists/novo" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Checklist detalhe</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/ChecklistDetail.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Detalhe da vistoria.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/checklists/:id</span>
+                        <a href="/mobile/checklists/exemplo" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Checklist comparar</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/ChecklistCompare.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Comparativo de vistorias.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/checklists/:id/comparar</span>
+                        <a href="/mobile/checklists/exemplo/comparar" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Checklist (alias)</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/Checklists.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Alias legado → mesma lista.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/checklist</span>
+                        <a href="/mobile/checklist" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Frota</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/MobileFrota.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Frota mobile.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/frota</span>
+                        <a href="/mobile/frota" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Pagamentos</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/MobilePagamentos.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Pagamentos enriquecidos (paymentService).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/pagamentos</span>
+                        <a href="/mobile/pagamentos" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Aluguéis</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/MobileAlugueis.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Aluguéis mobile.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/alugueis</span>
+                        <a href="/mobile/alugueis" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Manutenção</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/MobileManutencao.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Lista (maintenanceService).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/manutencao</span>
+                        <a href="/mobile/manutencao" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Manutenção nova</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/MobileManutencaoNew.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Nova manutenção.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/manutencao/novo</span>
+                        <a href="/mobile/manutencao/novo" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Manutenção detalhe</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/MobileManutencaoDetalhe.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Detalhe da manutenção.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/manutencao/:id</span>
+                        <a href="/mobile/manutencao/exemplo" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Motoristas</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/MobileMotoristas.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Lista (driverService).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/motoristas</span>
+                        <a href="/mobile/motoristas" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Motorista detalhe</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/MobileMotoristaDetalhe.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Detalhe do motorista.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/motoristas/:id</span>
+                        <a href="/mobile/motoristas/exemplo" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Alertas</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/MobileAlertas.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Alertas (useNotifications).</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/alertas</span>
+                        <a href="/mobile/alertas" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Perfil</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/MobilePerfil.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Perfil mobile.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/perfil</span>
+                        <a href="/mobile/perfil" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Presente</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/Presente.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Standalone — oferta/presente.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/presente</span>
+                        <a href="/mobile/presente" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Trial expirado</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/TrialExpirado.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Standalone — trial expirado.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/trial-expirado</span>
+                        <a href="/mobile/trial-expirado" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Pagamento pendente</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/PagamentoPendente.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Standalone — cobrança pendente.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/pagamento-pendente</span>
+                        <a href="/mobile/pagamento-pendente" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Onboarding cadastro</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/mobile/OnboardingCadastro.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Standalone — cadastro mobile.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-amber-500 font-mono truncate">/mobile/onboarding-cadastro</span>
+                        <a href="/mobile/onboarding-cadastro" target="_blank" class="text-xs font-medium bg-amber-500 hover:bg-amber-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold mb-6 text-rose-500 border-rose-500/20 border-b-2 pb-2">🛒 Marketplace</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Home</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/marketplace/MarketplaceHome.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Home do marketplace.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-rose-500 font-mono truncate">/marketplace/home</span>
+                        <a href="/marketplace/home" target="_blank" class="text-xs font-medium bg-rose-500 hover:bg-rose-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Busca</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/marketplace/MarketplaceSearch.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Busca de veículos.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-rose-500 font-mono truncate">/marketplace/search</span>
+                        <a href="/marketplace/search" target="_blank" class="text-xs font-medium bg-rose-500 hover:bg-rose-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Detalhe</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/marketplace/MarketplaceDetail.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Detalhe do anúncio.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-rose-500 font-mono truncate">/marketplace/detail/:id</span>
+                        <a href="/marketplace/detail/exemplo" target="_blank" class="text-xs font-medium bg-rose-500 hover:bg-rose-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Anunciar</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/marketplace/MarketplaceSell.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Criar anúncio.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-rose-500 font-mono truncate">/marketplace/sell</span>
+                        <a href="/marketplace/sell" target="_blank" class="text-xs font-medium bg-rose-500 hover:bg-rose-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Favoritos / Wishlist</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/marketplace/MarketplaceOrders.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Lista de desejos.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-rose-500 font-mono truncate">/marketplace/wishlist</span>
+                        <a href="/marketplace/wishlist" target="_blank" class="text-xs font-medium bg-rose-500 hover:bg-rose-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Perfil</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/marketplace/MarketplaceProfile.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Perfil do comprador/vendedor.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-rose-500 font-mono truncate">/marketplace/profile</span>
+                        <a href="/marketplace/profile" target="_blank" class="text-xs font-medium bg-rose-500 hover:bg-rose-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Meus anúncios</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/marketplace/MarketplaceMyAds.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Anúncios do usuário.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-rose-500 font-mono truncate">/marketplace/my-ads</span>
+                        <a href="/marketplace/my-ads" target="_blank" class="text-xs font-medium bg-rose-500 hover:bg-rose-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Propostas</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/marketplace/MarketplaceProposals.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Propostas recebidas/enviadas.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-rose-500 font-mono truncate">/marketplace/proposals</span>
+                        <a href="/marketplace/proposals" target="_blank" class="text-xs font-medium bg-rose-500 hover:bg-rose-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Inspeção</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/marketplace/Inspection.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Fluxo de inspeção.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-rose-500 font-mono truncate">/marketplace/inspection/:listingId</span>
+                        <a href="/marketplace/inspection/exemplo" target="_blank" class="text-xs font-medium bg-rose-500 hover:bg-rose-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Lista inspeções</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/marketplace/InspectionsList.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Histórico de inspeções.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-rose-500 font-mono truncate">/marketplace/inspections/:listingId</span>
+                        <a href="/marketplace/inspections/exemplo" target="_blank" class="text-xs font-medium bg-rose-500 hover:bg-rose-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold mb-6 text-cyan-500 border-cyan-500/20 border-b-2 pb-2">🏪 Lojista</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Hub</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/lojista/PortaldoLojista.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Portal do lojista.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-cyan-500 font-mono truncate">/lojista/hub</span>
+                        <a href="/lojista/hub" target="_blank" class="text-xs font-medium bg-cyan-500 hover:bg-cyan-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Oportunidades</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/lojista/Oportunidades.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Oportunidades de negócio.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-cyan-500 font-mono truncate">/lojista/oportunidades</span>
+                        <a href="/lojista/oportunidades" target="_blank" class="text-xs font-medium bg-cyan-500 hover:bg-cyan-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Estoque</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/lojista/MeuEstoque.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Estoque de veículos.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-cyan-500 font-mono truncate">/lojista/estoque</span>
+                        <a href="/lojista/estoque" target="_blank" class="text-xs font-medium bg-cyan-500 hover:bg-cyan-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Novo veículo</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/lojista/NovoVeiculo.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Cadastro de veículo no estoque.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-cyan-500 font-mono truncate">/lojista/estoque/novo</span>
+                        <a href="/lojista/estoque/novo" target="_blank" class="text-xs font-medium bg-cyan-500 hover:bg-cyan-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Veículo detalhe</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/lojista/VeiculoDetalhe.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Detalhe do veículo lojista.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-cyan-500 font-mono truncate">/lojista/veiculo/:id</span>
+                        <a href="/lojista/veiculo/exemplo" target="_blank" class="text-xs font-medium bg-cyan-500 hover:bg-cyan-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Analytics</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/lojista/Analytics.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Métricas do lojista.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-cyan-500 font-mono truncate">/lojista/analytics</span>
+                        <a href="/lojista/analytics" target="_blank" class="text-xs font-medium bg-cyan-500 hover:bg-cyan-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Assinatura</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/lojista/Assinatura.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Plano / assinatura lojista.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-cyan-500 font-mono truncate">/lojista/assinatura</span>
+                        <a href="/lojista/assinatura" target="_blank" class="text-xs font-medium bg-cyan-500 hover:bg-cyan-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Perfil</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/lojista/Perfil.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Perfil do lojista.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-cyan-500 font-mono truncate">/lojista/perfil</span>
+                        <a href="/lojista/perfil" target="_blank" class="text-xs font-medium bg-cyan-500 hover:bg-cyan-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Configurações</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/lojista/Configuracoes.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Configurações do portal.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-cyan-500 font-mono truncate">/lojista/configuracoes</span>
+                        <a href="/lojista/configuracoes" target="_blank" class="text-xs font-medium bg-cyan-500 hover:bg-cyan-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold mb-6 text-purple-500 border-purple-500/20 border-b-2 pb-2">❓ Ajuda — Gestão</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Gestão</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/gestao/Index.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Índice da ajuda de gestão.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/gestao</span>
+                        <a href="/ajuda/gestao" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Veículos</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/gestao/Veiculos.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Como gerenciar veículos.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/gestao/veiculos</span>
+                        <a href="/ajuda/gestao/veiculos" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Motoristas</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/gestao/Motoristas.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Como gerenciar motoristas.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/gestao/motoristas</span>
+                        <a href="/ajuda/gestao/motoristas" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Checklists</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/gestao/Checklists.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Como usar vistorias.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/gestao/checklists</span>
+                        <a href="/ajuda/gestao/checklists" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Pagamentos</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/gestao/Pagamentos.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Como lançar pagamentos.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/gestao/pagamentos</span>
+                        <a href="/ajuda/gestao/pagamentos" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Fin./Seguro</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/gestao/FinanciamentoSeguro.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Financiamento e seguro.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/gestao/financiamento-seguro</span>
+                        <a href="/ajuda/gestao/financiamento-seguro" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Manutenção</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/gestao/Manutencao.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Manutenções.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/gestao/manutencao</span>
+                        <a href="/ajuda/gestao/manutencao" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Lucratividade</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/gestao/Lucratividade.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Relatórios de lucro.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/gestao/lucratividade</span>
+                        <a href="/ajuda/gestao/lucratividade" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Alertas</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/gestao/Alertas.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Central de alertas.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/gestao/alertas</span>
+                        <a href="/ajuda/gestao/alertas" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Usuários</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/gestao/Usuarios.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Colaboradores.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/gestao/usuarios</span>
+                        <a href="/ajuda/gestao/usuarios" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Perfil</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/gestao/Perfil.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Perfil da conta.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/gestao/perfil</span>
+                        <a href="/ajuda/gestao/perfil" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold mb-6 text-purple-500 border-purple-500/20 border-b-2 pb-2">❓ Ajuda — Lojista</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Lojista</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/lojista/Index.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Índice ajuda lojista.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/lojista</span>
+                        <a href="/ajuda/lojista" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Hub</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/lojista/Hub.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Portal do lojista.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/lojista/hub</span>
+                        <a href="/ajuda/lojista/hub" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Oportunidades</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/lojista/Oportunidades.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Oportunidades.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/lojista/oportunidades</span>
+                        <a href="/ajuda/lojista/oportunidades" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Estoque</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/lojista/Estoque.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Estoque.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/lojista/estoque</span>
+                        <a href="/ajuda/lojista/estoque" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Novo veículo</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/lojista/NovoVeiculo.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Cadastro de veículo.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/lojista/novo-veiculo</span>
+                        <a href="/ajuda/lojista/novo-veiculo" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Veículo detalhe</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/lojista/VeiculoDetalhe.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Detalhe do veículo.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/lojista/veiculo-detalhe</span>
+                        <a href="/ajuda/lojista/veiculo-detalhe" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Analytics</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/lojista/Analytics.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Analytics lojista.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/lojista/analytics</span>
+                        <a href="/ajuda/lojista/analytics" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Assinatura</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/lojista/Assinatura.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Assinatura.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/lojista/assinatura</span>
+                        <a href="/ajuda/lojista/assinatura" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Perfil</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/lojista/Perfil.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Perfil lojista.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/lojista/perfil</span>
+                        <a href="/ajuda/lojista/perfil" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Configurações</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/lojista/Configuracoes.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Configurações.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/lojista/configuracoes</span>
+                        <a href="/ajuda/lojista/configuracoes" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold mb-6 text-purple-500 border-purple-500/20 border-b-2 pb-2">❓ Ajuda — Marketplace</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Marketplace</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/marketplace/Index.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Índice marketplace.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/marketplace</span>
+                        <a href="/ajuda/marketplace" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Home</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/marketplace/Home.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Home marketplace.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/marketplace/home</span>
+                        <a href="/ajuda/marketplace/home" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Buscar</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/marketplace/Buscar.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Busca.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/marketplace/buscar</span>
+                        <a href="/ajuda/marketplace/buscar" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Detalhes</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/marketplace/Detalhes.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Detalhe do anúncio.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/marketplace/detalhes</span>
+                        <a href="/ajuda/marketplace/detalhes" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Anunciar</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/marketplace/Anunciar.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Criar anúncio.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/marketplace/anunciar</span>
+                        <a href="/ajuda/marketplace/anunciar" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Favoritos</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/marketplace/Favoritos.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Favoritos.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/marketplace/favoritos</span>
+                        <a href="/ajuda/marketplace/favoritos" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Perfil</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/marketplace/Perfil.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Perfil marketplace.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/marketplace/perfil</span>
+                        <a href="/ajuda/marketplace/perfil" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Meus anúncios</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/marketplace/MeusAnuncios.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Meus anúncios.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/marketplace/meus-anuncios</span>
+                        <a href="/ajuda/marketplace/meus-anuncios" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Propostas</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/marketplace/Propostas.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Propostas.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/marketplace/propostas</span>
+                        <a href="/ajuda/marketplace/propostas" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Inspeção</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/marketplace/Inspecao.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Inspeção.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/marketplace/inspecao</span>
+                        <a href="/ajuda/marketplace/inspecao" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Lista inspeções</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/marketplace/ListaInspecoes.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Lista de inspeções.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/marketplace/lista-inspecoes</span>
+                        <a href="/ajuda/marketplace/lista-inspecoes" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold mb-6 text-purple-500 border-purple-500/20 border-b-2 pb-2">❓ Ajuda — Motorista / Mobile</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Motorista</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/motorista/Index.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Índice ajuda mobile/motorista.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/motorista</span>
+                        <a href="/ajuda/motorista" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Início</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/motorista/Inicio.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Home mobile.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/motorista/inicio</span>
+                        <a href="/ajuda/motorista/inicio" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Checklists</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/motorista/Checklists.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Checklists mobile.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/motorista/checklists</span>
+                        <a href="/ajuda/motorista/checklists" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Frota</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/motorista/Frota.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Frota mobile.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/motorista/frota</span>
+                        <a href="/ajuda/motorista/frota" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Motoristas</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/motorista/Motoristas.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Lista de motoristas.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/motorista/motoristas</span>
+                        <a href="/ajuda/motorista/motoristas" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Pagamentos</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/motorista/Pagamentos.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Pagamentos mobile.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/motorista/pagamentos</span>
+                        <a href="/ajuda/motorista/pagamentos" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Aluguéis</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/motorista/Alugueis.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Aluguéis.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/motorista/alugueis</span>
+                        <a href="/ajuda/motorista/alugueis" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Manutenção</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/motorista/Manutencao.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Manutenção mobile.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/motorista/manutencao</span>
+                        <a href="/ajuda/motorista/manutencao" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Alertas</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/motorista/Alertas.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Alertas mobile.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/motorista/alertas</span>
+                        <a href="/ajuda/motorista/alertas" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col">
+                    <h3 class="font-bold text-lg">Ajuda Perfil</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">src/pages/ajuda/motorista/Perfil.tsx</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex-1">Perfil mobile.</p>
+                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <span class="text-xs text-purple-500 font-mono truncate">/ajuda/motorista/perfil</span>
+                        <a href="/ajuda/motorista/perfil" target="_blank" class="text-xs font-medium bg-purple-500 hover:bg-purple-500/80 text-white px-3 py-1.5 rounded-lg transition-colors shrink-0">Abrir Rota →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="mt-12 mb-8 text-center text-xs text-slate-500 dark:text-slate-500">
+            Painel DEV exige <code>VITE_ENABLE_DEV_PANEL=true</code> ou <code>import.meta.env.DEV</code> · /dev/webhooks só em DEV · MobileRedirectHandler: /dashboard → /mobile/home em viewport mobile · Removido: /teste-checkout
+        </footer>
+    </div>
+    <script>
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.grid > div');
+            cards.forEach(card => {
+                const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
+                const path = card.querySelector('.font-mono')?.textContent.toLowerCase() || '';
+                const routeEl = card.querySelector('.border-t [class*="font-mono"]');
+                const route = routeEl ? routeEl.textContent.toLowerCase() : '';
+                card.style.display = (title.includes(term) || path.includes(term) || route.includes(term)) ? '' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,337 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+/* DashiDrive — Design System (Neumorphism, Zinc & Black) */
+
+@layer base {
+  :root {
+    /* Surface tones (warm zinc) */
+    --background: 240 6% 86%;
+    --foreground: 240 6% 12%;
+
+    --card: 240 6% 94%;
+    --card-foreground: 240 6% 12%;
+
+    --popover: 240 6% 96%;
+    --popover-foreground: 240 6% 12%;
+
+    --primary: 240 6% 10%;
+    --primary-foreground: 240 6% 96%;
+
+    --secondary: 240 5% 88%;
+    --secondary-foreground: 240 6% 14%;
+
+    --muted: 240 5% 90%;
+    --muted-foreground: 240 4% 40%;
+
+    --accent: 38 92% 52%;
+    --accent-foreground: 240 6% 10%;
+
+    --success: 152 60% 38%;
+    --warning: 38 92% 52%;
+    --danger: 358 72% 52%;
+
+    --destructive: 358 72% 52%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 6% 84%;
+    --input: 240 6% 86%;
+    --ring: 240 6% 20%;
+
+    --radius: 1.25rem;
+
+    /* Neumorphism shadows (light) */
+    --neu-light: 255 255 255;
+    --neu-dark: 163 167 175;
+    --shadow-neu: 8px 8px 20px rgba(var(--neu-dark), .55), -8px -8px 20px rgba(var(--neu-light), .9);
+    --shadow-neu-sm: 4px 4px 10px rgba(var(--neu-dark), .45), -4px -4px 10px rgba(var(--neu-light), .85);
+    --shadow-neu-inset: inset 5px 5px 12px rgba(var(--neu-dark), .45), inset -5px -5px 12px rgba(var(--neu-light), .85);
+    --shadow-neu-press: inset 3px 3px 8px rgba(var(--neu-dark), .55), inset -3px -3px 8px rgba(var(--neu-light), .9);
+
+    --gradient-surface: linear-gradient(145deg, hsl(240 6% 95%), hsl(240 6% 89%));
+    --gradient-dark: linear-gradient(145deg, hsl(240 8% 14%), hsl(240 6% 8%));
+    --gradient-accent: linear-gradient(135deg, hsl(38 95% 58%), hsl(28 92% 48%));
+
+    --sidebar-background: 240 6% 92%;
+    --sidebar-foreground: 240 6% 18%;
+    --sidebar-primary: 240 6% 10%;
+    --sidebar-primary-foreground: 240 6% 96%;
+    --sidebar-accent: 240 6% 88%;
+    --sidebar-accent-foreground: 240 6% 14%;
+    --sidebar-border: 240 6% 84%;
+    --sidebar-ring: 240 6% 20%;
+  }
+
+  .dark {
+    /* Base Colors from Dark Mode Implementation Plan */
+    --background: 0 0% 0%; /* Black #000000 */
+    --foreground: 0 0% 98%; /* Marble #FBFBFB */
+    
+    --card: 0 0% 4%; /* Dark Secondary #0A0A0A approx */
+    --card-foreground: 0 0% 98%; /* Marble */
+    
+    --popover: 0 0% 7%; /* Dark Elevated #121212 approx */
+    --popover-foreground: 0 0% 98%;
+    
+    --primary: 38 100% 65%; /* Yellow #FFBD4C */
+    --primary-foreground: 0 0% 0%; /* Black text on yellow button */
+    
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 98%;
+    
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 63%; /* Text Muted #A0A0A0 approx */
+    
+    --accent: 38 100% 65%; /* Yellow for accents */
+    --accent-foreground: 0 0% 0%;
+
+    --border: 0 0% 16%; /* Border Default #2A2A2A approx */
+    --input: 0 0% 16%;
+    --ring: 38 100% 65%;
+
+    --success: 142 71% 45%; /* Success #4ADE80 */
+    --warning: 38 100% 65%; /* Warning #FFBD4C */
+    --danger: 0 100% 71%; /* Error #FF6B6B */
+
+    /* Neumorphism shadows (dark) - Adjusted for pure black background */
+    --neu-light: 30 30 35;
+    --neu-dark: 0 0 0;
+    --shadow-neu: 8px 8px 20px rgba(var(--neu-dark), .8), -8px -8px 20px rgba(var(--neu-light), .1);
+    --shadow-neu-sm: 4px 4px 10px rgba(var(--neu-dark), .7), -4px -4px 10px rgba(var(--neu-light), .1);
+    --shadow-neu-inset: inset 5px 5px 12px rgba(var(--neu-dark), .8), inset -5px -5px 12px rgba(var(--neu-light), .1);
+    --shadow-neu-press: inset 3px 3px 8px rgba(var(--neu-dark), .85), inset -3px -3px 8px rgba(var(--neu-light), .1);
+
+    --gradient-surface: linear-gradient(145deg, hsl(0 0% 5%), hsl(0 0% 2%));
+    --gradient-sunset: linear-gradient(135deg, #F16A69 0%, #FFBD4C 100%);
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  
+  /* Safe area support for mobile devices (notch, home indicator) */
+  html {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+    /* Prevent text size adjustment on mobile */
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Smooth scrolling on mobile */
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  .neu {
+    background: var(--gradient-surface);
+    box-shadow: var(--shadow-neu);
+    border-radius: var(--radius);
+  }
+  .neu-sm {
+    background: var(--gradient-surface);
+    box-shadow: var(--shadow-neu-sm);
+    border-radius: calc(var(--radius) - 0.5rem);
+  }
+  .neu-inset {
+    background: var(--gradient-surface);
+    box-shadow: var(--shadow-neu-inset);
+    border-radius: var(--radius);
+  }
+  .neu-press {
+    box-shadow: var(--shadow-neu-press);
+  }
+  .neu-interactive {
+    background: var(--gradient-surface);
+    box-shadow: var(--shadow-neu-sm);
+    border-radius: calc(var(--radius) - 0.5rem);
+    transition: all .25s ease;
+  }
+  .neu-interactive:hover {
+    box-shadow: var(--shadow-neu);
+    transform: translateY(-1px);
+  }
+  .neu-interactive:active {
+    box-shadow: var(--shadow-neu-press);
+    transform: translateY(0);
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full;
+    background: var(--gradient-surface);
+    box-shadow: var(--shadow-neu-sm);
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+
+  /* Safe area utilities for mobile */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-area-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-area-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .pt-safe { padding-top: env(safe-area-inset-top); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+  .mt-safe { margin-top: env(safe-area-inset-top); }
+  .mb-safe { margin-bottom: env(safe-area-inset-bottom); }
+
+  /* Neumorphism variations */
+  .shadow-neu-lg {
+    box-shadow: 12px 12px 24px rgba(var(--neu-dark), .6), -12px -12px 24px rgba(var(--neu-light), .95);
+  }
+  .shadow-neu-accent {
+    box-shadow: 6px 6px 15px rgba(241, 106, 105, 0.4), -6px -6px 15px rgba(255, 189, 76, 0.2);
+  }
+
+  /* Custom Scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollbar-thumb-primary::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--primary));
+    border-radius: 9999px;
+  }
+  
+  .scrollbar-thumb-blue::-webkit-scrollbar-thumb {
+    @apply bg-blue-500 rounded-full;
+  }
+  
+  .scrollbar-thumb-blue {
+    scrollbar-color: #3b82f6 transparent;
+  }
+  
+  .scrollbar-thumb-blue::-webkit-scrollbar-thumb:hover {
+    @apply bg-blue-600;
+  }
+  
+  .scrollbar-thumb-primary:hover::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--primary) / 0.8);
+  }
+  
+  .scrollbar-track-transparent::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+/* Hide Lovable.dev branding and badges */
+a[href*="lovable.dev"],
+iframe[src*="lovable.dev"],
+div[style*="Edit with Lovable"],
+.lovable-badge {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  z-index: -9999 !important;
+}
+
+  /* Touch-friendly utilities */
+  .touch-target {
+    min-width: 48px;
+    min-height: 48px;
+  }
+  
+  .touch-target-lg {
+    min-width: 56px;
+    min-height: 56px;
+  }
+
+  /* Animations */
+  @keyframes blur-in {
+    from { opacity: 0; filter: blur(12px); transform: translateY(8px); }
+    to { opacity: 1; filter: blur(0); transform: translateY(0); }
+  }
+  @keyframes zoom-in {
+    from { opacity: 0; transform: scale(.94); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .55; }
+  }
+  .animate-blur-in { animation: blur-in .7s cubic-bezier(.2,.7,.2,1) both; }
+  .animate-zoom-in { animation: zoom-in .25s cubic-bezier(.2,.7,.2,1) both; }
+  .animate-pulse-soft { animation: pulse-soft 2.4s ease-in-out infinite; }
+
+  @keyframes bounce-subtle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  .animate-bounce-subtle { animation: bounce-subtle 2s ease-in-out infinite; }
+
+  @keyframes scroll-left {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @keyframes scroll-right {
+    from { transform: translateX(-50%); }
+    to { transform: translateX(0); }
+  }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes line-grow {
+    from { height: 0; }
+    to { height: 100%; }
+  }
+
+  .animate-slide-up { animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .animate-line-grow { animation: line-grow 1s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  .animate-scroll-left {
+    animation: scroll-left 30s linear infinite;
+  }
+
+  .animate-scroll-right {
+    animation: scroll-right 30s linear infinite;
+  }
+
+  .delay-75 { animation-delay: 75ms; }
+  .delay-150 { animation-delay: 150ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-500 { animation-delay: 500ms; }
+}
+
+/* Ocultar badges e elementos do Lovable */
+a[href*="lovable.dev"],
+iframe[src*="lovable.dev"],
+div[style*="Edit with Lovable"],
+.lovable-badge {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  z-index: -9999 !important;
+}
