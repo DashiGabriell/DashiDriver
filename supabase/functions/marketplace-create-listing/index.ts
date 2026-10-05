@@ -65,6 +65,8 @@ serve(async (req) => {
       });
     }
 
+    // TODO(marketplace): o schema é passthrough e não há checagem do limite do plano aqui.
+    // Ver planejamento/MARKETPLACE-ESTADO-ATUAL.md, itens 3.3 e 3.9.
     const { data, error } = await supabase
       .from("marketplace_listings")
       .insert({

@@ -4,20 +4,21 @@ import { useCarcontrolUser } from "@/hooks/useCarcontrolUser";
 
 const BemVindo = () => {
   const navigate = useNavigate();
-  const { company, userRole, loading } = useCarcontrolUser();
+  const { profile, company, loading } = useCarcontrolUser();
+  const plan = (profile as { plan?: string | null } | null)?.plan;
 
   useEffect(() => {
     if (!loading) {
-      // Se não tiver empresa, vai para o funil de cadastro
-      if (!company) {
-        navigate("/mobile/onboarding-cadastro", { replace: true });
-      } else if (userRole === 'admin') {
-        navigate("/dashboard", { replace: true });
+      if (!company && plan === "motorista") {
+        // Motorista não cria empresa; o cadastro dele termina no funil
+        navigate("/marketplace/home", { replace: true });
+      } else if (!company) {
+        navigate("/onboarding-cadastro", { replace: true });
       } else {
-        navigate("/mobile/home", { replace: true });
+        navigate("/dashboard", { replace: true });
       }
     }
-  }, [company, userRole, loading, navigate]);
+  }, [company, plan, loading, navigate]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background">

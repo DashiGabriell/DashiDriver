@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { PLAN_CATALOG } from "@/lib/billing/plans";
 
 const AnimatedBanner = ({ text, direction, bgColor }: { text: string; direction: "left" | "right"; bgColor: string }) => {
   return (
@@ -19,15 +20,15 @@ const AnimatedBanner = ({ text, direction, bgColor }: { text: string; direction:
 };
 
 const gestaoPlans = [
-  { name: "Básico", slug: "gestao-basico", price: 199, desc: "5 veículos, 10 motoristas, 1 usuário" },
-  { name: "Pro", slug: "gestao-pro", price: 399, desc: "20 veículos, 40 motoristas, 3 usuários" },
-  { name: "Master", slug: "gestao-master", price: 799, desc: "100 veículos, 200 motoristas, 200 usuários" },
+  { name: "Básico", slug: "gestao-basico", price: PLAN_CATALOG["gestao-basico"].price, desc: "5 veículos, 10 motoristas, 1 usuário" },
+  { name: "Pro", slug: "gestao-pro", price: PLAN_CATALOG["gestao-pro"].price, desc: "20 veículos, 40 motoristas, 3 usuários" },
+  { name: "Master", slug: "gestao-master", price: PLAN_CATALOG["gestao-master"].price, desc: "100 veículos, 200 motoristas, 200 usuários" },
 ];
 
 const mktPlans = [
-  { name: "Free", slug: "marketplace-free", price: 0, desc: "1 anúncio ativo, perfil básico" },
-  { name: "Pro", slug: "marketplace-pro", price: 119, desc: "10 anúncios, métricas, selo verificado" },
-  { name: "Elite", slug: "marketplace-elite", price: 299, desc: "25 anúncios, destaque, prioridade na busca" },
+  { name: "Free", slug: "marketplace-free", price: PLAN_CATALOG["marketplace-free"].price, desc: "1 anúncio ativo, perfil básico" },
+  { name: "Pro", slug: "marketplace-pro", price: PLAN_CATALOG["marketplace-pro"].price, desc: "10 anúncios, métricas, selo verificado" },
+  { name: "Elite", slug: "marketplace-elite", price: PLAN_CATALOG["marketplace-elite"].price, desc: "25 anúncios, destaque, prioridade na busca" },
 ];
 
 const PlanCard = ({ name, price, desc, slug }: { name: string; price: number; desc: string; slug: string }) => {

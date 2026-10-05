@@ -1,9 +1,14 @@
 import { useState, useRef } from "react";
-import { Upload, X, Image as ImageIcon, Loader2, AlertTriangle } from "lucide-react";
+import { Upload, X, Image as ImageIcon, Loader2, AlertTriangle, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import {
+  CHECKLIST_IMAGE_ACCEPT,
+  isSupportedImageFile,
+  normalizeChecklistImage,
+} from "@/lib/checklist/imageProcessor";
 
 interface ChecklistImageUploadProps {
   onImageSelected: (file: File, km?: number, observation?: string) => void;
@@ -26,19 +31,33 @@ export function ChecklistImageUpload({
   const [kmValue, setKmValue] = useState<string>("");
   const [showKmCorrection, setShowKmCorrection] = useState(false);
   const [correctionReason, setCorrectionReason] = useState("");
+  const [isConverting, setIsConverting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const isPainel = stepKey === "painel";
 
-  const handleFileSelect = (file: File) => {
-    if (!file.type.startsWith("image/")) {
+  const handleFileSelect = async (originalFile: File) => {
+    if (!isSupportedImageFile(originalFile)) {
       toast.error("Por favor, selecione uma imagem válida");
       return;
     }
 
     const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
+    if (originalFile.size > maxSize) {
       toast.error("Imagem muito grande. Máximo 10MB");
       return;
+    }
+
+    let file: File;
+    setIsConverting(true);
+    try {
+      file = await normalizeChecklistImage(originalFile);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível ler esta imagem");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    } finally {
+      setIsConverting(false);
     }
 
     const reader = new FileReader();
@@ -77,6 +96,7 @@ export function ChecklistImageUpload({
     setShowKmCorrection(false);
     setCorrectionReason("");
     if (fileInputRef.current) fileInputRef.current.value = "";
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -105,18 +125,23 @@ export function ChecklistImageUpload({
           preview
             ? "border-primary bg-primary/5"
             : "border-border hover:border-primary/50 hover:bg-primary/2"
-        } ${disabled || isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+        } ${disabled || isLoading || isConverting ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
       >
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept={CHECKLIST_IMAGE_ACCEPT}
           onChange={handleInputChange}
-          disabled={disabled || isLoading}
+          disabled={disabled || isLoading || isConverting}
           className="absolute inset-0 opacity-0 cursor-pointer"
         />
 
-        {preview ? (
+        {isConverting ? (
+          <div className="flex flex-col items-center justify-center gap-3">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Preparando imagem...</p>
+          </div>
+        ) : preview ? (
           <div className="flex flex-col items-center justify-center gap-4">
             <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-border">
               <img src={preview} alt="Preview" className="w-full h-full object-cover" />
@@ -150,10 +175,34 @@ export function ChecklistImageUpload({
                 Arraste e solte ou clique para selecionar
               </p>
             </div>
-            <p className="text-xs text-muted-foreground">Formatos: JPG, PNG, WebP • Máximo: 10MB</p>
+            <p className="text-xs text-muted-foreground">Formatos: JPG, PNG, WebP, HEIC • Máximo: 10MB</p>
           </div>
         )}
       </div>
+
+      {!preview && !isConverting && (
+        <>
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept={CHECKLIST_IMAGE_ACCEPT}
+            capture="environment"
+            onChange={handleInputChange}
+            disabled={disabled || isLoading}
+            className="hidden"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full gap-2 md:hidden"
+            onClick={() => cameraInputRef.current?.click()}
+            disabled={disabled || isLoading}
+          >
+            <Camera className="w-4 h-4" />
+            Tirar foto
+          </Button>
+        </>
+      )}
 
       {preview && (
         <div className="space-y-3">

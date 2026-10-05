@@ -33,7 +33,7 @@ export const processPaymentSchema = z
   .object({
     plan: z.string().min(1, "Plano obrigatorio"),
     planType: z.enum(["gestao", "marketplace"]).optional(),
-    amount: z.number().finite().nonnegative("Valor invalido"),
+    amount: z.number().finite().nonnegative("Valor invalido").optional(),
     billingType: z.enum(["CREDIT_CARD", "BOLETO", "PIX"]).optional(),
     coupon_code: z.string().trim().min(1).max(64).optional().nullable(),
     validate_only: z.boolean().optional(),

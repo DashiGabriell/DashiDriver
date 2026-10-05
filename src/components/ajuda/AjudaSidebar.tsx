@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   BookOpen,
-  Store,
   ShoppingBag,
   Users,
   Car,
@@ -18,27 +17,20 @@ import {
   ChevronLeft,
   ChevronRight,
   LayoutDashboard,
-  Target,
   Package,
   PlusCircle,
   FileText,
-  BarChart3,
-  Settings,
   Search,
   Heart,
   MessageCircle,
   ListChecks,
-  CalendarCheck,
-  Truck,
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { useCarcontrolUser } from "@/hooks/useCarcontrolUser";
 
 const modules = [
   { name: "Gestão", path: "/ajuda/gestao", icon: BookOpen },
-  { name: "Lojista", path: "/ajuda/lojista", icon: Store },
   { name: "Marketplace", path: "/ajuda/marketplace", icon: ShoppingBag },
-  { name: "Motorista", path: "/ajuda/motorista", icon: Users },
 ];
 
 const toolsPorModulo: Record<string, { name: string; path: string; icon: React.ElementType }[]> = {
@@ -54,17 +46,6 @@ const toolsPorModulo: Record<string, { name: string; path: string; icon: React.E
     { name: "Usuários", path: "/ajuda/gestao/usuarios", icon: UserCog },
     { name: "Perfil", path: "/ajuda/gestao/perfil", icon: User },
   ],
-  lojista: [
-    { name: "Portal do Lojista", path: "/ajuda/lojista/hub", icon: LayoutDashboard },
-    { name: "Oportunidades", path: "/ajuda/lojista/oportunidades", icon: Target },
-    { name: "Meu Estoque", path: "/ajuda/lojista/estoque", icon: Package },
-    { name: "Novo Veículo", path: "/ajuda/lojista/novo-veiculo", icon: PlusCircle },
-    { name: "Veículo Detalhe", path: "/ajuda/lojista/veiculo-detalhe", icon: FileText },
-    { name: "Analytics", path: "/ajuda/lojista/analytics", icon: BarChart3 },
-    { name: "Assinatura", path: "/ajuda/lojista/assinatura", icon: CreditCard },
-    { name: "Perfil", path: "/ajuda/lojista/perfil", icon: User },
-    { name: "Configurações", path: "/ajuda/lojista/configuracoes", icon: Settings },
-  ],
   marketplace: [
     { name: "Início", path: "/ajuda/marketplace/home", icon: LayoutDashboard },
     { name: "Buscar", path: "/ajuda/marketplace/buscar", icon: Search },
@@ -76,17 +57,6 @@ const toolsPorModulo: Record<string, { name: string; path: string; icon: React.E
     { name: "Propostas", path: "/ajuda/marketplace/propostas", icon: MessageCircle },
     { name: "Inspeção", path: "/ajuda/marketplace/inspecao", icon: ClipboardCheck },
     { name: "Lista de Inspeções", path: "/ajuda/marketplace/lista-inspecoes", icon: ListChecks },
-  ],
-  motorista: [
-    { name: "Início", path: "/ajuda/motorista/inicio", icon: LayoutDashboard },
-    { name: "Checklists", path: "/ajuda/motorista/checklists", icon: ClipboardCheck },
-    { name: "Frota", path: "/ajuda/motorista/frota", icon: Truck },
-    { name: "Motoristas", path: "/ajuda/motorista/motoristas", icon: Users },
-    { name: "Pagamentos", path: "/ajuda/motorista/pagamentos", icon: Wallet },
-    { name: "Aluguéis", path: "/ajuda/motorista/alugueis", icon: CalendarCheck },
-    { name: "Manutenção", path: "/ajuda/motorista/manutencao", icon: Wrench },
-    { name: "Alertas", path: "/ajuda/motorista/alertas", icon: Bell },
-    { name: "Perfil", path: "/ajuda/motorista/perfil", icon: User },
   ],
 };
 
@@ -104,12 +74,8 @@ export function AjudaSidebar() {
         switch (mod.name) {
           case "Gestão":
             return !!company?.saas_plan;
-          case "Lojista":
-            return false;
           case "Marketplace":
             return !!company?.mkt_plan;
-          case "Motorista":
-            return true;
           default:
             return true;
         }

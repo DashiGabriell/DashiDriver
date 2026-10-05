@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Heart, Share2, Star, ShieldCheck, MessageCircle, ChevronRight, Info, BadgeCheck, Loader2, X, ChevronLeft, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useHaptics } from "@/hooks/mobile/useHaptics";
+import { useHaptics } from "@/hooks/useHaptics";
 import { getMarketplaceProduct, checkWishlist, toggleWishlist, incrementWhatsappClick } from "@/integrations/supabase/services/marketplaceService";
 import { useAuth } from "@/integrations/supabase/auth";
 import { toast } from "sonner";

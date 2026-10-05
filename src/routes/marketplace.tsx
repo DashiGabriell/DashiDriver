@@ -14,8 +14,12 @@ const MarketplaceMyAds = lazy(() => import("@/pages/marketplace/MarketplaceMyAds
 const MarketplaceProposals = lazy(() => import("@/pages/marketplace/MarketplaceProposals"));
 const InspectionPage = lazy(() => import("@/pages/marketplace/Inspection"));
 const InspectionsListPage = lazy(() => import("@/pages/marketplace/InspectionsList"));
-const Mobile404NotFound = lazy(() => import("@/pages/mobile/Mobile404NotFound"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
 
+/**
+ * Marketplace: módulo em pausa, mantido para retomada futura.
+ * Estado atual, lacunas e ordem de retomada: planejamento/MARKETPLACE-ESTADO-ATUAL.md
+ */
 export const marketplaceRoutes = (
   <Route
     path="/marketplace"
@@ -37,6 +41,6 @@ export const marketplaceRoutes = (
     <Route path="proposals" element={<MarketplaceProposals />} />
     <Route path="inspection/:listingId" element={<InspectionPage />} />
     <Route path="inspections/:listingId" element={<InspectionsListPage />} />
-    <Route path="*" element={<Mobile404NotFound />} />
+    <Route path="*" element={<NotFound />} />
   </Route>
 );

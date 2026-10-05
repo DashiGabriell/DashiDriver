@@ -14,7 +14,7 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ children, requireCompany = true }: ProtectedRouteProps) => {
   const { session, loading: authLoading } = useAuth();
   const { hasCompany, isLoading: companyLoading } = useHasCompany();
-  const { isLoading: profileLoading } = useProfile();
+  const { data: profile, isLoading: profileLoading } = useProfile();
   const { data: access, isLoading: accessLoading } = useAccessControl();
   const location = useLocation();
 
@@ -35,15 +35,17 @@ export const ProtectedRoute = ({ children, requireCompany = true }: ProtectedRou
   const isExcludedPath =
     location.pathname === "/bem-vindo" ||
     location.pathname === "/onboarding" ||
-    location.pathname.startsWith("/mobile/onboarding-cadastro") ||
+    location.pathname.startsWith("/onboarding-cadastro") ||
     location.pathname.startsWith("/checkout") ||
     location.pathname.startsWith("/marketplace") ||
-    location.pathname === "/mobile/trial-expirado" ||
-    location.pathname === "/mobile/pagamento-pendente" ||
+    location.pathname === "/trial-expirado" ||
+    location.pathname === "/pagamento-pendente" ||
     location.pathname.startsWith("/ajuda");
 
   if (requireCompany && !hasCompany && !isExcludedPath) {
-    return <Navigate to="/mobile/onboarding-cadastro" replace />;
+    // Motorista já concluiu o cadastro sem empresa; mandá-lo ao funil cria um loop
+    const target = profile?.plan === "motorista" ? "/marketplace/home" : "/onboarding-cadastro";
+    return <Navigate to={target} replace />;
   }
 
   // Se tem empresa e está no onboarding, redireciona para dashboard (sem exigir access check)
@@ -53,9 +55,9 @@ export const ProtectedRoute = ({ children, requireCompany = true }: ProtectedRou
 
   if (!isExcludedPath && access && !access.authorized) {
     if (access.authorizationReason === "payment_pending") {
-      return <Navigate to="/mobile/pagamento-pendente" replace />;
+      return <Navigate to="/pagamento-pendente" replace />;
     }
-    return <Navigate to="/mobile/trial-expirado" replace />;
+    return <Navigate to="/trial-expirado" replace />;
   }
 
   return (

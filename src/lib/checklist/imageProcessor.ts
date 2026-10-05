@@ -10,6 +10,64 @@ export interface ImageMetadata {
   timestamp: string;
 }
 
+/** Tipos aceitos pelo bucket `checklists` (allowed_mime_types no Supabase Storage) */
+const BUCKET_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+export const CHECKLIST_IMAGE_ACCEPT = 'image/*,.heic,.heif';
+
+export function isHeicFile(file: File): boolean {
+  return /^image\/hei[cf](-sequence)?$/i.test(file.type) || /\.hei[cf]$/i.test(file.name);
+}
+
+export function isSupportedImageFile(file: File): boolean {
+  return file.type.startsWith('image/') || isHeicFile(file);
+}
+
+async function reencodeAsJpeg(blob: Blob): Promise<Blob> {
+  const bitmap = await createImageBitmap(blob);
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Falha ao obter contexto 2D do canvas');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bitmap, 0, 0);
+    return await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (result) => (result ? resolve(result) : reject(new Error('Falha ao converter imagem'))),
+        'image/jpeg',
+        0.9,
+      );
+    });
+  } finally {
+    bitmap.close();
+  }
+}
+
+/**
+ * Garante que a imagem esteja em um formato aceito pelo bucket (JPEG, PNG ou WebP).
+ * Outros formatos (HEIC do iPhone, AVIF, GIF, BMP...) são convertidos para JPEG.
+ */
+export async function normalizeChecklistImage(file: File): Promise<File> {
+  if (BUCKET_ALLOWED_TYPES.includes(file.type)) return file;
+
+  let jpeg: Blob;
+  try {
+    jpeg = await reencodeAsJpeg(file);
+  } catch {
+    if (!isHeicFile(file)) {
+      throw new Error('Formato de imagem não suportado. Use JPG, PNG, WebP ou HEIC.');
+    }
+    const { heicTo } = await import('heic-to');
+    jpeg = await heicTo({ blob: file, type: 'image/jpeg', quality: 0.9 });
+  }
+
+  const baseName = file.name.replace(/\.[^/.]+$/, '') || 'foto';
+  return new File([jpeg], `${baseName}.jpg`, { type: 'image/jpeg', lastModified: file.lastModified });
+}
+
 /**
  * Comprime e redimensiona uma imagem, convertendo para WebP
  */

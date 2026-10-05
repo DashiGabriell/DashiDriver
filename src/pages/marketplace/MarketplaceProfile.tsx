@@ -18,7 +18,10 @@ import { toast } from "sonner";
 const MarketplaceProfile = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { profile, company, userRole } = useCarcontrolUser();
+  const { profile, company, userRole, refreshProfile } = useCarcontrolUser();
+  // carcontrol_profiles não tem coluna própria para WhatsApp
+  const profilePreferencias = ((profile as { preferencias?: unknown } | null)?.preferencias ?? {}) as Record<string, unknown>;
+  const driverWhatsapp = typeof profilePreferencias.whatsapp === "string" ? profilePreferencias.whatsapp : "";
   const queryClient = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
 
@@ -75,7 +78,7 @@ const MarketplaceProfile = () => {
       setForm((prev) => ({
         ...prev,
         display_name: (profile as any)?.full_name || profile?.nome || user?.user_metadata?.full_name || "",
-        whatsapp: (profile as any)?.whatsapp || "",
+        whatsapp: driverWhatsapp,
       }));
       return;
     }
@@ -100,15 +103,21 @@ const MarketplaceProfile = () => {
         company_address: company.endereco || "",
       }));
     }
-  }, [isDriver, sellerProfile, company, profile, user]);
+  }, [isDriver, sellerProfile, company, profile, user, driverWhatsapp]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (isDriver) {
-        await (supabase as any)
+        const { error } = await (supabase as any)
           .from("carcontrol_profiles")
-          .update({ full_name: form.display_name || undefined, whatsapp: form.whatsapp || null, updated_at: new Date().toISOString() })
+          .update({
+            full_name: form.display_name || undefined,
+            preferencias: { ...profilePreferencias, whatsapp: form.whatsapp || null },
+            updated_at: new Date().toISOString(),
+          })
           .eq("id", user!.id);
+        if (error) throw error;
+        await refreshProfile();
         return;
       }
       if (company?.id) {
@@ -210,6 +219,7 @@ const MarketplaceProfile = () => {
               <div className="rounded-[2.5rem] bg-card border border-white/5 shadow-neu overflow-hidden">
                 {[
                   { label: "Minhas Propostas", iconSrc: "/assets/whatsapp.png", path: "/marketplace/proposals" },
+                  // TODO(marketplace): rota real é /marketplace/wishlist (MARKETPLACE-ESTADO-ATUAL.md, item 3.5).
                   { label: "Meus Favoritos", iconSrc: "/assets/favoritos.png", path: "/marketplace/favorites" },
                   { label: "Editar Perfil", iconSrc: "/assets/configuracoes.png", action: () => setEditOpen(true) },
                 ].map((item, i) => (

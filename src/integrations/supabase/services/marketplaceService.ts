@@ -377,6 +377,8 @@ export async function createMarketplaceListing(input: {
   const userId = userData.user?.id;
   if (!userId) throw new Error("Usuario nao autenticado.");
 
+  // TODO(marketplace): limite checado só no cliente e campos do veículo (marca, garagem etc.) não são enviados.
+  // Ver planejamento/MARKETPLACE-ESTADO-ATUAL.md, itens 3.3 e 3.4.
   const planCheck = await checkPlanLimit(input.companyId);
   if (!planCheck.allowed) {
     throw new Error(
@@ -524,6 +526,7 @@ export async function listWishlist(userId: string) {
   }));
 }
 
+// TODO(marketplace): nenhuma tela chama esta função ainda (ver MARKETPLACE-ESTADO-ATUAL.md, item 3.1).
 export async function createProposal(input: {
   listingId: string;
   buyerName?: string;

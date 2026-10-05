@@ -39,13 +39,30 @@ describe("ProtectedRoute", () => {
       <MemoryRouter initialEntries={["/dashboard"]}>
         <Routes>
           <Route path="/dashboard" element={<ProtectedRoute><div>Dashboard</div></ProtectedRoute>} />
-          <Route path="/mobile/onboarding-cadastro" element={<div>Onboarding Cadastro</div>} />
-          <Route path="/mobile/trial-expirado" element={<div>Trial Expirado</div>} />
+          <Route path="/onboarding-cadastro" element={<div>Onboarding Cadastro</div>} />
+          <Route path="/trial-expirado" element={<div>Trial Expirado</div>} />
         </Routes>
       </MemoryRouter>
     );
 
     expect(screen.getByText("Onboarding Cadastro")).toBeInTheDocument();
+  });
+
+  it("envia motorista sem empresa para o marketplace em vez de reabrir o funil", () => {
+    vi.mocked(useHasCompany).mockReturnValue({ hasCompany: false, isLoading: false } as any);
+    vi.mocked(useProfile).mockReturnValue({ data: { id: "1", role: "user", plan: "motorista" }, isLoading: false } as any);
+
+    render(
+      <MemoryRouter initialEntries={["/dashboard"]}>
+        <Routes>
+          <Route path="/dashboard" element={<ProtectedRoute><div>Dashboard</div></ProtectedRoute>} />
+          <Route path="/marketplace/home" element={<div>Marketplace Home</div>} />
+          <Route path="/onboarding-cadastro" element={<div>Onboarding Cadastro</div>} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("Marketplace Home")).toBeInTheDocument();
   });
 
   it("bloqueia rota protegida quando usuario tem empresa sem trial nem plano ativo", () => {
@@ -59,7 +76,7 @@ describe("ProtectedRoute", () => {
       <MemoryRouter initialEntries={["/dashboard"]}>
         <Routes>
           <Route path="/dashboard" element={<ProtectedRoute><div>Dashboard</div></ProtectedRoute>} />
-          <Route path="/mobile/trial-expirado" element={<div>Trial Expirado</div>} />
+          <Route path="/trial-expirado" element={<div>Trial Expirado</div>} />
         </Routes>
       </MemoryRouter>
     );
@@ -78,8 +95,8 @@ describe("ProtectedRoute", () => {
       <MemoryRouter initialEntries={["/dashboard"]}>
         <Routes>
           <Route path="/dashboard" element={<ProtectedRoute><div>Dashboard</div></ProtectedRoute>} />
-          <Route path="/mobile/pagamento-pendente" element={<div>Pagamento Pendente</div>} />
-          <Route path="/mobile/trial-expirado" element={<div>Trial Expirado</div>} />
+          <Route path="/pagamento-pendente" element={<div>Pagamento Pendente</div>} />
+          <Route path="/trial-expirado" element={<div>Trial Expirado</div>} />
         </Routes>
       </MemoryRouter>
     );
@@ -98,7 +115,7 @@ describe("ProtectedRoute", () => {
       <MemoryRouter initialEntries={["/checkout/gestao-basico"]}>
         <Routes>
           <Route path="/checkout/gestao-basico" element={<ProtectedRoute><div>Checkout</div></ProtectedRoute>} />
-          <Route path="/mobile/trial-expirado" element={<div>Trial Expirado</div>} />
+          <Route path="/trial-expirado" element={<div>Trial Expirado</div>} />
         </Routes>
       </MemoryRouter>
     );

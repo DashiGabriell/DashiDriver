@@ -98,7 +98,7 @@ const Onboarding = () => {
       // Redirecionar baseado no plano
       setTimeout(() => {
         if (profile?.plan === 'free7dias' || profile?.plan === 'trial') {
-          navigate("/mobile/home");
+          navigate("/dashboard");
         } else if (profile?.plan && profile.plan.includes('gestao')) {
           navigate(`/checkout/${profile.plan}`);
         } else if (profile?.plan && profile.plan.includes('marketplace')) {

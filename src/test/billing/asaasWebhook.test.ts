@@ -49,6 +49,11 @@ describe("processPaymentSchema", () => {
     });
     expect(result.success).toBe(true);
   });
+
+  it("accepts body without amount (price is resolved server-side)", () => {
+    const result = processPaymentSchema.safeParse({ plan: "gestao-pro" });
+    expect(result.success).toBe(true);
+  });
 });
 
 describe("asaas webhook idempotency (decision layer)", () => {

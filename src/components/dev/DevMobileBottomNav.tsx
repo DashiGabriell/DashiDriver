@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Building2, Users, CreditCard, Ticket,
   MoreHorizontal, X,
   Car, BarChart3, FileText, Database, Flag, MessageSquare,
-  Zap, Package, PhoneCall, Megaphone, Settings, Webhook,
+  Zap, Package, PhoneCall, Megaphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,14 +22,11 @@ const secondaryItems = [
   { name: "Logs", path: "/dev/logs", icon: FileText },
   { name: "Sistema", path: "/dev/system", icon: Database },
   { name: "Feature Flags", path: "/dev/features", icon: Flag },
-  { name: "Migrations", path: "/dev/migrations", icon: Database },
   { name: "Suporte", path: "/dev/support", icon: MessageSquare },
   { name: "Eventos", path: "/dev/events", icon: Zap },
   { name: "Planos", path: "/dev/plans", icon: Package },
   { name: "WhatsApp", path: "/dev/whatsapp", icon: PhoneCall },
-  { name: "Webhooks", path: "/dev/webhooks", icon: Webhook },
   { name: "Broadcast", path: "/dev/broadcast", icon: Megaphone },
-  { name: "Configurações", path: "/dev/settings", icon: Settings },
 ];
 
 interface DevMobileBottomNavProps {

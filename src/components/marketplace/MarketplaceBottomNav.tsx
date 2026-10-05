@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { useHaptics } from "@/hooks/mobile/useHaptics";
+import { useHaptics } from "@/hooks/useHaptics";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [

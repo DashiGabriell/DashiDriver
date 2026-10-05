@@ -7,5 +7,5 @@ See [`planejamento/PRODUCT-BOUNDARIES.md`](../../planejamento/PRODUCT-BOUNDARIES
 | Entrypoint | Contents |
 |------------|----------|
 | `core/` | gestão + mobile |
-| `satellite/` | marketplace + lojista |
+| `satellite/` | marketplace |
 | `platform/` | public, checkout, ajuda, dev |

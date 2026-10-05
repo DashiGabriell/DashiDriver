@@ -42,6 +42,22 @@ const PLAN_ALIASES: Record<string, PlanDef> = {
   "marketplace elite": { slug: "marketplace-elite", type: "marketplace", label: "Marketplace Elite", mktPlan: "ELITE" },
 };
 
+// Fonte da verdade do preço: o valor enviado pelo cliente nunca é usado para cobrar ou ativar plano.
+const PLAN_PRICES: Record<string, number> = {
+  "gestao-basico": 199,
+  "gestao-pro": 399,
+  "gestao-master": 799,
+  "marketplace-free": 0,
+  "marketplace-pro": 119,
+  "marketplace-elite": 299,
+};
+
+const priceFor = (planDef: PlanDef): number => {
+  const price = PLAN_PRICES[planDef.slug];
+  if (price === undefined) throw new Error(`Preco nao configurado para o plano ${planDef.slug}`);
+  return price;
+};
+
 const log = (msg: string, data?: unknown) => {
 
 };
@@ -203,16 +219,17 @@ serve(async (req) => {
     if (!parsed.ok) return parsed.response;
 
     const body = parsed.data;
-    log("Body recebido com sucesso", { keys: Object.keys(body), hasCoupon: !!body.coupon_code, amount: body.amount });
+    log("Body recebido com sucesso", { keys: Object.keys(body), hasCoupon: !!body.coupon_code });
     const {
       nome, cpf, cep, endereco, numero, complemento, bairro, cidade, estado, telefone,
       cardName, cardNumber, cardExpiry, cardCvv,
-      plan, planType, amount, billingType, coupon_code, validate_only,
+      plan, planType, billingType, coupon_code, validate_only,
     } = body;
 
     const metodo = billingType || "CREDIT_CARD";
 
     const planDef = normalizePlan(plan, planType);
+    const amount = priceFor(planDef);
     const { profile, companyId } = await ensureCompany(supabaseAdmin, user, body);
 
     const asaasApiKey = Deno.env.get("ASAAS_API_KEY");

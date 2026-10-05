@@ -1058,7 +1058,7 @@ export default function VeiculoDetalhe() {
             variant="outline" 
             size="sm" 
             className="text-xs gap-1"
-            onClick={() => navigate("/mobile/checklists/novo")}
+            onClick={() => navigate("/checklists/novo")}
           >
             <Plus className="w-3 h-3" /> Novo Checklist
           </Button>
@@ -1102,7 +1102,7 @@ export default function VeiculoDetalhe() {
                       variant="ghost" 
                       size="sm" 
                       className="h-8 px-2 text-xs"
-                      onClick={() => navigate(`/mobile/checklists/${c.id}`)}
+                      onClick={() => navigate(`/checklists/${c.id}`)}
                     >
                       Ver Detalhes
                     </Button>

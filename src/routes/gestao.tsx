@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { Route } from "react-router-dom";
+import { Navigate, Route } from "react-router-dom";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 
 const Index = lazy(() => import("@/pages/Index"));
@@ -13,7 +13,6 @@ const Manutencao = lazy(() => import("@/pages/Manutencao"));
 const Lucratividade = lazy(() => import("@/pages/Lucratividade"));
 const ControleKm = lazy(() => import("@/pages/ControleKm"));
 const Alertas = lazy(() => import("@/pages/Alertas"));
-const Notifications = lazy(() => import("@/pages/Notifications"));
 const Perfil = lazy(() => import("@/pages/Perfil"));
 const Suporte = lazy(() => import("@/pages/Suporte"));
 const Usuarios = lazy(() => import("@/pages/Usuarios"));
@@ -34,7 +33,7 @@ export const gestaoRoutes = (
     <Route path="/lucratividade" element={<ProtectedRoute><Lucratividade /></ProtectedRoute>} />
     <Route path="/controle-km" element={<ProtectedRoute><ControleKm /></ProtectedRoute>} />
     <Route path="/alertas" element={<ProtectedRoute><Alertas /></ProtectedRoute>} />
-    <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+    <Route path="/notifications" element={<Navigate to="/alertas" replace />} />
     <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
     <Route path="/suporte" element={<ProtectedRoute><Suporte /></ProtectedRoute>} />
     <Route path="/usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />

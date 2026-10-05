@@ -16,11 +16,12 @@ const CheckoutMarketplaceFree = () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("process-payment", {
-        body: { plan: "marketplace-free", planType: "marketplace", amount: 0 },
+        body: { plan: "marketplace-free", planType: "marketplace" },
       });
 
       if (error) throw new Error("Erro ao ativar plano gratuito");
-      if ((data as any)?.error) throw new Error((data as any).error);
+      const serverError = (data as { error?: string } | null)?.error;
+      if (serverError) throw new Error(serverError);
 
       toast.success("Plano gratuito ativado com sucesso!");
 
@@ -33,8 +34,8 @@ const CheckoutMarketplaceFree = () => {
       ]);
 
       navigate("/marketplace/home");
-    } catch (err: any) {
-      toast.error(err?.message || "Erro ao ativar plano gratuito");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erro ao ativar plano gratuito");
     } finally {
       setIsLoading(false);
     }

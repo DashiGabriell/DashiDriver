@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Building2, Users, CreditCard, BarChart3,
-  FileText, Settings, Flag, Database, MessageSquare, Zap,
+  FileText, Flag, Database, MessageSquare, Zap,
   Package, PhoneCall, Car, Megaphone, Ticket, ChevronLeft, ChevronRight, X,
-  Webhook, ShieldAlert, Bot, Globe,
+  ShieldAlert, Bot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,18 +18,14 @@ const items = [
   { name: "Logs", path: "/dev/logs", icon: FileText },
   { name: "Sistema", path: "/dev/system", icon: Database },
   { name: "Segurança", path: "/dev/security", icon: ShieldAlert },
-  { name: "Globo", path: "/dev/globe", icon: Globe },
   { name: "Feature Flags", path: "/dev/features", icon: Flag },
-  { name: "Migrations", path: "/dev/migrations", icon: Database },
   { name: "Suporte", path: "/dev/support", icon: MessageSquare },
   { name: "Eventos", path: "/dev/events", icon: Zap },
   { name: "Planos", path: "/dev/plans", icon: Package },
   { name: "WhatsApp", path: "/dev/whatsapp", icon: PhoneCall },
   { name: "Broadcast", path: "/dev/broadcast", icon: Megaphone },
   { name: "Cupons", path: "/dev/coupons", icon: Ticket },
-  { name: "Webhooks", path: "/dev/webhooks", icon: Webhook },
   { name: "Chatbot", path: "/dev/chatbot", icon: Bot },
-  { name: "Configurações", path: "/dev/settings", icon: Settings },
 ];
 
 interface DevSidebarProps {

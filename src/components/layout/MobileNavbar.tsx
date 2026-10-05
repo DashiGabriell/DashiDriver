@@ -70,16 +70,19 @@ export const MobileNavbar = () => {
 
   // Todos os itens de navegação
   const allNavItems = [
-    { icon: <div style={{ transform: "translateY(-15px)", scale: "1.5" }}><SidebarIcon src="/assets/sidebar-dashboard.png" label="Início" /></div>, label: "Início", to: "/" },
+    { icon: <div style={{ transform: "translateY(-15px)", scale: "1.5" }}><SidebarIcon src="/assets/sidebar-dashboard.png" label="Início" /></div>, label: "Início", to: "/dashboard" },
     { icon: <SidebarIcon src="/assets/sidebar-carro.png" label="Veículos" />, label: "Veículos", to: "/veiculos" },
     { icon: <SidebarIcon src="/assets/sidebar-motoristas.png" label="Motoristas" />, label: "Motoristas", to: "/motoristas" },
+    { icon: <SidebarIcon src="/assets/checklist-sideabar.png" label="Checklists" />, label: "Checklists", to: "/checklists" },
     { icon: <SidebarIcon src="/assets/sidebar-recebimentos.png" label="Pagamentos" />, label: "Pagamentos", to: "/pagamentos" },
     { icon: <SidebarIcon src="/assets/sidebar-parcelaseguro.png" label="Financiamento" />, label: "Financiamento", to: "/financiamento-seguro" },
     { icon: <SidebarIcon src="/assets/sidebar-ferramentas.png" label="Manutenção" />, label: "Manutenção", to: "/manutencao" },
     { icon: <SidebarIcon src="/assets/sidebar-lucratividade.png" label="Lucro" />, label: "Lucro", to: "/lucratividade" },
+    { icon: <SidebarIcon src="/assets/sidebar-km.png" label="KM" />, label: "KM", to: "/controle-km" },
     { icon: <SidebarIcon src="/assets/sidebar-alertas.png" label="Alertas" />, label: "Alertas", to: "/alertas" },
     { icon: <SidebarIcon src="/assets/sidebar-users.png" label="Usuários" />, label: "Usuários", to: "/usuarios" },
     { icon: <SidebarIcon src="/assets/sidebar-perfil.png" label="Perfil" />, label: "Perfil", to: "/perfil" },
+    { icon: <SidebarIcon src="/assets/suporte.png" label="Suporte" />, label: "Suporte", to: "/suporte" },
   ];
 
   // Constantes para controle de visualização
@@ -93,12 +96,7 @@ export const MobileNavbar = () => {
 
   // Atualizar índice ativo baseado na rota atual
   useEffect(() => {
-    const currentIndex = allNavItems.findIndex((item) => {
-      if (item.to === "/") {
-        return location.pathname === "/";
-      }
-      return location.pathname.startsWith(item.to);
-    });
+    const currentIndex = allNavItems.findIndex((item) => location.pathname.startsWith(item.to));
     if (currentIndex !== -1) {
       setActiveIndex(currentIndex);
       // Scroll automático para o item ativo

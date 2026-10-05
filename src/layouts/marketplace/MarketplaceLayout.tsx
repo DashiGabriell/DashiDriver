@@ -1,6 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import MarketplaceBottomNav from "@/components/marketplace/MarketplaceBottomNav";
-import { useMobileKeyboard } from "@/hooks/mobile/useMobileKeyboard";
+import { useMobileKeyboard } from "@/hooks/useMobileKeyboard";
 import { AnimatePresence, motion } from "framer-motion";
 import { Suspense } from "react";
 import { RouteFallback } from "@/routes/fallback";

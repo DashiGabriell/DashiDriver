@@ -1,14 +1,14 @@
 import { lazy } from "react";
 import { Route, Routes } from "react-router-dom";
 import { PageTransitionLayout } from "@/components/layout/PageTransition";
-import { gestaoRoutes, mobileAppRoutes, mobileStandaloneRoutes } from "@/products/core";
-import { marketplaceRoutes, lojistaRoutes } from "@/products/satellite";
+import { gestaoRoutes, acessoRoutes } from "@/products/core";
+import { marketplaceRoutes } from "@/products/satellite";
 import { publicRoutes, checkoutRoutes, ajudaRoutes, devRoutes } from "@/products/platform";
 
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
 /**
- * Specific area trees (/mobile, /marketplace, /dev) are registered BEFORE the
+ * Specific area trees (/marketplace, /dev) are registered BEFORE the
  * pathless PageTransition layout that contains the splat `*`, so they are not
  * swallowed by NotFound.
  *
@@ -17,7 +17,6 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 export function AppRoutes() {
   return (
     <Routes>
-      {mobileAppRoutes}
       {marketplaceRoutes}
       {devRoutes}
 
@@ -25,9 +24,8 @@ export function AppRoutes() {
         {publicRoutes}
         {checkoutRoutes}
         {gestaoRoutes}
-        {lojistaRoutes}
         {ajudaRoutes}
-        {mobileStandaloneRoutes}
+        {acessoRoutes}
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

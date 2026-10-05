@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { CHECKLIST_IMAGE_ACCEPT, normalizeChecklistImage } from "@/lib/checklist/imageProcessor";
 
 interface ChecklistCameraCaptureProps {
   stepKey: string;
@@ -35,17 +37,29 @@ export function ChecklistCameraCapture({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isPainel = stepKey === "painel";
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+  const [isConverting, setIsConverting] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.currentTarget;
+    const originalFile = input.files?.[0];
+    if (!originalFile) return;
+
+    setIsConverting(true);
+    try {
+      const file = await normalizeChecklistImage(originalFile);
       setSelectedFile(file);
       setObservation("");
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+      setPreviewUrl(URL.createObjectURL(file));
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível ler esta imagem");
+    } finally {
+      setIsConverting(false);
+      input.value = "";
     }
   };
 
   const handleCaptureClick = () => {
+    if (isConverting) return;
     fileInputRef.current?.click();
   };
 
@@ -97,7 +111,7 @@ export function ChecklistCameraCapture({
     <div className="w-full max-w-md mx-auto space-y-4">
       <input
         type="file"
-        accept="image/*"
+        accept={CHECKLIST_IMAGE_ACCEPT}
         capture="environment"
         className="hidden"
         ref={fileInputRef}
@@ -110,7 +124,11 @@ export function ChecklistCameraCapture({
           className="aspect-square flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors"
         >
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-            <Camera className="w-8 h-8 text-primary" />
+            {isConverting ? (
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            ) : (
+              <Camera className="w-8 h-8 text-primary" />
+            )}
           </div>
           <h3 className="font-semibold text-lg">{stepLabel}</h3>
           <p className="text-sm text-muted-foreground text-center px-6 mt-2">
