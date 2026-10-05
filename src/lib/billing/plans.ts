@@ -46,6 +46,42 @@ export const PLAN_CATALOG = {
 
 export type PlanSlug = keyof typeof PLAN_CATALOG;
 
+export type GestaoPlanSlug = "gestao-basico" | "gestao-pro" | "gestao-master";
+
+/** Planos de gestão como aparecem na landing, em /planos e no resumo do checkout. */
+export const GESTAO_PLANS: ReadonlyArray<{
+  slug: GestaoPlanSlug;
+  name: string;
+  price: number;
+  cars: number;
+  drivers: number;
+  users: string;
+}> = [
+  { slug: "gestao-basico", name: SAAS_PLAN_LABELS.BASICO, price: PLAN_CATALOG["gestao-basico"].price, cars: SAAS_PLAN_LIMITS.BASICO.veiculos, drivers: SAAS_PLAN_LIMITS.BASICO.motoristas, users: "1 usuário" },
+  { slug: "gestao-pro", name: SAAS_PLAN_LABELS.PRO, price: PLAN_CATALOG["gestao-pro"].price, cars: SAAS_PLAN_LIMITS.PRO.veiculos, drivers: SAAS_PLAN_LIMITS.PRO.motoristas, users: "até 3 usuários" },
+  { slug: "gestao-master", name: SAAS_PLAN_LABELS.MASTER, price: PLAN_CATALOG["gestao-master"].price, cars: SAAS_PLAN_LIMITS.MASTER.veiculos, drivers: SAAS_PLAN_LIMITS.MASTER.motoristas, users: "até 200 usuários" },
+];
+
+/** Linhas do resumo do pedido para cada plano vendável no checkout. */
+export function planSummaryFor(slug: PlanSlug): { name: string; rows: Array<[string, string]> } {
+  const gestao = GESTAO_PLANS.find((p) => p.slug === slug);
+  if (gestao) {
+    return {
+      name: gestao.name,
+      rows: [
+        ["Carros", `até ${gestao.cars}`],
+        ["Motoristas", `até ${gestao.drivers}`],
+        ["Equipe", gestao.users],
+      ],
+    };
+  }
+  const mkt = slug === "marketplace-elite" ? "ELITE" : slug === "marketplace-pro" ? "PRO" : "FREE";
+  return {
+    name: `Marketplace ${mkt === "ELITE" ? "Elite" : mkt === "PRO" ? "Pro" : "Free"}`,
+    rows: [["Anúncios ativos", `até ${MKT_PLAN_LIMITS[mkt].listings}`]],
+  };
+}
+
 export function isPlanSlug(slug: string | undefined): slug is PlanSlug {
   return !!slug && Object.prototype.hasOwnProperty.call(PLAN_CATALOG, slug);
 }

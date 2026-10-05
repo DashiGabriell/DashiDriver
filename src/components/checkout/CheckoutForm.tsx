@@ -1,60 +1,127 @@
-﻿import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useCallback, useEffect, useRef, useState, type InputHTMLAttributes, type ReactNode } from "react";
+import { useForm, useFormContext, type FieldPath, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { maskCPF, maskCEP, maskCardNumber, maskExpiry, maskPhone } from "@/lib/mask";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Barcode, Check, CreditCard, Loader2, QrCode } from "lucide-react";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { supabase } from "@/integrations/supabase/client";
+import { cn, fmtBRL } from "@/lib/utils";
+import { maskCEP, maskCardNumber, maskCpfCnpj, maskExpiry, maskPhone } from "@/lib/mask";
 import { buildCheckoutSchema, type CheckoutFormValues } from "@/lib/validators/checkout";
+import type { PlanSlug } from "@/lib/billing/plans";
+import { CheckoutSummaryBar, CheckoutSummaryTag } from "./CheckoutSummary";
+import { CheckoutPaymentStatus, type CheckoutStage, type PaymentInfo } from "./CheckoutPaymentStatus";
+import { POLL, readFunctionError, usePaymentPolling } from "./paymentStatus";
 
 type BillingType = "CREDIT_CARD" | "BOLETO" | "PIX";
+type CepState = "idle" | "loading" | "ok" | "notfound" | "error";
+type AppliedCoupon = { code: string; amount: number; total: number };
 
-type PaymentInfo = {
-  invoiceUrl?: string;
-  boletoBarCode?: string;
-  pixQrCode?: string;
-  pixCopiaECola?: string;
+type ProcessPaymentResponse = {
+  error?: string;
+  free?: boolean;
+  billingType?: BillingType;
+  subscriptionId?: string;
+  paymentInfo?: PaymentInfo | null;
 };
+
+const CARD_FIELDS = ["cardName", "cardNumber", "cardExpiry", "cardCvv"] as const;
+
+const METHODS: Array<{ value: BillingType; label: string; hint: string; icon: typeof CreditCard }> = [
+  { value: "CREDIT_CARD", label: "Cartão de crédito", hint: "Aprovação na hora", icon: CreditCard },
+  { value: "PIX", label: "Pix", hint: "Aprovação em instantes", icon: QrCode },
+  { value: "BOLETO", label: "Boleto", hint: "Até 3 dias úteis", icon: Barcode },
+];
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+const Section = ({ title, children }: { title: string; children: ReactNode }) => (
+  <fieldset className="min-w-0 border-0 p-0">
+    <legend className="qc-tape mb-5 !text-[0.8rem]">{title}</legend>
+    {children}
+  </fieldset>
+);
+
+type FieldProps = {
+  name: FieldPath<CheckoutFormValues>;
+  label: string;
+  className?: string;
+  mask?: (value: string) => string;
+  numeric?: boolean;
+  hint?: ReactNode;
+  inputProps?: InputHTMLAttributes<HTMLInputElement>;
+};
+
+const Field = ({ name, label, className, mask, numeric, hint, inputProps }: FieldProps) => {
+  const { control } = useFormContext<CheckoutFormValues>();
+  return (
+    <FormField
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <FormItem className={cn("space-y-1.5", className)}>
+          <FormLabel className="qc-label">{label}</FormLabel>
+          <FormControl>
+            <input
+              {...field}
+              {...inputProps}
+              value={(field.value as string | undefined) ?? ""}
+              onChange={(e) => field.onChange(mask ? mask(e.target.value) : e.target.value)}
+              inputMode={numeric ? "numeric" : inputProps?.inputMode}
+              className={cn("qc-input", numeric && "qc-input--num")}
+            />
+          </FormControl>
+          {hint}
+          <FormMessage className="text-[0.9rem] font-semibold text-[var(--qc-vermelho)]" />
+        </FormItem>
+      )}
+    />
+  );
+};
+
 export const CheckoutForm = ({
-  planName,
+  slug,
   amount,
   planType,
 }: {
-  planName: string;
+  slug: PlanSlug;
   amount: number;
   planType: "gestao" | "marketplace";
 }) => {
-  const [billingType, setBillingType] = useState<BillingType>("CREDIT_CARD");
-  const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | null>(null);
-  const [paymentDone, setPaymentDone] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [statusMsg, setStatusMsg] = useState("");
-  const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
-  const [conferindo, setConferindo] = useState(false);
-  const [paymentApproved, setPaymentApproved] = useState(false);
-  const [couponCode, setCouponCode] = useState("");
-  const [couponLoading, setCouponLoading] = useState(false);
-  const [couponApplied, setCouponApplied] = useState<{
-    discount_amount: number;
-    final_amount: number;
-  } | null>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isFree = amount === 0;
-  const displayedAmount = couponApplied ? couponApplied.final_amount : amount;
 
-  const schema = buildCheckoutSchema({ isFree, billingType });
-  type FormValues = CheckoutFormValues;
+  const [billingType, setBillingType] = useState<BillingType>("CREDIT_CARD");
+  const [stage, setStage] = useState<CheckoutStage | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [finalizing, setFinalizing] = useState(false);
+  const [pollingStopped, setPollingStopped] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [cepState, setCepState] = useState<CepState>("idle");
+  const [couponOpen, setCouponOpen] = useState(false);
+  const [couponInput, setCouponInput] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState("");
+  const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(schema),
+  const total = coupon ? coupon.total : amount;
+  const billingRef = useRef(billingType);
+  billingRef.current = billingType;
+  const cepRequestRef = useRef("");
+
+  const resolver = useCallback<Resolver<CheckoutFormValues>>(
+    (values, context, options) =>
+      zodResolver(buildCheckoutSchema({ isFree, billingType: billingRef.current }))(values, context, options) as ReturnType<
+        Resolver<CheckoutFormValues>
+      >,
+    [isFree],
+  );
+
+  const form = useForm<CheckoutFormValues>({
+    resolver,
     defaultValues: {
       nome: "", cpf: "", cep: "", endereco: "", numero: "", complemento: "",
       bairro: "", cidade: "", estado: "", telefone: "",
@@ -62,111 +129,84 @@ export const CheckoutForm = ({
     },
   });
 
-  const handleCepBlur = async (cep: string) => {
-    const rawCep = cep.replace(/\D/g, "");
-    if (rawCep.length !== 8) return;
+  useEffect(() => {
+    if (!stage) return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    document.getElementById("checkout-stage-title")?.focus({ preventScroll: true });
+  }, [stage?.kind]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const chooseMethod = (value: BillingType) => {
+    setBillingType(value);
+    setFormError("");
+    if (value !== "CREDIT_CARD") form.clearErrors([...CARD_FIELDS]);
+  };
+
+  const lookupCep = async (raw: string) => {
+    cepRequestRef.current = raw;
+    setCepState("loading");
     try {
-      const res = await fetch(`https://viacep.com.br/ws/${rawCep}/json/`);
-      const data = await res.json();
-      if (!data.erro) {
-        form.setValue("endereco", data.logradouro);
-        form.setValue("bairro", data.bairro);
-        form.setValue("cidade", data.localidade);
-        form.setValue("estado", data.uf);
+      const res = await fetch(`https://viacep.com.br/ws/${raw}/json/`);
+      if (!res.ok) throw new Error(String(res.status));
+      const data = (await res.json()) as { erro?: boolean; logradouro?: string; bairro?: string; localidade?: string; uf?: string };
+      if (cepRequestRef.current !== raw) return;
+      if (data.erro) {
+        setCepState("notfound");
+        return;
       }
+      const fill = (name: "endereco" | "bairro" | "cidade" | "estado", value?: string) => {
+        if (value) form.setValue(name, value, { shouldValidate: form.formState.isSubmitted });
+      };
+      fill("endereco", data.logradouro);
+      fill("bairro", data.bairro);
+      fill("cidade", data.localidade);
+      fill("estado", data.uf);
+      setCepState("ok");
+      if (data.logradouro) form.setFocus("numero");
     } catch {
-      toast.error("Erro ao buscar CEP");
+      if (cepRequestRef.current === raw) setCepState("error");
     }
   };
 
-  const pollStatus = async (subscriptionId: string) => {
-    const maxAttempts = 30;
-    for (let i = 0; i < maxAttempts; i++) {
-      setStatusMsg(`Confirmando pagamento... (${i + 1}/${maxAttempts})`);
-      const { data, error } = await supabase.functions.invoke("check-payment-status", {
-        body: { subscriptionId },
-      });
-      if (!error && data?.status === "APPROVED") return "APPROVED";
-      if (!error && data?.status === "REJECTED") return "REJECTED";
-      await sleep(2000);
+  const applyCoupon = async () => {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) {
+      setCouponError("Digite o código do cupom.");
+      return;
     }
-    return "PENDING";
-  };
-
-  const checkPaymentStatus = async (subId: string) => {
-    setConferindo(true);
-    setStatusMsg("Verificando pagamento...");
-    const { data, error } = await supabase.functions.invoke("check-payment-status", {
-      body: { subscriptionId: subId },
-    });
-    setConferindo(false);
-    setStatusMsg("");
-
-    if (error || data?.error) {
-      toast.error("Erro ao verificar pagamento");
-      return null;
-    }
-    return data?.status as string | null;
-  };
-
-  const handleConferirPagamento = async () => {
-    if (!subscriptionId) return;
-    const status = await checkPaymentStatus(subscriptionId);
-
-    if (status === "APPROVED") {
-      setPaymentApproved(true);
-      toast.success("Pagamento confirmado!");
-    } else if (status === "REJECTED") {
-      toast.error("Pagamento rejeitado. Tente novamente.");
-    } else {
-      toast.message("Pagamento ainda não confirmado. Tente novamente em alguns instantes.");
-    }
-  };
-
-  const handleApplyCoupon = async () => {
-    const code = couponCode.trim().toUpperCase();
-    if (!code) { toast.error("Digite um código de cupom"); return; }
-
     setCouponLoading(true);
+    setCouponError("");
     try {
-      const { data: coupon, error } = await supabase
-        .from("coupons")
-        .select("*")
-        .eq("code", code)
-        .maybeSingle();
+      const { data: found, error } = await supabase.from("coupons").select("*").eq("code", code).maybeSingle();
+      if (error) throw new Error("Não deu para consultar o cupom agora. Tente de novo.");
+      if (!found) throw new Error("Cupom não encontrado. Confira o código.");
+      if (!found.active) throw new Error("Este cupom não está mais ativo.");
+      if (found.expires_at && new Date(found.expires_at) < new Date()) throw new Error("Este cupom já venceu.");
+      if (found.max_uses !== null && found.current_uses >= found.max_uses) throw new Error("Este cupom já foi usado o máximo de vezes.");
+      if (found.min_amount !== null && amount < found.min_amount) throw new Error("Este cupom não vale para este plano.");
 
-      if (error) throw new Error("Erro ao consultar cupom");
-      if (!coupon) throw new Error("Cupom invalido");
-      if (!coupon.active) throw new Error("Cupom inativo");
-      if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) throw new Error("Cupom expirado");
-      if (coupon.max_uses !== null && coupon.current_uses >= coupon.max_uses) throw new Error("Cupom esgotado");
-      if (coupon.min_amount !== null && amount < coupon.min_amount) throw new Error("Valor minimo nao atingido para este cupom");
-
-      let discountAmount = 0;
-      if (coupon.discount_type === "percentual") {
-        discountAmount = Math.round(amount * (coupon.discount_value / 100) * 100) / 100;
-      } else {
-        discountAmount = Math.min(coupon.discount_value, amount);
-      }
-      const finalAmount = Math.max(0, amount - discountAmount);
-
-      setCouponApplied({ discount_amount: discountAmount, final_amount: finalAmount });
-      setCouponCode(code);
-      toast.success(`Cupom aplicado! Desconto de R$ ${discountAmount.toFixed(2)}`);
-    } catch (err: any) {
-      setCouponApplied(null);
-      toast.error(err?.message || "Erro ao validar cupom");
+      const discount =
+        found.discount_type === "percentual"
+          ? Math.round(amount * (found.discount_value / 100) * 100) / 100
+          : Math.min(found.discount_value, amount);
+      setCoupon({ code, amount: discount, total: Math.max(0, amount - discount) });
+      setCouponInput(code);
+      toast.success(`Cupom aplicado: ${fmtBRL(discount)} de desconto`);
+    } catch (err) {
+      setCoupon(null);
+      setCouponError(err instanceof Error ? err.message : "Não deu para validar o cupom.");
     } finally {
       setCouponLoading(false);
     }
   };
 
-  const handleRemoveCoupon = () => {
-    setCouponCode("");
-    setCouponApplied(null);
+  const removeCoupon = () => {
+    setCoupon(null);
+    setCouponInput("");
+    setCouponError("");
   };
 
   const finalize = async () => {
+    setFinalizing(true);
     await sleep(1000);
     await Promise.all([
       queryClient.refetchQueries({ queryKey: ["profile"] }),
@@ -176,381 +216,279 @@ export const CheckoutForm = ({
     navigate(planType === "gestao" ? "/dashboard" : "/marketplace/home");
   };
 
-  const onSubmit = async (values: FormValues) => {
-    setIsLoading(true);
-    setStatusMsg("Processando...");
+  const handleSettled = (status: "APPROVED" | "REJECTED") => {
+    if (status === "APPROVED") {
+      setStage({ kind: "approved" });
+      toast.success("Pagamento confirmado");
+      return;
+    }
+    const wasCard = stage?.kind === "card" || billingRef.current === "CREDIT_CARD";
+    setStage(null);
+    setFormError(
+      wasCard
+        ? "O banco recusou o pagamento. Confira os dados do cartão ou escolha Pix ou boleto."
+        : "O pagamento foi recusado pelo banco. Gere uma nova cobrança ou escolha outra forma de pagamento.",
+    );
+  };
+
+  const subscriptionId = stage && "subscriptionId" in stage ? stage.subscriptionId : null;
+  const pollConfig = stage && stage.kind !== "approved" ? POLL[stage.kind] : POLL.pending;
+  usePaymentPolling({
+    subscriptionId,
+    enabled: !!subscriptionId && !pollingStopped,
+    ...pollConfig,
+    onSettled: handleSettled,
+    onTimeout: () => {
+      if (stage?.kind === "card") setStage({ kind: "pending", subscriptionId: stage.subscriptionId });
+      else setPollingStopped(true);
+    },
+  });
+
+  const onSubmit = async (values: CheckoutFormValues) => {
+    setFormError("");
+    setSubmitting(true);
     try {
-      const body: Record<string, unknown> = { ...values, plan: planName, planType, amount, billingType };
-      if (couponApplied) body.coupon_code = couponCode;
+      const payload: Record<string, unknown> = { ...values };
+      if (isFree || billingType !== "CREDIT_CARD") CARD_FIELDS.forEach((k) => delete payload[k]);
+      const body: Record<string, unknown> = { ...payload, plan: slug, planType, amount, billingType };
+      if (coupon) body.coupon_code = coupon.code;
+
       const { data, error } = await supabase.functions.invoke("process-payment", { body });
+      if (error) throw new Error(await readFunctionError(error, "Não deu para processar o pagamento. Tente de novo."));
+      const resp = (data ?? {}) as ProcessPaymentResponse;
+      if (resp.error) throw new Error(resp.error);
 
-      if (error) {
-        let errorMessage = "Erro ao processar pagamento no servidor";
-        try {
-          if ((error as any).context) {
-            const errorData = await (error as any).context.json();
-            errorMessage = errorData?.error || error.message || errorMessage;
-          } else {
-            errorMessage = error.message || errorMessage;
-          }
-        } catch {
-          errorMessage = error.message || errorMessage;
-        }
-
-        throw new Error(errorMessage);
-      }
-      if ((data as any)?.error) {
-
-        throw new Error((data as any).error);
-      }
-
-      if ((data as any)?.free) {
-        toast.success("Plano gratuito ativado!");
-        await finalize();
+      setPollingStopped(false);
+      if (resp.free) {
+        setStage({ kind: "approved" });
         return;
       }
+      if (!resp.subscriptionId) throw new Error("Resposta inesperada do servidor. Tente de novo em instantes.");
 
-      const resp = data as any;
-
-      switch (resp.billingType) {
-        case "BOLETO":
-          setPaymentInfo(resp.paymentInfo);
-          setSubscriptionId(resp.subscriptionId);
-          setPaymentDone(true);
-          setIsLoading(false);
-          setStatusMsg("");
-          toast.message("Boleto gerado com sucesso!");
-          break;
-
-        case "PIX":
-          setPaymentInfo(resp.paymentInfo);
-          setSubscriptionId(resp.subscriptionId);
-          setPaymentDone(true);
-          setIsLoading(false);
-          setStatusMsg("");
-          toast.message("QR Code PIX gerado com sucesso!");
-          break;
-
-        default:
-          const finalStatus = await pollStatus(resp.subscriptionId);
-          if (finalStatus === "REJECTED") throw new Error("Pagamento rejeitado pela operadora");
-          if (finalStatus === "PENDING") {
-            toast.message("Pagamento em análise. Você será notificado ao confirmar.");
-          } else {
-            toast.success("Pagamento aprovado!");
-          }
-          await finalize();
-          break;
-      }
-    } catch (err: any) {
-      toast.error(err?.message || "Erro no processamento");
+      if (resp.billingType === "PIX") setStage({ kind: "pix", subscriptionId: resp.subscriptionId, info: resp.paymentInfo ?? null });
+      else if (resp.billingType === "BOLETO") setStage({ kind: "boleto", subscriptionId: resp.subscriptionId, info: resp.paymentInfo ?? null });
+      else setStage({ kind: "card", subscriptionId: resp.subscriptionId });
+    } catch (err) {
+      const message = err instanceof Error && err.message ? err.message : "Erro no processamento. Tente de novo.";
+      setFormError(message);
+      toast.error(message);
     } finally {
-      if (!paymentDone) {
-        setIsLoading(false);
-        setStatusMsg("");
-      }
+      setSubmitting(false);
     }
   };
 
-  if (paymentDone) {
-    return (
-      <div className="space-y-6">
-        {billingType === "BOLETO" && paymentInfo && (
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-100">
-              <svg className="w-8 h-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <rect x="2" y="4" width="20" height="16" rx="2" />
-                <line x1="6" y1="8" x2="6" y2="16" />
-                <line x1="9" y1="8" x2="9" y2="16" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="15" y1="8" x2="15" y2="16" />
-                <line x1="18" y1="8" x2="18" y2="16" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-black">Boleto Gerado!</h3>
-            <p className="text-sm text-gray-600">
-              Utilize o link abaixo para baixar e pagar o boleto.
-            </p>
-            {paymentInfo.invoiceUrl && (
-              <a
-                href={paymentInfo.invoiceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700"
-              >
-                Visualizar Boleto
-              </a>
-            )}
-            {paymentInfo.boletoBarCode && (
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-xs text-gray-500 mb-1">Código de Barras</p>
-                <p className="text-sm font-mono text-black break-all select-all">
-                  {paymentInfo.boletoBarCode}
-                </p>
-              </div>
-            )}
-            <p className="text-sm text-gray-500">
-              Pagamento confirmado em até <strong>3 dias úteis</strong>.
-              Seu plano será ativado automaticamente.
-            </p>
-            {paymentApproved ? (
-              <Button onClick={finalize} className="w-full">
-                Ir para o {planType === "gestao" ? "Dashboard" : "Marketplace"}
-              </Button>
-            ) : (
-              <Button onClick={handleConferirPagamento} className="w-full" disabled={conferindo}>
-                {conferindo ? "Verificando..." : "Conferir Pagamento"}
-              </Button>
-            )}
-          </div>
-        )}
+  const onInvalid = () => {
+    setFormError("Alguns campos precisam de ajuste. Confira os destaques em vermelho.");
+  };
 
-        {billingType === "PIX" && paymentInfo && (
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100">
-              <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" />
-                <circle cx="12" cy="12" r="3" fill="currentColor" />
-                <line x1="12" y1="2" x2="12" y2="6" />
-                <line x1="12" y1="18" x2="12" y2="22" />
-                <line x1="2" y1="12" x2="6" y2="12" />
-                <line x1="18" y1="12" x2="22" y2="12" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-black">PIX Gerado!</h3>
-            <p className="text-sm text-gray-600">
-              Escaneie o QR Code abaixo ou copie o código PIX para pagar.
-            </p>
-            {paymentInfo.pixQrCode && (
-              <div className="flex justify-center">
-                <img
-                  src={`data:image/png;base64,${paymentInfo.pixQrCode}`}
-                  alt="QR Code PIX"
-                  className="w-48 h-48"
-                />
-              </div>
-            )}
-            {paymentInfo.pixCopiaECola && (
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-xs text-gray-500 mb-1">Código Copia e Cola</p>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={paymentInfo.pixCopiaECola}
-                    className="flex-1 text-xs font-mono bg-white p-2 rounded border text-black"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(paymentInfo.pixCopiaECola ?? "");
-                      toast.success("Código copiado!");
-                    }}
-                    className="bg-green-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-green-700"
-                  >
-                    Copiar
-                  </button>
-                </div>
-              </div>
-            )}
-            <p className="text-sm text-gray-500">
-              Após o pagamento, seu plano será ativado em instantes.
-            </p>
-            {paymentApproved ? (
-              <Button onClick={finalize} className="w-full">
-                Ir para o {planType === "gestao" ? "Dashboard" : "Marketplace"}
-              </Button>
-            ) : (
-              <Button onClick={handleConferirPagamento} className="w-full" disabled={conferindo}>
-                {conferindo ? "Verificando..." : "Conferir Pagamento"}
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
+  const submitLabel = isFree
+    ? "Ativar plano"
+    : billingType === "PIX"
+      ? `Gerar Pix de ${fmtBRL(total)}`
+      : billingType === "BOLETO"
+        ? `Gerar boleto de ${fmtBRL(total)}`
+        : `Pagar ${fmtBRL(total)}`;
+
+  const cepHint =
+    cepState === "loading" ? "Buscando endereço…"
+    : cepState === "notfound" ? "CEP não encontrado. Preencha o endereço abaixo."
+    : cepState === "error" ? "Não deu para buscar o CEP agora. Preencha o endereço abaixo."
+    : "";
+
+  const summaryProps = { slug, amount, discount: coupon };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" autoComplete="new-password">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField name="nome" control={form.control} render={({ field }) => (
-            <FormItem><FormLabel className="text-black">Nome Completo</FormLabel><FormControl><Input {...field} className="bg-white text-black" /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField name="cpf" control={form.control} render={({ field }) => (
-            <FormItem><FormLabel className="text-black">CPF</FormLabel><FormControl><Input {...field} onChange={(e) => field.onChange(maskCPF(e.target.value))} className="bg-white text-black" /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField name="cep" control={form.control} render={({ field }) => (
-            <FormItem><FormLabel className="text-black">CEP</FormLabel><FormControl><Input {...field} onChange={(e) => { field.onChange(maskCEP(e.target.value)); if (e.target.value.length === 9) handleCepBlur(e.target.value); }} className="bg-white text-black" /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField name="endereco" control={form.control} render={({ field }) => (
-            <FormItem><FormLabel className="text-black">Endereço</FormLabel><FormControl><Input {...field} className="bg-white text-black" /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField name="numero" control={form.control} render={({ field }) => (
-            <FormItem><FormLabel className="text-black">Número</FormLabel><FormControl><Input {...field} className="bg-white text-black" /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField name="complemento" control={form.control} render={({ field }) => (
-            <FormItem><FormLabel className="text-black">Complemento</FormLabel><FormControl><Input {...field} className="bg-white text-black" /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField name="telefone" control={form.control} render={({ field }) => (
-            <FormItem><FormLabel className="text-black">Telefone (com DDD)</FormLabel><FormControl><Input {...field} onChange={(e) => field.onChange(maskPhone(e.target.value))} className="bg-white text-black" /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField name="bairro" control={form.control} render={({ field }) => (
-            <FormItem><FormLabel className="text-black">Bairro</FormLabel><FormControl><Input {...field} className="bg-white text-black" /></FormControl><FormMessage /></FormItem>
-          )} />
-          <div className="grid grid-cols-2 gap-4">
-            <FormField name="cidade" control={form.control} render={({ field }) => (
-              <FormItem><FormLabel className="text-black">Cidade</FormLabel><FormControl><Input {...field} className="bg-white text-black" /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField name="estado" control={form.control} render={({ field }) => (
-              <FormItem><FormLabel className="text-black">UF</FormLabel><FormControl><Input {...field} maxLength={2} className="bg-white text-black" /></FormControl><FormMessage /></FormItem>
-            )} />
-          </div>
-        </div>
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-12">
+      <div className="lg:hidden">
+        <CheckoutSummaryBar {...summaryProps} />
+      </div>
 
-        {!isFree && (
-          <div className="border-t pt-4 mt-4">
-            <div className="mb-4">
-              <h3 className="font-bold mb-2 text-black">Cupom de Desconto</h3>
-              <div className="flex gap-2">
-                <Input
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  placeholder="Digite o cupom"
-                  className="bg-white text-black flex-1"
-                  disabled={!!couponApplied}
-                />
-                {couponApplied ? (
-                  <Button type="button" variant="outline" onClick={handleRemoveCoupon} className="shrink-0">
-                    Remover
-                  </Button>
-                ) : (
-                  <Button type="button" onClick={handleApplyCoupon} disabled={couponLoading || !couponCode.trim()} className="shrink-0">
-                    {couponLoading ? "..." : "Aplicar"}
-                  </Button>
+      <div className="min-w-0">
+        {stage ? (
+          <CheckoutPaymentStatus
+            stage={stage}
+            slug={slug}
+            total={total}
+            planType={planType}
+            pollingStopped={pollingStopped}
+            finalizing={finalizing}
+            onSettled={handleSettled}
+            onFinalize={finalize}
+          />
+        ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} noValidate className="qc-sheet space-y-9 p-5 sm:p-8">
+              <Section title="Seus dados">
+                <div className="grid gap-4 sm:grid-cols-6">
+                  <Field name="nome" label="Nome completo" className="sm:col-span-6" inputProps={{ autoComplete: "name" }} />
+                  <Field name="cpf" label="CPF ou CNPJ" className="sm:col-span-3" mask={maskCpfCnpj} numeric inputProps={{ autoComplete: "off", maxLength: 18 }} />
+                  <Field name="telefone" label="Celular com DDD" className="sm:col-span-3" mask={maskPhone} numeric inputProps={{ type: "tel", autoComplete: "tel-national", maxLength: 15 }} />
+                </div>
+              </Section>
+
+              {!isFree && (
+                <Section title="Pagamento">
+                  <div role="radiogroup" aria-label="Forma de pagamento" className="grid gap-3 sm:grid-cols-3">
+                    {METHODS.map(({ value, label, hint, icon: Icon }) => (
+                      <label key={value} className="qc-choice">
+                        <input
+                          type="radio"
+                          name="billingType"
+                          value={value}
+                          checked={billingType === value}
+                          onChange={() => chooseMethod(value)}
+                          className="sr-only"
+                        />
+                        <span className="qc-choice-check" aria-hidden="true">
+                          <Check className="h-3 w-3" strokeWidth={3} />
+                        </span>
+                        <Icon className="h-6 w-6 text-[var(--qc-azul)]" aria-hidden="true" />
+                        <span className="font-bold">{label}</span>
+                        <span className="text-[0.88rem] text-black/60">{hint}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  <div className={cn("mt-5 grid gap-4 sm:grid-cols-6", billingType !== "CREDIT_CARD" && "hidden")}>
+                    <Field name="cardNumber" label="Número do cartão" className="sm:col-span-6" mask={maskCardNumber} numeric inputProps={{ autoComplete: "cc-number", maxLength: 23 }} />
+                    <Field name="cardName" label="Nome impresso no cartão" className="sm:col-span-6" inputProps={{ autoComplete: "cc-name" }} />
+                    <Field name="cardExpiry" label="Validade" className="sm:col-span-3" mask={maskExpiry} numeric inputProps={{ autoComplete: "cc-exp", placeholder: "MM/AA", maxLength: 5 }} />
+                    <Field name="cardCvv" label="CVV" className="sm:col-span-3" mask={(v) => v.replace(/\D/g, "").slice(0, 4)} numeric inputProps={{ autoComplete: "cc-csc", maxLength: 4 }} />
+                  </div>
+
+                  {billingType === "PIX" && (
+                    <p className="mt-4 text-[0.98rem] text-[var(--qc-ink-soft)]">
+                      Na próxima tela aparece o QR Code. O plano é ativado assim que o Pix cair, em geral em segundos.
+                    </p>
+                  )}
+                  {billingType === "BOLETO" && (
+                    <p className="mt-4 text-[0.98rem] text-[var(--qc-ink-soft)]">
+                      O banco leva até 3 dias úteis para confirmar o boleto. O plano é ativado automaticamente na confirmação.
+                    </p>
+                  )}
+                </Section>
+              )}
+
+              <Section title="Endereço de cobrança">
+                <div className="grid gap-4 sm:grid-cols-6">
+                  <Field
+                    name="cep"
+                    label="CEP"
+                    className="sm:col-span-2"
+                    mask={(v) => {
+                      const masked = maskCEP(v);
+                      const raw = masked.replace(/\D/g, "");
+                      if (raw.length === 8 && raw !== cepRequestRef.current) void lookupCep(raw);
+                      if (raw.length < 8) {
+                        cepRequestRef.current = "";
+                        setCepState("idle");
+                      }
+                      return masked;
+                    }}
+                    numeric
+                    inputProps={{ autoComplete: "postal-code", maxLength: 9 }}
+                    hint={
+                      <p className="flex min-h-[1.25rem] items-center gap-1.5 text-[0.88rem] text-[var(--qc-ink-soft)]" aria-live="polite">
+                        {cepState === "loading" && <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />}
+                        {cepHint}
+                      </p>
+                    }
+                  />
+                  <Field name="endereco" label="Rua" className="sm:col-span-4" inputProps={{ autoComplete: "address-line1" }} />
+                  <Field name="numero" label="Número" className="sm:col-span-2" inputProps={{ autoComplete: "off" }} />
+                  <Field name="complemento" label="Complemento (opcional)" className="sm:col-span-4" inputProps={{ autoComplete: "address-line2" }} />
+                  <Field name="bairro" label="Bairro" className="sm:col-span-2" inputProps={{ autoComplete: "off" }} />
+                  <Field name="cidade" label="Cidade" className="sm:col-span-3" inputProps={{ autoComplete: "address-level2" }} />
+                  <Field
+                    name="estado"
+                    label="UF"
+                    className="sm:col-span-1"
+                    mask={(v) => v.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase()}
+                    inputProps={{ autoComplete: "address-level1", maxLength: 2 }}
+                  />
+                </div>
+              </Section>
+
+              {!isFree && (
+                <div>
+                  {coupon ? (
+                    <p className="flex flex-wrap items-center gap-x-3 gap-y-1 font-semibold text-[var(--qc-verde)]">
+                      <Check className="h-4 w-4" aria-hidden="true" />
+                      Cupom {coupon.code} aplicado: {fmtBRL(coupon.amount)} de desconto.
+                      <button type="button" onClick={removeCoupon} className="qc-link">
+                        Remover
+                      </button>
+                    </p>
+                  ) : couponOpen ? (
+                    <div>
+                      <label htmlFor="checkout-coupon" className="qc-label mb-1.5">
+                        Cupom de desconto
+                      </label>
+                      <div className="flex max-w-[26rem] gap-2">
+                        <input
+                          id="checkout-coupon"
+                          value={couponInput}
+                          onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              void applyCoupon();
+                            }
+                          }}
+                          aria-invalid={!!couponError}
+                          aria-describedby={couponError ? "checkout-coupon-error" : undefined}
+                          autoComplete="off"
+                          className="qc-input min-w-0 flex-1 uppercase"
+                          autoFocus
+                        />
+                        <button
+                          type="button"
+                          onClick={applyCoupon}
+                          disabled={couponLoading}
+                          className="qc-btn qc-btn--quiet !min-h-[3rem] shrink-0 !px-5 disabled:opacity-60"
+                        >
+                          {couponLoading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+                          Aplicar
+                        </button>
+                      </div>
+                      {couponError && (
+                        <p id="checkout-coupon-error" className="mt-1.5 text-[0.9rem] font-semibold text-[var(--qc-vermelho)]">
+                          {couponError}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <button type="button" onClick={() => setCouponOpen(true)} className="qc-link">
+                      Tem cupom de desconto?
+                    </button>
+                  )}
+                </div>
+              )}
+
+              <div className="space-y-4 border-t border-black/10 pt-6">
+                {formError && (
+                  <div role="alert" className="rounded-lg border-[1.5px] border-[#e2a196] bg-[#fbe9e6] px-4 py-3 font-semibold text-[#7a1d12]">
+                    {formError}
+                  </div>
+                )}
+                <button type="submit" disabled={submitting} className="qc-btn qc-btn--primary w-full !text-[1.08rem] disabled:opacity-70">
+                  {submitting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />}
+                  {submitting ? "Processando..." : submitLabel}
+                </button>
+                {!isFree && (
+                  <p className="text-center text-[0.9rem] text-[var(--qc-ink-soft)]">
+                    Cobrança mensal recorrente, processada pela Asaas.
+                  </p>
                 )}
               </div>
-              {couponApplied && (
-                <p className="text-sm text-green-600 mt-1">
-                  Cupom aplicado: R$ {couponApplied.discount_amount.toFixed(2)} de desconto
-                </p>
-              )}
-            </div>
-
-            <h3 className="font-bold mb-4 text-black">Forma de Pagamento</h3>
-
-            <div className="grid grid-cols-3 gap-3 mb-4">
-              <button
-                type="button"
-                onClick={() => setBillingType("CREDIT_CARD")}
-                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
-                  billingType === "CREDIT_CARD"
-                    ? "border-blue-600 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
-              >
-                <svg className="w-8 h-8 text-[#009ee3]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="1" y="4" width="22" height="16" rx="2" />
-                  <line x1="1" y1="10" x2="23" y2="10" />
-                </svg>
-                <span className="text-sm font-medium">Cartão</span>
-                <span className="text-xs text-gray-500">Crédito</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setBillingType("BOLETO")}
-                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
-                  billingType === "BOLETO"
-                    ? "border-blue-600 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
-              >
-                <svg className="w-8 h-8 text-[#009ee3]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="2" y="4" width="20" height="16" rx="2" />
-                  <line x1="6" y1="8" x2="6" y2="16" />
-                  <line x1="9" y1="8" x2="9" y2="16" />
-                  <line x1="12" y1="8" x2="12" y2="12" />
-                  <line x1="15" y1="8" x2="15" y2="16" />
-                  <line x1="18" y1="8" x2="18" y2="16" />
-                </svg>
-                <span className="text-sm font-medium">Boleto</span>
-                <span className="text-xs text-gray-500">Boleto</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setBillingType("PIX")}
-                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
-                  billingType === "PIX"
-                    ? "border-blue-600 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
-              >
-                <svg className="w-8 h-8 text-[#009ee3]" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M11.917 11.71a2.046 2.046 0 0 1-1.454-.602l-2.1-2.1a.4.4 0 0 0-.551 0l-2.108 2.108a2.044 2.044 0 0 1-1.454.602h-.414l2.66 2.66c.83.83 2.177.83 3.007 0l2.667-2.668h-.253zM4.25 4.282c.55 0 1.066.214 1.454.602l2.108 2.108a.39.39 0 0 0 .552 0l2.1-2.1a2.044 2.044 0 0 1 1.453-.602h.253L9.503 1.623a2.127 2.127 0 0 0-3.007 0l-2.66 2.66h.414z"/>
-                  <path d="m14.377 6.496-1.612-1.612a.307.307 0 0 1-.114.023h-.733c-.379 0-.75.154-1.017.422l-2.1 2.1a1.005 1.005 0 0 1-1.425 0L5.268 5.32a1.448 1.448 0 0 0-1.018-.422h-.9a.306.306 0 0 1-.109-.021L1.623 6.496c-.83.83-.83 2.177 0 3.008l1.618 1.618a.305.305 0 0 1 .108-.022h.901c.38 0 .75-.153 1.018-.421L7.375 8.57a1.034 1.034 0 0 1 1.426 0l2.1 2.1c.267.268.638.421 1.017.421h.733c.04 0 .079.01.114.024l1.612-1.612c.83-.83.83-2.178 0-3.008z"/>
-                </svg>
-                <span className="text-sm font-medium">PIX</span>
-                <span className="text-xs text-gray-500">Pix</span>
-              </button>
-            </div>
-
-            {/* Campos de cartão sempre no DOM, escondidos por CSS quando não for CREDIT_CARD */}
-            <div className={billingType !== "CREDIT_CARD" ? "hidden" : ""}>
-              <h4 className="font-bold mb-4 text-black">Dados do Cartão</h4>
-              <FormField name="cardName" control={form.control} render={({ field }) => (
-                <FormItem><FormLabel className="text-black">Nome no Cartão</FormLabel><FormControl><Input {...field} value={field.value as string} autoComplete="off" className="bg-white text-black" /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField name="cardNumber" control={form.control} render={({ field }) => (
-                <FormItem><FormLabel className="text-black">Número do Cartão</FormLabel><FormControl><Input {...field} value={field.value as string} maxLength={19} autoComplete="off" onChange={(e) => field.onChange(maskCardNumber(e.target.value))} className="bg-white text-black" /></FormControl><FormMessage /></FormItem>
-              )} />
-              <div className="grid grid-cols-2 gap-4">
-                <FormField name="cardExpiry" control={form.control} render={({ field }) => (
-                  <FormItem><FormLabel className="text-black">Validade (MM/AA)</FormLabel><FormControl><Input {...field} value={field.value as string} autoComplete="off" onChange={(e) => field.onChange(maskExpiry(e.target.value))} className="bg-white text-black" /></FormControl><FormMessage /></FormItem>
-                )} />
-                <FormField name="cardCvv" control={form.control} render={({ field }) => (
-                  <FormItem><FormLabel className="text-black">CVV</FormLabel><FormControl><Input {...field} value={field.value as string} maxLength={4} autoComplete="off" className="bg-white text-black" /></FormControl><FormMessage /></FormItem>
-                )} />
-              </div>
-            </div>
-
-            {billingType === "BOLETO" && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <p className="text-sm text-yellow-800">
-                  <strong>Você receberá um boleto bancário</strong> para pagamento.
-                  O plano será ativado automaticamente após a confirmação do pagamento
-                  (em até 3 dias úteis).
-                </p>
-              </div>
-            )}
-
-            {billingType === "PIX" && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-sm text-green-800">
-                  <strong>Pagamento via PIX</strong> â€” após finalizar, você verá o
-                  QR Code para pagamento. O plano será ativado em instantes.
-                </p>
-              </div>
-            )}
-          </div>
+            </form>
+          </Form>
         )}
+      </div>
 
-        {statusMsg && <p className="text-sm text-muted-foreground text-center">{statusMsg}</p>}
-
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading
-            ? "Processando..."
-            : isFree
-              ? "Ativar plano gratuito"
-              : billingType === "BOLETO"
-                ? `Gerar Boleto${couponApplied ? ` (R$ ${displayedAmount.toFixed(2)})` : ` (R$ ${amount.toFixed(2)})`}`
-                : billingType === "PIX"
-                  ? `Gerar PIX${couponApplied ? ` (R$ ${displayedAmount.toFixed(2)})` : ` (R$ ${amount.toFixed(2)})`}`
-                  : `Finalizar Pagamento${couponApplied ? ` (R$ ${displayedAmount.toFixed(2)})` : ` (R$ ${amount.toFixed(2)})`}`}
-        </Button>
-      </form>
-    </Form>
+      <div className="hidden lg:sticky lg:top-8 lg:block">
+        <CheckoutSummaryTag {...summaryProps} />
+      </div>
+    </div>
   );
 };

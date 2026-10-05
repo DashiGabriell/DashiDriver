@@ -1,85 +1,54 @@
-import { useState, useEffect } from "react";
+import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
+import { ArrowLeft, Lock } from "lucide-react";
+import "@/components/landing/landing.css";
 
-// Componente de faixa animada (Rodapé)
-const AnimatedBanner = ({ text, direction, bgColor }: { text: string; direction: "left" | "right"; bgColor: string }) => {
-  return (
-    <div className={`w-full overflow-hidden ${bgColor} py-3 flex items-center mt-auto`}>
-      <div 
-        className={`whitespace-nowrap flex items-center ${direction === "left" ? "animate-scroll-left" : "animate-scroll-right"}`}
+type CheckoutLayoutProps = {
+  title: string;
+  subtitle?: ReactNode;
+  children: ReactNode;
+};
+
+export const CheckoutLayout = ({ title, subtitle, children }: CheckoutLayoutProps) => (
+  <div className="qc-root qc-board flex min-h-screen flex-col">
+    <header className="qc-steel shadow-[0_8px_20px_-10px_rgba(0,0,0,0.6)]">
+      <nav
+        className="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-4 py-3 sm:px-6"
+        aria-label="Checkout"
       >
-        {Array(20).fill(text).map((t, i) => (
-          <span key={i} className="flex items-center gap-2 text-white font-bold text-lg mx-8">
-            <img src="/logo.png" alt="DashiDrive Logo" className="h-6 w-auto" />
-            {t}
-          </span>
-        ))}
+        <Link to="/" className="qc-tape qc-tape--azul !text-[0.95rem]" aria-label="DashiDrive, página inicial">
+          DashiDrive
+        </Link>
+        <p className="hidden items-center gap-2 text-[0.9rem] text-[var(--qc-steel-soft)] sm:flex">
+          <Lock className="h-4 w-4" aria-hidden="true" />
+          Pagamento processado pela Asaas
+        </p>
+        <Link to="/planos" className="qc-btn qc-btn--steel !min-h-[2.5rem] !px-4 !text-[0.92rem]">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Trocar plano
+        </Link>
+      </nav>
+    </header>
+
+    <main className="mx-auto w-full max-w-[1180px] flex-1 px-4 pb-16 pt-10 sm:px-6 md:pt-14">
+      <div className="mb-8 max-w-[40rem] md:mb-10">
+        <h1 className="qc-display text-[clamp(2rem,4.4vw,3.4rem)]">{title}</h1>
+        {subtitle && <div className="mt-4 text-[1.05rem] font-medium leading-relaxed text-[var(--qc-ink)]">{subtitle}</div>}
       </div>
-    </div>
-  );
-};
+      {children}
+    </main>
 
-export const CheckoutLayout = ({ 
-  children, 
-  title 
-}: { 
-  children: React.ReactNode; 
-  title: string 
-}) => {
-  const images = [
-    "/assets/img-checkout/banner-1.png",
-    "/assets/img-checkout/banner-2.png",
-    "/assets/img-checkout/banner-3.png",
-  ];
-  const [currentImage, setCurrentImage] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % images.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [images.length]);
-
-  return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Header */}
-      <header className="bg-[#009ee3] p-3 flex justify-center items-center shadow-md">
-        <div className="flex items-center gap-2">
-          <img src="/assets/escudoazul.png" alt="Compra Segura" className="h-8 w-auto" />
-          <span className="text-white text-xl font-bold">COMPRA SEGURA</span>
-        </div>
-      </header>
-      
-      <div className="container max-w-lg py-10 px-4 flex-grow">
-        {/* Banner Slide */}
-        <div className="mb-6 rounded-lg overflow-hidden shadow-md">
-          <img 
-            src={images[currentImage]} 
-            alt={`Banner ${currentImage + 1}`} 
-            className="w-full h-auto transition-opacity duration-500"
-          />
-        </div>
-
-        {/* Container do formulário */}
-        <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
-          <h1 className="text-2xl font-bold mb-6 text-gray-800 text-center pb-4 border-b">
-            {title}
-          </h1>
-
-          {/* Conteúdo (Formulário) */}
-          <div className="space-y-6">
-            {children}
-          </div>
-        </div>
+    <footer className="qc-steel">
+      <div className="mx-auto flex max-w-[1180px] flex-col gap-3 px-4 py-6 text-[0.9rem] text-[var(--qc-steel-soft)] sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <p className="flex items-center gap-2 sm:hidden">
+          <Lock className="h-4 w-4" aria-hidden="true" />
+          Pagamento processado pela Asaas
+        </p>
+        <p>© 2026 DashiDrive · Feito pela Squad Dashi</p>
+        <Link to="/ajuda" className="underline-offset-4 hover:text-white hover:underline">
+          Dúvidas? Central de ajuda
+        </Link>
       </div>
-
-      {/* Rodapé Animado */}
-      <footer>
-        <AnimatedBanner 
-          text="DashiDrive, gestão inteligente para locadoras!            " 
-          direction="left" 
-          bgColor="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-600"
-        />
-      </footer>
-    </div>
-  );
-};
+    </footer>
+  </div>
+);

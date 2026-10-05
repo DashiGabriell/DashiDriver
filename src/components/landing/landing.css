@@ -391,6 +391,112 @@ button.qc-tag { cursor: pointer; }
   transform: translateY(-0.3em);
 }
 
+/* ---------- Paper sheet + form fields (checkout) ---------- */
+
+.qc-sheet {
+  background: var(--qc-paper);
+  color: var(--qc-tape);
+  border-radius: 8px;
+  border-top: 2px solid var(--qc-tape);
+  box-shadow: 0 18px 40px -18px rgba(70, 45, 0, 0.65), 0 3px 6px rgba(70, 45, 0, 0.2);
+}
+
+.qc-label {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 640;
+  color: var(--qc-ink-soft);
+}
+
+.qc-input {
+  display: block;
+  width: 100%;
+  height: 3rem;
+  padding: 0 0.9rem;
+  border-radius: 8px;
+  border: 1.5px solid rgba(27, 18, 9, 0.3);
+  background: #fff;
+  color: var(--qc-ink);
+  font-size: 1rem;
+  font-weight: 500;
+  box-shadow: inset 0 1px 2px rgba(40, 20, 5, 0.08);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.qc-input::placeholder { color: rgba(61, 41, 20, 0.74); }
+.qc-input:hover { border-color: rgba(27, 18, 9, 0.5); }
+.qc-input:focus-visible { border-color: var(--qc-azul); box-shadow: 0 0 0 3px rgba(36, 87, 214, 0.22); }
+.qc-input[aria-invalid="true"] { border-color: var(--qc-vermelho); }
+.qc-input:disabled,
+.qc-input[readonly] { background: #f3f1ea; color: var(--qc-ink-soft); }
+
+.qc-input--num {
+  font-family: "Saira Condensed", "Archivo Variable", sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.qc-choice {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  min-height: 5.5rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: 10px;
+  border: 1.5px solid rgba(27, 18, 9, 0.25);
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 160ms ease, box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1), transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.qc-choice:hover { border-color: rgba(27, 18, 9, 0.5); transform: translateY(-1px); }
+
+.qc-choice:has(input:checked) {
+  border-color: var(--qc-azul);
+  box-shadow: inset 0 0 0 1.5px var(--qc-azul), 0 8px 14px -8px rgba(26, 40, 110, 0.45);
+}
+
+.qc-choice:has(input:focus-visible) {
+  outline: 3px solid var(--qc-amarelo);
+  outline-offset: 3px;
+}
+
+.qc-choice-check {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  border: 1.5px solid rgba(27, 18, 9, 0.35);
+  color: transparent;
+}
+
+.qc-choice:has(input:checked) .qc-choice-check {
+  background: var(--qc-azul);
+  border-color: var(--qc-azul);
+  color: #fff;
+}
+
+.qc-link {
+  font-weight: 640;
+  color: var(--qc-azul);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+}
+
+.qc-link:hover { color: var(--qc-azul-deep); }
+
+.qc-root ::-webkit-scrollbar { width: 10px; }
+.qc-root ::-webkit-scrollbar-thumb { background: rgba(27, 18, 9, 0.35); border-radius: 5px; }
+
 @media (prefers-reduced-motion: reduce) {
   .qc-root *,
   .qc-root *::before,

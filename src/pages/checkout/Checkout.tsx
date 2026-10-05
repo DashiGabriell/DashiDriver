@@ -1,7 +1,7 @@
 import { Navigate, useParams } from "react-router-dom";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
 import { CheckoutLayout } from "@/components/checkout/CheckoutLayout";
-import { PLAN_CATALOG, isPlanSlug } from "@/lib/billing/plans";
+import { PLAN_CATALOG, isPlanSlug, planSummaryFor } from "@/lib/billing/plans";
 import CheckoutMarketplaceFree from "./CheckoutMarketplaceFree";
 
 const Checkout = () => {
@@ -12,8 +12,8 @@ const Checkout = () => {
 
   const plan = PLAN_CATALOG[plano];
   return (
-    <CheckoutLayout title={plan.title}>
-      <CheckoutForm key={plano} planName={plano} amount={plan.price} planType={plan.planType} />
+    <CheckoutLayout title={`Assinar o ${planSummaryFor(plano).name}`}>
+      <CheckoutForm key={plano} slug={plano} amount={plan.price} planType={plan.planType} />
     </CheckoutLayout>
   );
 };

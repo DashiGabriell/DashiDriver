@@ -1,110 +1,77 @@
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { PLAN_CATALOG } from "@/lib/billing/plans";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { Pricing } from "@/components/landing/Pricing";
+import { MKT_PLAN_LIMITS, PLAN_CATALOG } from "@/lib/billing/plans";
+import "@/components/landing/landing.css";
 
-const AnimatedBanner = ({ text, direction, bgColor }: { text: string; direction: "left" | "right"; bgColor: string }) => {
-  return (
-    <div className={`w-full overflow-hidden ${bgColor} py-3 flex items-center mt-auto`}>
-      <div
-        className={`whitespace-nowrap flex items-center ${direction === "left" ? "animate-scroll-left" : "animate-scroll-right"}`}
-      >
-        {Array(20).fill(text).map((t, i) => (
-          <span key={i} className="flex items-center gap-2 text-white font-bold text-lg mx-8">
-            <img src="/logo.png" alt="DashiDrive Logo" className="h-6 w-auto" />
-            {t}
-          </span>
-        ))}
+const MKT_PLANS = [
+  { slug: "marketplace-free", name: "Free", price: PLAN_CATALOG["marketplace-free"].price, listings: MKT_PLAN_LIMITS.FREE.listings },
+  { slug: "marketplace-pro", name: "Pro", price: PLAN_CATALOG["marketplace-pro"].price, listings: MKT_PLAN_LIMITS.PRO.listings },
+  { slug: "marketplace-elite", name: "Elite", price: PLAN_CATALOG["marketplace-elite"].price, listings: MKT_PLAN_LIMITS.ELITE.listings },
+] as const;
+
+const PlanosPage = () => (
+  <div className="qc-root flex min-h-screen flex-col">
+    <header className="qc-steel">
+      <nav className="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-5 py-3 md:px-8" aria-label="Planos">
+        <Link to="/" className="qc-tape qc-tape--azul !text-[0.95rem]" aria-label="DashiDrive, página inicial">
+          DashiDrive
+        </Link>
+        <Link to="/" className="qc-btn qc-btn--steel !min-h-[2.5rem] !px-4 !text-[0.92rem]">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Voltar ao site
+        </Link>
+      </nav>
+    </header>
+
+    <main className="flex-1">
+      <Pricing
+        headingAs="h1"
+        footnote={<p className="mt-1">Manutenção e Alertas a partir do Pro.</p>}
+      />
+
+      <section className="qc-steel py-14" aria-labelledby="planos-marketplace">
+        <div className="mx-auto max-w-[1240px] px-5 md:px-8">
+          <h2 id="planos-marketplace" className="text-[1.6rem] font-[820] text-white" style={{ fontStretch: "118%" }}>
+            Só quer anunciar carros no marketplace?
+          </h2>
+          <p className="mt-2 max-w-[38rem] text-[1.02rem] text-[var(--qc-steel-soft)]">
+            Planos à parte da gestão, pelo número de anúncios ativos.{" "}
+            <Link to="/lp-marketplace" className="font-semibold text-white underline underline-offset-4">
+              Conheça o marketplace
+            </Link>
+          </p>
+          <ul className="mt-7 grid gap-3 sm:grid-cols-3">
+            {MKT_PLANS.map((plan) => (
+              <li key={plan.slug}>
+                <Link
+                  to={`/checkout/${plan.slug}`}
+                  className="flex items-center justify-between gap-3 rounded-xl px-4 py-3.5 shadow-[inset_0_0_0_1.5px_rgba(237,239,241,0.3)] transition-colors hover:bg-white/5"
+                >
+                  <span>
+                    <span className="block font-bold text-white">Marketplace {plan.name}</span>
+                    <span className="text-[0.92rem] text-[var(--qc-steel-soft)]">
+                      até {plan.listings} {plan.listings === 1 ? "anúncio" : "anúncios"}
+                    </span>
+                  </span>
+                  <span className="qc-num text-[1.5rem] font-bold text-white">
+                    {plan.price === 0 ? "Grátis" : `R$ ${plan.price}`}
+                    {plan.price > 0 && <span className="text-[0.9rem] font-normal text-[var(--qc-steel-soft)]">/mês</span>}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer className="qc-steel border-t border-white/10">
+      <div className="mx-auto max-w-[1240px] px-5 py-6 text-[0.88rem] text-[var(--qc-steel-soft)] md:px-8">
+        © 2026 DashiDrive · Feito pela Squad Dashi
       </div>
-    </div>
-  );
-};
-
-const gestaoPlans = [
-  { name: "Básico", slug: "gestao-basico", price: PLAN_CATALOG["gestao-basico"].price, desc: "5 veículos, 10 motoristas, 1 usuário" },
-  { name: "Pro", slug: "gestao-pro", price: PLAN_CATALOG["gestao-pro"].price, desc: "20 veículos, 40 motoristas, 3 usuários" },
-  { name: "Master", slug: "gestao-master", price: PLAN_CATALOG["gestao-master"].price, desc: "100 veículos, 200 motoristas, 200 usuários" },
-];
-
-const mktPlans = [
-  { name: "Free", slug: "marketplace-free", price: PLAN_CATALOG["marketplace-free"].price, desc: "1 anúncio ativo, perfil básico" },
-  { name: "Pro", slug: "marketplace-pro", price: PLAN_CATALOG["marketplace-pro"].price, desc: "10 anúncios, métricas, selo verificado" },
-  { name: "Elite", slug: "marketplace-elite", price: PLAN_CATALOG["marketplace-elite"].price, desc: "25 anúncios, destaque, prioridade na busca" },
-];
-
-const PlanCard = ({ name, price, desc, slug }: { name: string; price: number; desc: string; slug: string }) => {
-  const navigate = useNavigate();
-  return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col items-center text-center">
-      <h3 className="text-xl font-bold text-gray-800 mb-1">{name}</h3>
-      <p className="text-3xl font-black text-[#009ee3] mb-2">
-        R$ {price.toFixed(2).replace(".", ",")}
-        <span className="text-sm font-normal text-gray-500">/mês</span>
-      </p>
-      <p className="text-sm text-gray-500 mb-5 flex-1">{desc}</p>
-      <Button
-        onClick={() => navigate(`/checkout/${slug}`)}
-        className="w-full bg-[#009ee3] hover:bg-[#0082c4] text-white rounded-lg"
-      >
-        {price === 0 ? "Ativar Grátis" : "Assinar"}
-      </Button>
-    </div>
-  );
-};
-
-const PlanosPage = () => {
-  const navigate = useNavigate();
-  return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      <header className="bg-[#009ee3] p-3 flex items-center shadow-md relative">
-        <button
-          onClick={() => navigate(-1)}
-          className="absolute left-3 text-white hover:opacity-80 transition-opacity"
-          aria-label="Voltar"
-        >
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <div className="flex items-center gap-2 mx-auto">
-          <img src="/assets/escudoazul.png" alt="Compra Segura" className="h-8 w-auto" />
-          <span className="text-white text-xl font-bold">COMPRA SEGURA</span>
-        </div>
-      </header>
-
-      <main className="flex-1 container max-w-5xl mx-auto py-10 px-4 space-y-12">
-        <div className="text-center">
-          <h1 className="text-3xl font-black text-gray-800">Escolha seu plano</h1>
-          <p className="text-gray-500 mt-2">Selecione o plano ideal para sua locadora</p>
-        </div>
-
-        <section>
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Planos de Gestão</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {gestaoPlans.map((p) => (
-              <PlanCard key={p.slug} {...p} />
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Planos de Marketplace</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {mktPlans.map((p) => (
-              <PlanCard key={p.slug} {...p} />
-            ))}
-          </div>
-        </section>
-      </main>
-
-      <footer>
-        <AnimatedBanner
-          text="DashiDrive, gestão inteligente para locadoras!            "
-          direction="left"
-          bgColor="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-600"
-        />
-      </footer>
-    </div>
-  );
-};
+    </footer>
+  </div>
+);
 
 export default PlanosPage;
