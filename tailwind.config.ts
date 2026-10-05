@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["'Space Grotesk'", "sans-serif"],
+        display: ["'Inter'", "system-ui", "sans-serif"],
         sans: ["'Inter'", "system-ui", "sans-serif"],
       },
       colors: {
@@ -22,13 +22,14 @@ export default {
         black: "#000000",
         marble: "#FBFBFB",
         yellow: {
-          DEFAULT: "#FFBD4C",
-          hover: "#FFC966",
+          DEFAULT: "#FBBF24",
+          hover: "#FCD34D",
         },
         sunset: {
-          start: "#F16A69",
-          end: "#FFBD4C",
+          start: "#FDE68A",
+          end: "#F59E0B",
         },
+        coin: { DEFAULT: "hsl(var(--coin))", foreground: "hsl(var(--coin-foreground))" },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -56,8 +57,8 @@ export default {
         },
       },
       backgroundImage: {
-        "gradient-sunset": "linear-gradient(135deg, #F16A69 0%, #FFBD4C 100%)",
-        "gradient-sunset-hover": "linear-gradient(135deg, #F27776 0%, #FFC966 100%)",
+        "gradient-sunset": "linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 42%), linear-gradient(180deg, #FDE68A 0%, #FBBF24 45%, #F59E0B 100%)",
+        "gradient-sunset-hover": "linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 42%), linear-gradient(180deg, #FEF3C7 0%, #FCD34D 45%, #FBBF24 100%)",
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -105,12 +105,12 @@ export const Sidebar = () => {
 
   return (
     <aside
-      className={`hidden lg:flex flex-col shrink-0 ${sidebarWidthClass} p-5 gap-3 sticky top-0 h-screen overflow-hidden transition-all duration-300 ease-in-out`}
+      className={`hidden lg:flex flex-col shrink-0 ${sidebarWidthClass} p-4 gap-3 sticky top-0 h-screen overflow-hidden border-r border-border bg-card bg-[image:var(--surface-3d)] transition-all duration-300 ease-in-out`}
     >
       <div className={`flex items-center gap-3 px-2 py-3 mb-2 transition-all duration-300 ${alignContentClass}`}>
         <img src="/assets/loading-carcontrol-coelho.gif" alt="DashiDrive Logo" className="w-14 h-14 object-contain p-1 transition-all duration-300" />
         <div className={`${collapsed ? "hidden" : "block"} transition-opacity duration-300`}>
-          <div className="font-display font-bold text-lg leading-none">DashiDrive</div>
+          <div className="font-display font-extrabold text-lg leading-none">DashiDrive</div>
           <div className="text-[11px] text-muted-foreground tracking-wide uppercase mt-1">Gestão de frotas</div>
         </div>
       </div>
@@ -120,7 +120,7 @@ export const Sidebar = () => {
         <button
           type="button"
           onClick={() => setCollapsed((state) => !state)}
-          className="neu-sm h-9 w-9 grid place-items-center rounded-full text-muted-foreground transition-all duration-300 hover:text-foreground"
+          className="neu-sm h-8 w-8 grid place-items-center rounded-[10px] text-muted-foreground transition-all duration-150 hover:text-primary active:translate-y-px active:scale-95 active:shadow-[var(--plastic-pressed-light)]"
           aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
         >
           {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -129,7 +129,7 @@ export const Sidebar = () => {
 
       <nav 
         ref={navRef}
-        className="flex flex-col gap-2 transition-all duration-300 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary scrollbar-track-transparent hover:scrollbar-thumb-primary/80"
+        className="flex flex-col gap-1 transition-all duration-300 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-primary scrollbar-track-transparent hover:scrollbar-thumb-primary/80"
       >
         {items.map(({ to, label, icon, end }) => (
           <NavLink
@@ -146,8 +146,10 @@ export const Sidebar = () => {
               }
             }}
             className={({ isActive }) =>
-              `group flex items-center gap-3 ${alignContentClass} px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-300
-              ${isActive ? "neu-press text-foreground" : "text-muted-foreground hover:text-foreground hover:neu-sm"}`
+              `group relative flex items-center gap-3 ${alignContentClass} min-h-[42px] px-3 py-2.5 rounded-xl text-sm transition-all duration-150 active:translate-y-px active:scale-[0.98]
+              ${isActive
+                ? "neu-press text-primary font-semibold before:absolute before:left-0 before:top-[22%] before:bottom-[22%] before:w-[3px] before:rounded-r-[3px] before:bg-[image:var(--btn-3d-primary)]"
+                : "font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"}`
             }
           >
             {({ isActive }) => (
@@ -176,7 +178,7 @@ export const Sidebar = () => {
         ))}
       </nav>
 
-      <div className={`mt-auto neu p-4 transition-all duration-300 ${collapsed ? "px-2 py-3" : "p-4"}`}>
+      <div className={`mt-auto border-t border-border pt-4 transition-all duration-300 ${collapsed ? "px-0" : "px-1"}`}>
         <div className={`flex items-center gap-3 transition-all duration-300 ${collapsed ? "flex-col" : "justify-between"}`}>
           <NavLink 
             to="/perfil"
@@ -184,7 +186,7 @@ export const Sidebar = () => {
               `flex items-center gap-3 transition-all duration-300 hover:opacity-80 ${collapsed ? "flex-col" : ""} ${isActive ? "text-primary" : ""}`
             }
           >
-            <div className="w-10 h-10 rounded-full bg-foreground text-background grid place-items-center font-semibold text-sm shrink-0 uppercase">
+            <div className="w-10 h-10 rounded-full bg-primary/12 text-primary grid place-items-center font-bold text-sm shrink-0 uppercase overflow-hidden">
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt={userName} className="w-full h-full rounded-full object-cover" />
               ) : (
@@ -202,7 +204,7 @@ export const Sidebar = () => {
             type="button"
             onClick={handleSignOut}
             aria-label="Sair da conta"
-            className={`neu-sm hover:text-danger text-muted-foreground transition-all duration-300 flex items-center justify-center gap-2 rounded-2xl ${collapsed ? "w-10 h-10" : "px-3 py-2"}`}
+            className={`hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-all duration-150 active:translate-y-px active:scale-[0.98] flex items-center justify-center gap-2 rounded-xl ${collapsed ? "w-10 h-10" : "px-3 py-2"}`}
             title="Sair da conta"
           >
             <LogOut className="w-4 h-4" />

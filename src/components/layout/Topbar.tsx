@@ -36,7 +36,7 @@ export const Topbar = ({
   return (
     <header className="flex items-center gap-3 mb-6 md:mb-8 animate-blur-in">
       <div className="min-w-0 flex-1">
-        <h1 className="font-display text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight truncate">
+        <h1 className="font-display text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight truncate">
           {title}
         </h1>
         {subtitle && (
