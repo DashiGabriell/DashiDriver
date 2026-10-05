@@ -235,7 +235,12 @@ const Pagamentos = () => {
     }
   };
 
-  const getComprovanteUrl = async (path: string): Promise<string> => {
+  const getComprovanteUrl = async (pathOrUrl: string): Promise<string> => {
+    const marker = "/payment-receipts/";
+    const markerIndex = pathOrUrl.indexOf(marker);
+    const path = markerIndex >= 0
+      ? decodeURIComponent(pathOrUrl.slice(markerIndex + marker.length).split("?")[0])
+      : pathOrUrl;
     const { data, error } = await supabase.storage
       .from("payment-receipts")
       .createSignedUrl(path, 60 * 60);

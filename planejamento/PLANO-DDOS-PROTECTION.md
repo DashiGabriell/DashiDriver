@@ -1,7 +1,7 @@
 # Plano de Proteção DDoS — DashiDrive
 
 **Data:** 28/06/2026
-**Stack:** Lovable / Vercel / Supabase
+**Stack:** Vercel / Supabase
 **Objetivo:** Proteção real contra ataques DDoS utilizando recursos nativos (sem migrar de plataforma)
 
 ---

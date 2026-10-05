@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\candidate.json",
+    "sha256": "8490284174e16b6e409b817e65a128f8e95aaf102cadc2967441b164064b95fb",
+    "bytes": 41479
+  },
+  "artifact": {
+    "path": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\criacao-de-conta.html",
+    "sha256": "8227f4b61a809b909d7ebd16d073692b3ece8c7c6fd91f086bde4377f8dfedce",
+    "bytes": 793247
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\criacao-de-conta.finalize.json",
+    "summaryReceipt": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\criacao-de-conta.finalize-summary.json",
+    "browserCheckReceipt": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\criacao-de-conta.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "durationMs": 40177,
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "routesOverSuggestedBends": 1,
+      "routesOverSuggestedStretch": 1
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [],
+      "detours": [
+        {
+          "relationship": {
+            "id": "e-login-bemvindo",
+            "from": "login_pwd",
+            "to": "bemvindo",
+            "label": "",
+            "collectionIndex": 11,
+            "artifactIndex": 12
+          },
+          "bends": 4,
+          "stretch": 6.376
+        }
+      ],
+      "truncated": false
+    },
+    "hints": [
+      "login_pwd → bemvindo needs 4 bends: move node login_pwd or bemvindo so they share a row or column with matching centers, or sit diagonally with a clear corner."
+    ],
+    "repair": "Trace these relationships at the desktop viewport. For Architecture, use references/architecture-layout-repair.md: reflow a blocked main path or tangled connected scene, and repair an isolated defect locally only when the surrounding composition is accepted. Preserve all semantic content and user-fixed geometry. Rerun finalize once after the edit."
+  }
+}

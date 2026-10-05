@@ -1,539 +1,581 @@
-import { motion } from "framer-motion";
-import { 
-  ArrowRight, 
-  CheckCircle2, 
-  Zap
-} from "lucide-react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-
+import { motion } from "framer-motion";
+import { ArrowRight, Minus, Plus } from "lucide-react";
 import { useAuth } from "@/integrations/supabase/auth";
-import { VerticalCutReveal } from "@/components/ui/vertical-cut-reveal";
 import { cn } from "@/lib/utils";
+import { EXAMPLE_FLEET } from "@/components/landing/fleet";
+import { KeyTag, Plate, STATUS_CYCLE, brl, useSwing, type Car } from "@/components/landing/KeyTag";
+import "@/components/landing/landing.css";
 
-// Componente de faixa animada
-const AnimatedBanner = ({ text, direction, bgColor }: { text: string; direction: "left" | "right"; bgColor: string }) => {
+const PLANS = [
+  { name: "Básico", slug: "gestao-basico", price: 199, cars: 5, drivers: 10, users: "1 usuário" },
+  { name: "Pro", slug: "gestao-pro", price: 399, cars: 20, drivers: 40, users: "até 3 usuários" },
+  { name: "Master", slug: "gestao-master", price: 799, cars: 100, drivers: 200, users: "até 200 usuários" },
+];
+
+const TAG_ROWS = [
+  {
+    field: "Motorista",
+    value: "Jefferson Souza",
+    detail: "CNH B · vence 12/2027",
+    module: "Motoristas",
+    text: "CPF, CNH com validade, histórico de locações e quem está inadimplente.",
+  },
+  {
+    field: "Cobrança",
+    value: "R$ 650 por semana",
+    detail: "Próxima: seg, 12/10 · Pix",
+    module: "Pagamentos",
+    text: "Cobrança diária, semanal ou mensal por motorista. Você vê quem pagou e quem está devendo sem abrir o extrato.",
+  },
+  {
+    field: "Vistoria",
+    value: "Saída em 28/09",
+    detail: "7 etapas · PDF no WhatsApp",
+    module: "Vistorias",
+    text: "Fotos guiadas na entrega e na devolução, com PDF pronto para mandar ao motorista.",
+  },
+  {
+    field: "Oficina",
+    value: "Troca de óleo em 1.200 km",
+    detail: "Última: 14/08 · R$ 280",
+    module: "Manutenção",
+    text: "Preventiva e corretiva, com custo e nota fiscal de cada serviço e o km rodado de cada carro.",
+  },
+  {
+    field: "Seguro e parcela",
+    value: "Parcela 7 de 12 paga",
+    detail: "Próxima: 20/10",
+    module: "Financiamento e seguro",
+    text: "Parcelas do carro e do seguro com data marcada, para nenhuma vencer esquecida.",
+  },
+  {
+    field: "Lucro do carro",
+    value: "R$ 1.940 em setembro",
+    detail: "receita − oficina − seguro − parcela",
+    module: "Lucratividade",
+    text: "Quanto cada carro deixou no mês depois de todos os custos. O que não se paga aparece primeiro.",
+  },
+];
+
+const INSPECTION_STEPS = [
+  "Foto frontal",
+  "Foto traseira",
+  "Lateral direita",
+  "Lateral esquerda",
+  "Interior frente",
+  "Painel: km e combustível",
+  "Pneus",
+];
+
+const COMPARISON = [
+  { step: "Foto frontal", note: "Sem alteração" },
+  { step: "Foto traseira", note: "Sem alteração" },
+  { step: "Lateral direita", note: "Risco na porta traseira", flag: true },
+  { step: "Lateral esquerda", note: "Sem alteração" },
+  { step: "Interior frente", note: "Sem alteração" },
+  { step: "Painel", note: "48.210 km → 49.870 km" },
+  { step: "Pneus", note: "Sem alteração" },
+];
+
+const useIsSmall = () => {
+  const [small, setSmall] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 639px)").matches : false,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)");
+    const onChange = () => setSmall(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+  return small;
+};
+
+const useHoleAlign = (board: React.RefObject<HTMLElement>, grid: React.RefObject<HTMLElement>) => {
+  useLayoutEffect(() => {
+    const section = board.current;
+    const container = grid.current;
+    if (!section || !container) return;
+
+    const align = () => {
+      const hook = container.firstElementChild as HTMLElement | null;
+      if (!hook) return;
+      const s = section.getBoundingClientRect();
+      const h = hook.getBoundingClientRect();
+      section.style.setProperty("--hx", `${h.left + h.width / 2 - s.left}px`);
+      section.style.setProperty("--hy", `${h.top + 6.5 - s.top}px`);
+    };
+
+    align();
+    const ro = new ResizeObserver(align);
+    ro.observe(section);
+    ro.observe(container);
+    document.fonts?.ready.then(align);
+    return () => ro.disconnect();
+  }, [board, grid]);
+};
+
+const SectionHeading = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <h2 className={cn("qc-display text-[clamp(1.95rem,4.1vw,3.6rem)]", className)}>{children}</h2>
+);
+
+const Landing = () => {
+  const { session } = useAuth();
+  const [scrolled, setScrolled] = useState(false);
+  const [fleet, setFleet] = useState<Car[]>(EXAMPLE_FLEET);
+  const isSmall = useIsSmall();
+  const visible = isSmall ? fleet.slice(0, 9) : fleet;
+  const heroRef = useRef<HTMLElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  useHoleAlign(heroRef, gridRef);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const summary = useMemo(() => {
+    const count = (s: Car["status"]) => visible.filter((c) => c.status === s).length;
+    return {
+      total: visible.length,
+      rodando: count("alugado") + count("atrasado"),
+      patio: count("disponivel"),
+      oficina: count("oficina"),
+      atrasado: count("atrasado"),
+      receber: visible.filter((c) => c.status === "alugado").reduce((sum, c) => sum + c.weekly, 0),
+      devendo: visible.filter((c) => c.status === "atrasado").reduce((sum, c) => sum + c.weekly, 0),
+    };
+  }, [visible]);
+
+  const cycle = (plate: string) =>
+    setFleet((cars) =>
+      cars.map((c) =>
+        c.plate === plate
+          ? { ...c, status: STATUS_CYCLE[(STATUS_CYCLE.indexOf(c.status) + 1) % STATUS_CYCLE.length] }
+          : c,
+      ),
+    );
+
+  const enterTo = session ? "/dashboard" : "/login";
+  const enterLabel = session ? "Ir para o painel" : "Entrar";
+
   return (
-    <div className={`w-full overflow-hidden ${bgColor} py-3 flex items-center`}>
-      <div 
-        className={`whitespace-nowrap flex items-center ${direction === "left" ? "animate-scroll-left" : "animate-scroll-right"}`}
+    <div className="qc-root min-h-screen">
+      <header
+        className={cn(
+          "fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow,padding] duration-300",
+          scrolled ? "bg-[#23272b] py-2.5 shadow-[0_8px_20px_-10px_rgba(0,0,0,0.6)]" : "py-5",
+        )}
       >
-        {Array(20).fill(text).map((t, i) => (
-          <span key={i} className="text-white font-bold text-lg mx-8">
-            {t}
-          </span>
-        ))}
+        <nav className="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-5 md:px-8" aria-label="Principal">
+          <Link to="/" className="qc-tape qc-tape--azul !text-[0.95rem]" aria-label="DashiDrive, página inicial">
+            DashiDrive
+          </Link>
+          <div className="hidden items-center gap-3 md:flex">
+            <a href="#etiqueta" className="qc-tape">Como funciona</a>
+            <a href="#vistoria" className="qc-tape">Vistoria</a>
+            <a href="#planos" className="qc-tape">Planos</a>
+          </div>
+          <Link
+            to={enterTo}
+            className={cn("qc-btn !min-h-[2.75rem] !px-5 !text-[0.95rem]", scrolled ? "qc-btn--steel" : "qc-btn--quiet")}
+          >
+            {enterLabel}
+          </Link>
+        </nav>
+      </header>
+
+      <main>
+        {/* Quadro */}
+        <section ref={heroRef} className="qc-board relative overflow-hidden pb-16 pt-24 md:pb-20 lg:min-h-[100svh]">
+          <div className="mx-auto grid max-w-[1240px] items-center gap-12 px-4 sm:px-5 md:px-8 lg:grid-cols-12 lg:gap-10">
+            <div className="qc-quiet lg:col-span-5">
+              <h1 className="qc-display text-[clamp(2.35rem,5.2vw,4.5rem)]">
+                A locadora inteira num <span className="qc-inline-tape whitespace-nowrap">quadro</span> só.
+              </h1>
+              <p className="mt-7 max-w-[34rem] text-[1.12rem] font-[480] leading-relaxed text-[var(--qc-ink)]">
+                Cada carro da frota com motorista, cobrança da semana, vistoria, oficina e seguro no mesmo lugar. Sem
+                planilha e sem caçar comprovante no WhatsApp.
+              </p>
+              <div className="mt-9 flex flex-wrap items-center gap-3">
+                <a href="#planos" className="qc-btn qc-btn--primary group">
+                  Escolher meu plano
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                </a>
+                <Link to={enterTo} className="qc-btn qc-btn--quiet">
+                  {session ? "Ir para o painel" : "Já sou cliente"}
+                </Link>
+              </div>
+              <p className="mt-6 text-[0.95rem] font-medium text-[var(--qc-ink-soft)]">
+                Planos a partir de <span className="qc-num text-[1.1rem] font-bold">R$ 199</span>/mês · cartão, Pix ou boleto
+              </p>
+            </div>
+
+            <div className="lg:col-span-7">
+              <div className="mx-auto w-fit">
+                <div
+                  ref={gridRef}
+                  className="grid auto-rows-[160px] grid-cols-[repeat(3,102px)] gap-x-[26px] sm:grid-cols-[repeat(4,144px)] sm:gap-x-4 lg:grid-cols-[repeat(4,112px)] xl:grid-cols-[repeat(4,144px)]"
+                >
+                  {visible.map((car, i) => (
+                    <KeyTag key={car.plate} car={car} index={i} onCycle={() => cycle(car.plate)} />
+                  ))}
+                </div>
+
+                <div
+                  className="qc-steel mt-2 rounded-lg px-4 py-2.5 text-[0.92rem] shadow-[0_10px_20px_-12px_rgba(40,20,5,0.7)]"
+                  aria-live="polite"
+                >
+                  <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
+                    <span className="text-[0.74rem] font-semibold uppercase tracking-[0.14em] text-[var(--qc-steel-soft)]" style={{ fontStretch: "115%" }}>
+                      Exemplo · esta semana
+                    </span>
+                    <span>
+                      A receber <strong className="qc-num text-[1.2rem] font-bold text-white">{brl(summary.receber)}</strong>
+                    </span>
+                    <span>
+                      Atrasado <strong className="qc-num text-[1.2rem] font-bold text-[#ff8a7a]">{brl(summary.devendo)}</strong>
+                    </span>
+                    <span className="text-[var(--qc-steel-soft)]">
+                      <span className="qc-num font-semibold text-white">{summary.rodando}</span> rodando ·{" "}
+                      <span className="qc-num font-semibold text-white">{summary.patio}</span> no pátio ·{" "}
+                      <span className="qc-num font-semibold text-white">{summary.oficina}</span> na oficina
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <span className="qc-tape qc-tape--azul">Alugado</span>
+                  <span className="qc-tape qc-tape--verde">No pátio</span>
+                  <span className="qc-tape qc-tape--amarelo">Oficina</span>
+                  <span className="qc-tape qc-tape--vermelho">Atrasado</span>
+                  <span className="ml-auto rounded bg-[rgba(251,250,246,0.85)] px-2 py-0.5 text-[0.86rem] font-semibold text-[var(--qc-ink)]">
+                    Toque numa etiqueta para mudar o status
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Etiqueta */}
+        <section id="etiqueta" className="qc-steel scroll-mt-16 py-24 md:py-32">
+          <div className="mx-auto max-w-[1240px] px-5 md:px-8">
+            <div className="max-w-[46rem]">
+              <SectionHeading>Uma etiqueta guarda o carro inteiro.</SectionHeading>
+              <p className="mt-6 max-w-[40rem] text-[1.1rem] leading-relaxed text-[var(--qc-steel-soft)]">
+                Na parede, a etiqueta diz só a placa. No DashiDrive ela abre a vida do carro: quem está com ele, quanto
+                deve, como saiu e quando volta para a oficina.
+              </p>
+            </div>
+
+            <TagAnatomy />
+          </div>
+        </section>
+
+        {/* Vistoria */}
+        <section id="vistoria" className="qc-yellow scroll-mt-16 py-24 md:py-32">
+          <div className="mx-auto grid max-w-[1240px] gap-14 px-5 md:px-8 lg:grid-cols-12 lg:gap-10">
+            <div className="lg:col-span-5">
+              <SectionHeading>A vistoria sai do celular e chega no WhatsApp.</SectionHeading>
+              <p className="mt-6 max-w-[34rem] text-[1.1rem] leading-relaxed">
+                Na entrega e na devolução, sua equipe fotografa o carro em etapas guiadas. O DashiDrive monta o PDF com as
+                fotos, manda para o motorista e guarda o histórico de cada carro.
+              </p>
+
+              <ol className="mt-10 border-t-2 border-[var(--qc-tape)]">
+                {INSPECTION_STEPS.map((step, i) => (
+                  <li key={step} className="grid grid-cols-[3.25rem_1fr] items-baseline border-b border-[rgba(22,23,27,0.35)] py-2.5">
+                    <span className="qc-num text-[1.9rem] font-bold leading-none">{i + 1}</span>
+                    <span className="text-[1.05rem] font-semibold">{step}</span>
+                  </li>
+                ))}
+                <li className="grid grid-cols-[3.25rem_1fr] items-baseline py-2.5">
+                  <Plus className="h-5 w-5" aria-hidden="true" />
+                  <span className="text-[1.05rem] font-medium">Avarias, quando houver</span>
+                </li>
+              </ol>
+            </div>
+
+            <div className="lg:col-span-7 lg:pl-6">
+              <ComparisonSheet />
+            </div>
+          </div>
+        </section>
+
+        {/* Planos */}
+        <Pricing />
+
+        {/* Fechamento */}
+        <section className="qc-steel pt-24 md:pt-32">
+          <div className="mx-auto max-w-[1240px] px-5 md:px-8">
+            <div className="max-w-[52rem]">
+              <SectionHeading className="text-[clamp(2.2rem,5.4vw,4.5rem)]">
+                Tire a frota da planilha e pendure no lugar certo.
+              </SectionHeading>
+              <div className="mt-10 flex flex-wrap gap-3">
+                <a href="#planos" className="qc-btn qc-btn--primary group">
+                  Escolher meu plano
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                </a>
+                <Link to={enterTo} className="qc-btn qc-btn--steel">
+                  {enterLabel}
+                </Link>
+              </div>
+            </div>
+
+            <footer className="mt-24 flex flex-col gap-6 border-t border-white/15 py-10 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-4">
+                <span className="qc-tape qc-tape--azul">DashiDrive</span>
+                <span className="text-[0.92rem] text-[var(--qc-steel-soft)]">Gestão de frota para locadoras</span>
+              </div>
+              <nav className="flex flex-wrap gap-x-6 gap-y-2 text-[0.95rem]" aria-label="Rodapé">
+                <a href="#etiqueta" className="text-[var(--qc-steel-soft)] underline-offset-4 hover:text-white hover:underline">Como funciona</a>
+                <a href="#vistoria" className="text-[var(--qc-steel-soft)] underline-offset-4 hover:text-white hover:underline">Vistoria</a>
+                <a href="#planos" className="text-[var(--qc-steel-soft)] underline-offset-4 hover:text-white hover:underline">Planos</a>
+                <Link to={enterTo} className="text-[var(--qc-steel-soft)] underline-offset-4 hover:text-white hover:underline">{enterLabel}</Link>
+              </nav>
+              <p className="text-[0.88rem] text-[var(--qc-steel-soft)]">© 2026 DashiDrive · Feito pela Squad Dashi</p>
+            </footer>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+};
+
+const TagAnatomy = () => {
+  const controls = useSwing(0.2);
+
+  return (
+    <div className="relative mt-16 lg:mt-20">
+      <div className="mx-auto mb-[-6px] h-[14px] w-[13px] rounded-full bg-[radial-gradient(circle_at_35%_30%,#fafafa,#a3a9af_55%,#4a4f55)] lg:mx-0 lg:ml-[calc(13rem-6.5px)]" aria-hidden="true" />
+      <div className="grid gap-x-12 lg:grid-cols-[26rem_1fr]">
+        <motion.div className="qc-swing mx-auto w-full max-w-[26rem] lg:row-span-7 lg:mx-0" animate={controls}>
+          <div className="qc-tag qc-tag--steelboard !rounded-[22px_22px_28px_28px] !px-4 !pb-5 !pt-10" data-status="alugado">
+            <div className="qc-insert !rounded-[10px] !p-4">
+              <Plate plate="QTP4E21" size="lg" />
+              <div className="mt-3 flex items-baseline justify-between text-[0.95rem]">
+                <span className="font-semibold">Onix 1.0 · 2022</span>
+                <span className="text-[0.78rem] font-bold uppercase tracking-[0.12em] text-[var(--qc-azul)]" style={{ fontStretch: "115%" }}>
+                  Alugado
+                </span>
+              </div>
+              <dl className="mt-3 divide-y divide-black/10 border-t border-black/10">
+                {TAG_ROWS.map((row) => (
+                  <div key={row.field} className="py-2.5">
+                    <dt className="text-[0.74rem] font-bold uppercase tracking-[0.12em] text-black/55" style={{ fontStretch: "112%" }}>
+                      {row.field}
+                    </dt>
+                    <dd className="mt-0.5 text-[1.02rem] font-semibold leading-snug">{row.value}</dd>
+                    <dd className="text-[0.86rem] text-black/65">{row.detail}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+            <div className="mt-3 px-1 text-[0.8rem] text-white/85">Dados de exemplo</div>
+          </div>
+        </motion.div>
+
+        <ul className="mt-14 space-y-9 lg:mt-24">
+          {TAG_ROWS.map((row) => (
+            <li key={row.module} className="flex gap-4">
+              <span className="qc-leader hidden max-w-16 lg:block" aria-hidden="true" />
+              <div className="max-w-[34rem]">
+                <h3 className="text-[1.28rem] font-[780]" style={{ fontStretch: "108%" }}>
+                  {row.module}
+                </h3>
+                <p className="mt-1.5 leading-relaxed text-[var(--qc-steel-soft)]">{row.text}</p>
+              </div>
+            </li>
+          ))}
+          <li className="flex gap-4">
+            <span className="qc-leader hidden max-w-16 lg:block" aria-hidden="true" />
+            <div className="max-w-[34rem]">
+              <h3 className="text-[1.28rem] font-[780]" style={{ fontStretch: "108%" }}>
+                Alertas
+              </h3>
+              <p className="mt-1.5 leading-relaxed text-[var(--qc-steel-soft)]">
+                CNH vencendo, IPVA, seguro, manutenção e pagamento atrasado chegam até você antes de virar prejuízo.
+              </p>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   );
 };
 
-// Componente de troca de faturamento
-const PricingSwitch = ({
-  onSwitch,
-}: {
-  onSwitch: (value: boolean) => void;
-}) => {
-  const [selected, setSelected] = useState(false);
+const ComparisonSheet = () => (
+  <figure className="relative rotate-[0.6deg] rounded-[6px] bg-[var(--qc-paper)] p-6 text-[var(--qc-tape)] shadow-[0_18px_40px_-18px_rgba(70,45,0,0.65),0_3px_6px_rgba(70,45,0,0.2)] md:p-9">
+    <figcaption className="flex flex-wrap items-center justify-between gap-4 border-b-2 border-[var(--qc-tape)] pb-4">
+      <div>
+        <div className="text-[1.35rem] font-[800]" style={{ fontStretch: "110%" }}>
+          Saída × devolução
+        </div>
+        <div className="qc-num mt-0.5 text-[1.05rem] font-semibold text-black/65">28/09 → 05/10 · Onix 1.0</div>
+      </div>
+      <div className="w-[9.5rem]">
+        <Plate plate="QTP4E21" />
+      </div>
+    </figcaption>
 
-  const handleSwitch = (value: boolean) => {
-    setSelected(value);
-    onSwitch(value);
-  };
-};
+    <table className="mt-2 w-full text-left text-[1rem]">
+      <thead className="sr-only">
+        <tr>
+          <th>Etapa</th>
+          <th>Observação</th>
+        </tr>
+      </thead>
+      <tbody>
+        {COMPARISON.map((row) => (
+          <tr key={row.step} className="border-b border-black/10 last:border-0">
+            <td className="py-3 pr-4 font-semibold">{row.step}</td>
+            <td className={cn("py-3 text-right", row.flag ? "font-semibold text-[var(--qc-vermelho)]" : "text-black/65")}>
+              {row.flag && <span className="qc-tape qc-tape--vermelho mr-2 !text-[0.66rem]">Novo</span>}
+              <span className={row.step === "Painel" ? "qc-num text-[1.08rem] font-semibold text-[var(--qc-tape)]" : undefined}>
+                {row.note}
+              </span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
 
-const Landing = () => {
-  const { session } = useAuth();
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isYearly, setIsYearly] = useState(false);
+    <div className="mt-6 flex flex-wrap items-center gap-2 border-t-2 border-[var(--qc-tape)] pt-5">
+      <span className="qc-tape">PDF enviado no WhatsApp</span>
+      <span className="qc-tape">Link público da vistoria</span>
+      <span className="ml-auto text-[0.85rem] text-black/55">Exemplo</span>
+    </div>
+  </figure>
+);
 
-  const plans = [
-    {
-      name: "BÁSICO",
-      description: "Focado em pequenas operações.",
-      price: 199,
-      slug: "gestao-basico",
-      yearlyPrice: 159,
-      buttonText: "Começar Agora",
-      buttonVariant: "outline" as const,
-      features: [
-        "Até 5 veículos",
-        "1 Usuário Admin",
-        "Até 10 motoristas",
-        "Até 10 checklists/mês",
-        "Controle financeiro básico",
-        "Suporte padrão"
-      ],
-      color: "success"
-    },
-    {
-      name: "PRO",
-      description: "Focado em operações em crescimento.",
-      price: 399,
-      slug: "gestao-pro",
-      yearlyPrice: 319,
-      buttonText: "Escalar Minha Locadora",
-      buttonVariant: "default" as const,
-      popular: true,
-      features: [
-        "Até 20 veículos",
-        "Até 3 usuários",
-        "Até 40 motoristas",
-        "Checklists ilimitados",
-        "Gestão de manutenção",
-        "KPIs financeiros completos",
-        "Suporte prioritário"
-      ],
-      color: "sunset"
-    },
-    {
-      name: "MASTER",
-      description: "Focado em locadoras estruturadas.",
-      price: 799,
-      slug: "gestao-master",
-      yearlyPrice: 639,
-      buttonText: "Falar com Especialista",
-      buttonVariant: "outline" as const,
-      features: [
-        "Até 100 veículos",
-        "Até 200 usuários",
-        "Checklists ilimitados",
-        "Operação multi-equipe",
-        "Gestão avançada de anúncios",
-        "Dashboard volume elevado",
-        "Suporte VIP 24/7"
-      ],
-      color: "yellow"
-    }
-  ];
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    
-    // Aplicar scrollbar azul na raiz do documento ao montar a landing page
-    document.documentElement.classList.add('scrollbar-thin', 'scrollbar-thumb-blue', 'scrollbar-track-transparent');
-    
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      // Remover scrollbar azul ao sair da página
-      document.documentElement.classList.remove('scrollbar-thin', 'scrollbar-thumb-blue', 'scrollbar-track-transparent');
-    };
-  }, []);
-
-  const fadeIn = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6 }
-  };
-
-  const staggerContainer = {
-    animate: {
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
+const Pricing = () => {
+  const [cars, setCars] = useState(12);
+  const fit = PLANS.find((p) => cars <= p.cars) ?? PLANS[PLANS.length - 1];
+  const fill = `${((cars - 1) / 99) * 100}%`;
 
   return (
-    <div className="min-h-screen bg-background font-sans selection:bg-yellow/30">
-      {/* Navigation */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'py-3 bg-background/80 backdrop-blur-md border-b' : 'py-6 bg-transparent'}`}>
-        <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 grid place-items-center rounded-xl group-hover:scale-110 transition-transform">
-              <img 
-                src="/assets/loading-carcontrol-coelho.gif" 
-                alt="DashiDrive Logo" 
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <span className="font-display text-2xl font-bold tracking-tight">
-              Dashi<span className="text-blue-500">Drive</span>
-            </span>
-          </Link>
-
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#funcionalidades" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Funcionalidades</a>
-            <a href="#planos" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Planos</a>
-            <a href="#funcionalidades" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Sobre</a>
-          </div>
-
-          <Link to={session ? "/dashboard" : "/login"}>
-            <Button variant="outline" className="neu-interactive px-6 font-semibold border-none bg-background shadow-neu-sm hover:shadow-neu">
-              {session ? "Dashboard" : "Entrar"}
-            </Button>
-          </Link>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="relative pt-20 pb-0 md:pt-28 md:pb-0 overflow-hidden min-h-screen">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full -z-10 pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sunset-start/10 rounded-full blur-[120px] animate-pulse-soft" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-yellow/10 rounded-full blur-[120px] animate-pulse-soft delay-1000" />
-        </div>
-
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid md:grid-cols-2 gap-6 items-center">
-            {/* Coluna Esquerda - GIF */}
-            <motion.div 
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              className="flex flex-col justify-center items-center gap-4"
-            >
-              <img 
-                src="/assets/loading-carcontrol-coelho.gif" 
-                alt="Hero Animation" 
-                className="w-full max-w-sm h-auto object-contain"
-              />
-              <Link to={session ? "/dashboard" : "/login"}>
-                <Button className="h-11 px-6 text-base font-bold bg-gradient-sunset hover:bg-gradient-sunset-hover text-white rounded-2xl shadow-neu-accent hover:scale-105 active:scale-95 transition-all group">
-                  {session ? "Entrar na DashiDrive" : "Teste por 7 dias Grátis"}
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-            </motion.div>
-
-            {/* Coluna Direita - Texto */}
-            <motion.div {...fadeIn}>
-              <h1 className="font-display text-[2.4rem] md:text-[3.6rem] lg:text-[4.8rem] font-black tracking-tight mb-2 text-balance leading-[0.9]">
-                SUA FROTA SOB <br />
-                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600">CONTROLE ABSOLUTO</span>
-              </h1>
-              <p className="max-w-2xl text-base md:text-lg text-muted-foreground mb-4 text-balance leading-relaxed">
-                Abandone as planilhas. A DashiDrive é a solução definitiva para locadoras que buscam escala, segurança e lucratividade real através de dados inteligentes.
-              </p>
-              <a href="#funcionalidades">
-                <Button variant="ghost" className="h-11 px-6 text-base font-semibold rounded-2xl hover:bg-foreground/5">
-                  Ver Funcionalidades
-                </Button>
-              </a>
-            </motion.div>
-          </div>
-        </div>
-
-        {/* Dashboard Preview / Floating UI elements */}
-        <div className="container mx-auto px-4 md:px-6 mt-4 md:mt-8">
-          <motion.div 
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 1, ease: "easeOut" }}
-            className="relative mx-auto max-w-4xl rounded-[2rem] p-2 bg-gradient-to-b from-border/50 to-transparent shadow-2xl"
-          >
-            <div className="overflow-hidden rounded-[1.5rem] bg-card border-4 border-background shadow-neu">
-              <img 
-                src="/assets/pc-smartphone.png" 
-                alt="Dashboard Preview" 
-                className="w-full h-auto object-cover aspect-video opacity-120"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-              
-              {/* Floating Cards (UI Flair) */}
-              <div className="absolute -left-4 md:-left-8 top-1/4 animate-bounce-subtle">
-                <div className="neu p-2 md:p-3 bg-card border">
-                  <img src="/assets/up.png" alt="Lucratividade" className="text-sunset-start w-6 h-6 mb-1" />
-                  <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Lucratividade</div>
-                  <div className="text-base md:text-lg font-black">+240%</div>
-                </div>
-              </div>
-              <div className="absolute -right-4 md:-right-8 bottom-1/4 animate-bounce-subtle delay-700">
-                <div className="neu p-2 md:p-3 bg-card border">
-                  <img src="/assets/escudo.png" alt="Segurança" className="text-success w-6 h-6 mb-1" />
-                  <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Segurança</div>
-                  <div className="text-base md:text-lg font-black">RLS 2.0</div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Stats/Social Proof */}
-      <section className="py-12 border-y bg-muted/30 relative">
-        {/* Faixa Azul Superior */}
-        <AnimatedBanner 
-          text="DashiDrive, gestão inteligente para locadoras!      -      " 
-          direction="left" 
-          bgColor="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-600"
-        />
-        
-        <div className="container mx-auto px-4 md:px-6 py-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="font-display text-3xl md:text-4xl font-black mb-1">100+</div>
-              <div className="text-sm font-medium text-muted-foreground">Veículos Gerenciados</div>
-            </div>
-            <div className="text-center">
-              <div className="font-display text-3xl md:text-4xl font-black mb-1">Muitas</div>
-              <div className="text-sm font-medium text-muted-foreground">Locadoras Ativas</div>
-            </div>
-            <div className="text-center">
-              <div className="font-display text-3xl md:text-4xl font-black mb-1">1k+</div>
-              <div className="text-sm font-medium text-muted-foreground">Checklists Realizados</div>
-            </div>
-            <div className="text-center">
-              <div className="font-display text-3xl md:text-4xl font-black mb-1">+2Mil HORAS</div>
-              <div className="text-sm font-medium text-muted-foreground">Economizadas</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Faixa Laranja Inferior */}
-        <AnimatedBanner 
-          text="Profissionalize a gestão da sua Locadora com a DashiDrive!      -      " 
-          direction="right" 
-          bgColor="bg-gradient-to-r from-sunset-start to-sunset-end"
-        />
-      </section>
-
-      {/* Features Section */}
-      <section id="funcionalidades" className="py-24 md:py-32">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center max-w-3xl mx-auto mb-16 md:mb-24">
-            <h2 className="font-display text-4xl md:text-6xl font-black tracking-tight mb-6 leading-[0.9]">
-              TUDO QUE VOCÊ PRECISA PARA <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600">DOMINAR O MERCADO</span>
-            </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Desenvolvido por especialistas em frotas, para resolver os problemas reais do seu dia a dia operacional.
+    <section id="planos" className="qc-board scroll-mt-16 overflow-hidden py-24 md:py-32">
+      <div className="mx-auto max-w-[1240px] px-5 md:px-8">
+        <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
+          <div className="qc-quiet lg:col-span-6">
+            <SectionHeading>Quantos carros tem no seu quadro?</SectionHeading>
+            <p className="mt-6 max-w-[32rem] text-[1.1rem] leading-relaxed">
+              Os planos mudam pelo tamanho da frota e da equipe. Diga quantos carros você tem e veja qual cabe.
             </p>
           </div>
 
-          <motion.div 
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {[
-              {
-                icon: <img src="/assets/up.png" alt="Dashboard" className="w-8 h-8" />,
-                title: "Dashboard em Tempo Real",
-                description: "Visualize KPIs críticos, faturamento e ocupação da frota em um painel intuitivo e poderoso."
-              },
-              {
-                icon: <img src="/assets/checklist.png" alt="Checklists" className="w-8 h-8" />,
-                title: "Checklists Inteligentes",
-                description: "Vistorias completas com fotos e geração automática de PDF profissional para enviar via WhatsApp."
-              },
-              {
-                icon: <img src="/assets/smartphone.png" alt="Mobile" className="w-8 h-8" />,
-                title: "Operação Mobile-First",
-                description: "Sua equipe de campo resolve tudo pelo celular, com interface otimizada e ultra-veloz."
-              },
-              {
-                icon: <img src="/assets/escudo.png" alt="Seguros" className="w-8 h-8" />,
-                title: "Gestão de Seguros",
-                description: "Controle parcelas de seguros e financiamentos sem nunca perder um vencimento."
-              },
-              {
-                icon: <img src="/assets/motorista.png" alt="Motoristas" className="w-8 h-8" />,
-                title: "Gestão de Motoristas",
-                description: "Histórico completo, controle de CNH e documentação centralizada em um só lugar."
-              },
-              {
-                icon: <img src="/assets/sino.png" alt="Alertas" className="w-8 h-8" />,
-                title: "Alertas Automáticos",
-                description: "Notificações inteligentes sobre manutenção, vencimentos e pendências financeiras."
-              }
-            ].map((feature, i) => (
-              <motion.div key={i} variants={fadeIn} className="neu-interactive p-8 bg-card group">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-sunset/10 grid place-items-center text-sunset-start mb-6 group-hover:scale-110 transition-transform">
-                  {feature.icon}
-                </div>
-                <h3 className="font-display text-2xl font-bold mb-4">{feature.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {feature.description}
-                </p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="planos" className="py-24 md:py-32 bg-muted/30">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center max-w-4xl mx-auto mb-16 md:mb-24 space-y-6">
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="font-display text-4xl md:text-7xl font-black tracking-tight leading-[1.1] md:leading-[0.9] text-balance"
-            >
-              PLANOS QUE <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600">IMPULSIONAM</span> <br className="md:hidden" /> SEU CRESCIMENTO
-            </motion.h2>
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              Escolha o plano ideal para o momento da sua locadora. Sem taxas escondidas, sem surpresas.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {plans.map((plan, index) => (
-              <motion.div 
-                key={plan.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className={cn(
-                  "neu p-1 flex flex-col h-full relative transition-transform hover:scale-[1.02]",
-                  plan.popular 
-                    ? "bg-gradient-to-b from-sunset-start to-sunset-end shadow-neu-accent scale-105 z-10" 
-                    : plan.color === "success" ? "bg-card border border-success/20" : "bg-card border border-yellow/20"
-                )}
+          <div className="qc-steel rounded-xl p-5 shadow-[0_14px_30px_-14px_rgba(40,20,5,0.75)] lg:col-span-6">
+            <label htmlFor="qc-cars" className="text-[0.82rem] font-semibold uppercase tracking-[0.14em] text-[var(--qc-steel-soft)]" style={{ fontStretch: "115%" }}>
+              Carros na frota
+            </label>
+            <div className="mt-2 flex items-center gap-4">
+              <button
+                type="button"
+                className="qc-step-btn"
+                onClick={() => setCars((n) => Math.max(1, n - 1))}
+                disabled={cars <= 1}
+                aria-label="Menos um carro"
               >
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-white text-sunset-start text-[10px] font-black uppercase tracking-widest shadow-lg">
-                    Melhor Custo-Benefício
-                  </div>
-                )}
-                
-                <div className={cn(
-                  "p-8 bg-card rounded-[calc(var(--radius)-4px)] flex-1 flex flex-col",
-                  plan.popular && "rounded-b-none"
-                )}>
-                  <div className="mb-6">
-                    <div className={cn(
-                      "inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-4",
-                      plan.color === "success" ? "bg-success/10 text-success" : 
-                      plan.color === "sunset" ? "bg-sunset-start/10 text-sunset-start" : "bg-yellow/10 text-yellow"
-                    )}>
-                      {plan.name === "BÁSICO" ? "Plano de Entrada" : plan.name === "PRO" ? "Recomendado" : "Premium"}
-                    </div>
-                    <h3 className="font-display text-3xl font-black mb-2">{plan.name}</h3>
-                    <p className="text-sm text-muted-foreground">{plan.description}</p>
-                  </div>
+                <Minus className="h-5 w-5" aria-hidden="true" />
+              </button>
+              <output htmlFor="qc-cars" className="qc-num w-[4.5rem] text-center text-[3rem] font-bold leading-none text-white">
+                {cars}
+              </output>
+              <button
+                type="button"
+                className="qc-step-btn"
+                onClick={() => setCars((n) => Math.min(100, n + 1))}
+                disabled={cars >= 100}
+                aria-label="Mais um carro"
+              >
+                <Plus className="h-5 w-5" aria-hidden="true" />
+              </button>
+              <div className="ml-auto text-right text-[0.95rem] text-[var(--qc-steel-soft)]">
+                Cabe no <strong className="text-white">{fit.name}</strong>
+              </div>
+            </div>
+            <input
+              id="qc-cars"
+              type="range"
+              min={1}
+              max={100}
+              value={cars}
+              onChange={(e) => setCars(Number(e.target.value))}
+              className="qc-range mt-5"
+              style={{ ["--fill" as string]: fill }}
+            />
+          </div>
+        </div>
 
-                  <div className="flex items-baseline gap-1 mb-8 overflow-hidden h-14">
-                    <span className="text-2xl font-bold text-muted-foreground">R$</span>
-                    <div className="relative">
-                      <motion.span 
-                        key={isYearly ? "yearly" : "monthly"}
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        className="text-5xl font-black block"
-                      >
-                        {isYearly ? plan.yearlyPrice : plan.price}
-                      </motion.span>
-                    </div>
-                    <span className="text-muted-foreground">/mês</span>
-                  </div>
+        <div className="qc-rail mt-16 hidden md:block" aria-hidden="true" />
+        <div className="mt-14 grid gap-x-8 gap-y-12 md:mt-[-7px] md:grid-cols-3">
+          {PLANS.map((plan, i) => (
+            <PlanTag key={plan.slug} plan={plan} index={i} active={plan.slug === fit.slug} />
+          ))}
+        </div>
 
-                  <ul className="space-y-4 mb-8 flex-1">
-                    {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-center gap-3 text-sm font-medium">
-                        <div className={cn(
-                          "w-5 h-5 rounded-full flex items-center justify-center shrink-0",
-                          plan.color === "success" ? "bg-success/10 text-success" : 
-                          plan.color === "sunset" ? "bg-sunset-start/10 text-sunset-start" : "bg-yellow/10 text-yellow"
-                        )}>
-                          <CheckCircle2 className="w-3 h-3" />
-                        </div>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
+        <p className="qc-quiet mt-12 inline-block text-[0.98rem] font-semibold text-[var(--qc-ink)]">
+          Valores mensais. Pagamento no cartão de crédito, Pix ou boleto.
+        </p>
+      </div>
+    </section>
+  );
+};
 
-                  <div className="mt-auto">
-                    <Link to={`/checkout/${plan.slug}`}>
-                      <Button 
-                        variant={plan.buttonVariant} 
-                        className={cn(
-                          "w-full h-14 rounded-2xl font-bold transition-all shadow-md active:scale-95",
-                          plan.popular 
-                            ? "bg-gradient-sunset hover:bg-gradient-sunset-hover text-white border-none" 
-                            : plan.color === "success" 
-                              ? "border-success/30 hover:bg-success hover:text-white" 
-                              : "border-yellow/30 hover:bg-yellow hover:text-white"
-                        )}
-                      >
-                        {plan.buttonText}
-                      </Button>
-                    </Link>
-                    
-                    {isYearly && (
-                      <p className="text-[10px] text-center text-muted-foreground mt-3 font-medium uppercase tracking-wider">
-                        Cobrado anualmente (R$ {(isYearly ? plan.yearlyPrice : plan.price) * 12})
-                      </p>
-                    )}
-                  </div>
+const PLAN_LOOK = [
+  { status: "plano", wire: 30, button: "bg-[var(--qc-tape)] text-white" },
+  { status: "alugado", wire: 78, button: "bg-white text-[var(--qc-azul)]" },
+  { status: "grafite", wire: 46, button: "bg-white text-[var(--qc-tape)]" },
+] as const;
+
+const PlanTag = ({ plan, index, active }: { plan: (typeof PLANS)[number]; index: number; active: boolean }) => {
+  const controls = useSwing(0.1 + index * 0.08, active);
+  const look = PLAN_LOOK[index];
+
+  return (
+    <div className="qc-hook mx-auto w-full max-w-[19rem]" style={{ ["--wire" as string]: `${look.wire}px` }}>
+      <motion.div className="qc-swing" animate={controls}>
+        <div className="qc-tag !rounded-[18px_18px_34px_34px] !px-3.5 !pb-4 !pt-11" data-status={look.status}>
+          {active && (
+            <span className="qc-tape qc-tape--vermelho absolute -right-3 top-5 !text-[0.72rem]">Cabe na sua frota</span>
+          )}
+          <div className="qc-insert !rounded-[10px] !px-4 !pb-4 !pt-3.5">
+            <div className="text-[1.5rem] font-[820]" style={{ fontStretch: "120%" }}>
+              {plan.name}
+            </div>
+            <div className="mt-2 flex items-baseline gap-1.5">
+              <span className="text-[1.1rem] font-semibold">R$</span>
+              <span className="qc-num text-[3.6rem] font-bold leading-[0.9]">{plan.price}</span>
+              <span className="text-[0.98rem] text-black/60">/mês</span>
+            </div>
+            <dl className="mt-4 space-y-1.5 border-t border-black/10 pt-3 text-[0.98rem]">
+              {[
+                ["Carros", `até ${plan.cars}`],
+                ["Motoristas", `até ${plan.drivers}`],
+                ["Equipe", plan.users],
+              ].map(([k, v]) => (
+                <div key={k} className="flex items-baseline gap-2">
+                  <dt className="text-black/60">{k}</dt>
+                  <span className="qc-leader" aria-hidden="true" />
+                  <dd className="font-semibold">{v}</dd>
                 </div>
-              </motion.div>
-            ))}
+              ))}
+            </dl>
           </div>
-        </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="py-16 md:py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-sunset opacity-10" />
-        <div className="container mx-auto px-4 md:px-6 relative">
-          <div className="neu p-6 xs:p-10 sm:p-12 md:p-24 text-center max-w-5xl mx-auto bg-card border overflow-hidden">
-            <h2 className="font-display text-xl xs:text-3xl sm:text-4xl md:text-7xl font-black tracking-tight mb-6 md:mb-8 leading-[1.2] xs:leading-[1.1] md:leading-[0.9] break-words uppercase">
-              PRONTO PARA <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600">PROFISSIONALIZAR</span> SUA LOCADORA?
-            </h2>
-            <p className="text-sm xs:text-base sm:text-lg md:text-xl text-muted-foreground mb-10 md:mb-12 max-w-2xl mx-auto leading-relaxed">
-              Junte-se a centenas de locadoras que já estão operando com eficiência máxima e lucratividade real.
-            </p>
-            <Link to="/login" className="w-full sm:w-auto">
-              <Button className="w-full sm:w-auto h-14 md:h-16 px-8 md:px-12 text-base xs:text-lg md:text-xl font-bold bg-gradient-sunset hover:bg-gradient-sunset-hover text-white rounded-2xl shadow-neu-accent hover:scale-105 active:scale-95 transition-all">
-                Criar Minha Conta Agora
-              </Button>
-            </Link>
-          </div>
+          <Link
+            to={`/checkout/${plan.slug}`}
+            className={cn("qc-btn mt-3.5 w-full hover:-translate-y-0.5", look.button)}
+          >
+            Assinar o {plan.name}
+          </Link>
         </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-20 border-t">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-            <div className="col-span-1 md:col-span-2">
-              <Link to="/" className="flex items-center gap-2 mb-6">
-                <div className="w-10 h-10 grid place-items-center rounded-xl">
-                  <img 
-                    src="/assets/loading-carcontrol-coelho.gif" 
-                    alt="DashiDrive Logo" 
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <span className="font-display text-2xl font-bold tracking-tight">Dashi<span className="text-blue-500">Drive</span></span>
-              </Link>
-              <p className="text-muted-foreground max-w-sm leading-relaxed">
-                A plataforma inteligente para gestão de frotas e locadoras. Tecnologia de ponta para quem busca resultados extraordinários.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-bold mb-6">Produto</h4>
-              <ul className="space-y-4">
-                <li><a href="#funcionalidades" className="text-muted-foreground hover:text-foreground transition-colors">Funcionalidades</a></li>
-                <li><a href="#planos" className="text-muted-foreground hover:text-foreground transition-colors">Planos</a></li>
-                <li><Link to="/login" className="text-muted-foreground hover:text-foreground transition-colors">Entrar</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-6">Empresa</h4>
-              <ul className="space-y-4">
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Sobre Nós</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Contato</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Privacidade</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t text-sm text-muted-foreground">
-            <p>© 2026 DashiDrive. Todos os direitos reservados.</p>
-            <div className="flex items-center gap-6 mt-4 md:mt-0">
-              <span>Feito com ❤️ pela Squad Dashi</span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      </motion.div>
     </div>
   );
 };

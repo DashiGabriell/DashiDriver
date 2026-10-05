@@ -432,12 +432,11 @@ export function PagamentosProgramados({ dateRange }: PagamentosProgramadosProps)
         if (confirmForm.comprovante) {
           const file = confirmForm.comprovante as File;
           const filePath = `${session.user.id}/${Date.now()}_${file.name}`;
-          const { data: uploadData, error: uploadErr } = await supabase.storage
+          const { error: uploadErr } = await supabase.storage
             .from("payment-receipts")
-            .upload(filePath, file, { upsert: false });
+            .upload(filePath, file, { upsert: false, contentType: file.type });
           if (uploadErr) throw uploadErr;
-          const { data: { publicUrl } } = supabase.storage.from("payment-receipts").getPublicUrl(filePath);
-          comprovanteUrl = publicUrl;
+          comprovanteUrl = filePath;
         }
         const { error } = await supabase.from("carcontrol_payments").insert({
           driver_id: paymentSchedule.driver_id,

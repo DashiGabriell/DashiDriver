@@ -9,12 +9,18 @@ import DisplayCards from "@/components/ui/display-cards";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, registerSchema, LoginInput, RegisterInput } from "@/lib/validators/login";
+import { setRememberMe } from "@/lib/rememberMe";
+import { authService } from "@/integrations/supabase/services/authService";
+import { getErrorMessage } from "@/integrations/supabase/services/errors";
+import { z } from "zod";
 
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const [rememberMe, setRememberMeChecked] = useState(true);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   type FormValues = LoginInput & RegisterInput;
   const form = useForm<FormValues>({
@@ -45,6 +51,7 @@ const Login = () => {
     setIsLoading(true);
     try {
       if (isRegistering) {
+        setRememberMe(true);
         const { error } = await supabase.auth.signUp({
           email: data.email,
           password: data.password,
@@ -60,6 +67,7 @@ const Login = () => {
         setIsRegistering(false);
         form.reset();
       } else {
+        setRememberMe(rememberMe);
         const { error } = await supabase.auth.signInWithPassword({
           email: data.email,
           password: data.password,
@@ -86,6 +94,7 @@ const Login = () => {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
+      setRememberMe(rememberMe);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -97,6 +106,25 @@ const Login = () => {
 
       toast.error(error.message || "Erro ao entrar com Google");
       setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    const email = form.getValues("email").trim();
+    if (!z.string().email().safeParse(email).success) {
+      toast.error("Digite seu e-mail no campo acima para recuperar a senha");
+      form.setFocus("email");
+      return;
+    }
+
+    setIsSendingReset(true);
+    try {
+      await authService.sendPasswordReset(email, `${window.location.origin}/redefinir-senha`);
+      toast.success("Se o e-mail estiver cadastrado, você receberá um link para redefinir a senha.");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Erro ao enviar o e-mail de recuperação"));
+    } finally {
+      setIsSendingReset(false);
     }
   };
 
@@ -510,6 +538,8 @@ const Login = () => {
                       <div className="relative">
                         <input
                           type="checkbox"
+                          checked={rememberMe}
+                          onChange={(e) => setRememberMeChecked(e.target.checked)}
                           className="peer w-3.5 h-3.5 rounded border-2 border-border appearance-none checked:bg-primary checked:border-primary transition-all cursor-pointer"
                         />
                         <svg
@@ -528,9 +558,11 @@ const Login = () => {
                     </label>
                     <button
                       type="button"
-                      className="text-primary hover:underline font-medium transition-all"
+                      onClick={handleForgotPassword}
+                      disabled={isSendingReset}
+                      className="text-primary hover:underline font-medium transition-all disabled:opacity-50"
                     >
-                      Esqueceu a senha?
+                      {isSendingReset ? "Enviando..." : "Esqueceu a senha?"}
                     </button>
                   </motion.div>
                   )}

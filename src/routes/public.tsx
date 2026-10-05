@@ -5,6 +5,7 @@ import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 const Landing = lazy(() => import("@/pages/Landing"));
 const MarketplaceLanding = lazy(() => import("@/pages/MarketplaceLanding"));
 const Login = lazy(() => import("@/pages/Login"));
+const RedefinirSenha = lazy(() => import("@/pages/RedefinirSenha"));
 const BemVindo = lazy(() => import("@/pages/BemVindo"));
 const Onboarding = lazy(() => import("@/pages/Onboarding"));
 const AcceptInvite = lazy(() => import("@/pages/AcceptInvite"));
@@ -15,6 +16,7 @@ export const publicRoutes = (
     <Route path="/" element={<Landing />} />
     <Route path="/lp-marketplace" element={<MarketplaceLanding />} />
     <Route path="/login" element={<Login />} />
+    <Route path="/redefinir-senha" element={<RedefinirSenha />} />
     <Route
       path="/bem-vindo"
       element={

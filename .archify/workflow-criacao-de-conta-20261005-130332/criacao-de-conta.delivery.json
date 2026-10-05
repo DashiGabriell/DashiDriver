@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "3efd8092-9c19-4e90-a2b0-5e269b755ed7",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\candidate.json",
+  "output": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\criacao-de-conta.html",
+  "specification": {
+    "sha256": "7a48f1646fa56d4bc7e6c711ad6a0d0bff431ea2bab6073a7d039729f8dcaa1f",
+    "bytes": 42089
+  },
+  "artifact": {
+    "sha256": "76f50e1fa7f3af6e1a528723f4e0214f9a7ebe14f8d3290eb1f63d1e3f4eff36",
+    "bytes": 792764
+  }
+}

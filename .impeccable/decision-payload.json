@@ -1,0 +1,143 @@
+{
+  "title": "DashiDrive — escolha o mundo visual da landing",
+  "question": "O sorteio indicou o Totem do Posto. Mantenha, escolha uma alternativa ou sorteie de novo.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Totem do Posto",
+      "kicker": "THE ROLL",
+      "lineage": "totens de preço de posto de combustível na beira da avenida",
+      "thesis": "A frota inteira lida como um totem de posto: cada carro é uma linha, cada semana um número aceso.",
+      "palette": ["#1336C9", "#0B0C0F", "#FFB000", "#36D37A", "#F3F1EA"],
+      "materials": ["chapa pintada do totem", "janelas de preço com dígitos de LED de 7 segmentos"],
+      "viewport": "Um totem cobalto alto ocupa o hero: no topo a marca, abaixo linhas de carros (placa, motorista, R$/semana, PAGO/ATRASADO) em LED âmbar; ao lado, a frase e o botão Ver planos.",
+      "risk": "Pode parecer app de posto se as linhas não falarem claramente de carros, motoristas e cobrança.",
+      "raised": [
+        { "from": "challenger-seven-segment", "raise": "Segmentos apagados viram 'células fantasma' desenhadas; toda mudança de valor é troca instantânea de segmento, nunca deslize." },
+        { "from": "challenger-hypercard", "raise": "Cada linha do totem é clicável e muda de estado ali mesmo (PAGO, ATRASADO, OFICINA): ler e operar são o mesmo objeto." },
+        { "from": "challenger-copy-zine", "raise": "A cor é o campo, não o detalhe: cada seção possui uma chapa inteira de cor (cobalto, asfalto, canopy branco)." },
+        { "from": "challenger-origami", "raise": "A vistoria aparece como 7 passos numerados numa coluna de margem rígida, como na captura real do app." }
+      ],
+      "comp": ".impeccable/mocks/decision/assigned.png",
+      "wireframe": { "cols": 12, "rows": 10, "regions": [
+        { "label": "canopy: marca + nav + Entrar", "x": 0, "y": 0, "w": 12, "h": 1 },
+        { "label": "totem: linhas da frota em LED", "x": 1, "y": 1, "w": 5, "h": 8, "accent": true },
+        { "label": "headline + Ver planos", "x": 7, "y": 2, "w": 5, "h": 4 },
+        { "label": "preços dos planos como janelas do totem", "x": 7, "y": 6, "w": 5, "h": 3 }
+      ] }
+    },
+    {
+      "id": "model-pick",
+      "label": "Quadro de Chaves",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "o quadro de chaves numerado na parede de toda locadora",
+      "thesis": "A locadora em um quadro de chaves: cada gancho é um carro, cada etiqueta colorida conta onde ele está.",
+      "palette": ["#E9E2D0", "#2B2B2B", "#F2C230", "#E5483B", "#2F6FDE"],
+      "materials": ["MDF perfurado", "etiquetas de plástico com argola"],
+      "viewport": "Um quadro de ganchos em perspectiva frontal; chaves com etiquetas de placa; chaves faltando = carros na rua; headline pintada na madeira.",
+      "risk": "Fica skeuomórfico e lento de ler se o quadro virar ilustração em vez de interface.",
+      "comp": ".impeccable/mocks/decision/model-pick.png",
+      "wireframe": { "cols": 12, "rows": 10, "regions": [
+        { "label": "nav", "x": 0, "y": 0, "w": 12, "h": 1 },
+        { "label": "headline", "x": 0, "y": 1, "w": 5, "h": 4 },
+        { "label": "quadro de chaves", "x": 5, "y": 1, "w": 7, "h": 8, "accent": true }
+      ] }
+    },
+    {
+      "id": "challenger-seven-segment",
+      "label": "Display de 7 segmentos",
+      "verdict": "competitive",
+      "lineage": "relógios de cabeceira, placares, totens de preço",
+      "thesis": "Um único alfabeto de 7 segmentos para todos os números da operação.",
+      "palette": ["#0D0D0D", "#FF3B2F", "#FFB000", "#2BD36B"],
+      "materials": ["LED", "células fantasma"],
+      "viewport": "Placar escuro com valores semanais da frota acendendo.",
+      "case": "Funde bem com cobrança e km, mas o placar genérico identifica menos o dono de locadora que o totem do posto.",
+      "risk": "Escuro com neon é um visual muito comum em IA.",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-seven-segment-alarm-clock-hero.webp"
+    },
+    {
+      "id": "challenger-hypercard",
+      "label": "Pilha HyperCard",
+      "verdict": "declined",
+      "lineage": "HyperCard, Mac clássico",
+      "thesis": "Cartões preto e branco ligados por botões pintados.",
+      "palette": ["#000000", "#FFFFFF", "#8A8A8A"],
+      "materials": ["1-bit", "dither"],
+      "viewport": "Um cartão com a frota e botões de navegação.",
+      "case": "O dono de locadora não se reconhece num Mac de 1987.",
+      "kept": "Ler e operar no mesmo objeto: linhas do totem mudam de estado no clique.",
+      "risk": "Nostalgia sem relação com o público.",
+      "hero": "https://impeccable.style/worlds/cards/medium-native-hypercard-stack-shoebox-hero.webp"
+    },
+    {
+      "id": "challenger-riso",
+      "label": "Capa de zine risograph",
+      "verdict": "declined",
+      "lineage": "zines impressas em duas tintas",
+      "thesis": "Duas tintas fora de registro criam a terceira cor.",
+      "palette": ["#FF48B0", "#0078BF", "#F2EFE6"],
+      "materials": ["papel jornal", "meio-tom"],
+      "viewport": "Capa em duas tintas com o nome da marca.",
+      "case": "Cultura de design, não de locadora; perde em clareza do produto.",
+      "kept": "Compromisso total com poucas tintas.",
+      "risk": "Lê como agência criativa.",
+      "hero": "https://impeccable.style/worlds/cards/posters-covers-sleeves-risograph-zine-cover-hero.webp"
+    },
+    {
+      "id": "challenger-copy-zine",
+      "label": "Zine de copiadora",
+      "verdict": "declined",
+      "lineage": "folhas coloridas de copiadora",
+      "thesis": "A cor é a folha, nunca a marca.",
+      "palette": ["#E8B730", "#E15A3C", "#F4F1E8", "#1A1A1A"],
+      "materials": ["papel colorido", "toner"],
+      "viewport": "Coluna datilografada numa folha amarela.",
+      "case": "Textual demais para mostrar a operação.",
+      "kept": "Cada seção é uma chapa inteira de cor.",
+      "risk": "Parece manifesto, não software.",
+      "hero": "https://impeccable.style/worlds/cards/rw-copy-shop-zine-interior-hero.webp"
+    },
+    {
+      "id": "challenger-accretion",
+      "label": "Disco de acreção",
+      "verdict": "declined",
+      "lineage": "astrofísica, buracos negros",
+      "thesis": "Matéria cruzando um horizonte irreversível.",
+      "palette": ["#000000", "#BFD7FF", "#FF6A3D", "#FFC94A"],
+      "materials": ["shader", "luz curvada"],
+      "viewport": "Disco brilhante ao redor de um centro negro.",
+      "case": "Sem relação com carros, motoristas ou cobrança.",
+      "kept": "Vocabulário de estados explícito para cada carro.",
+      "risk": "Espetáculo sem produto.",
+      "hero": "https://impeccable.style/worlds/cards/galaxies-nebulae-deep-time-accretion-disk-threshold-hero.webp"
+    },
+    {
+      "id": "challenger-origami",
+      "label": "Tsuru de origami",
+      "verdict": "declined",
+      "lineage": "sequência de dobras de papel",
+      "thesis": "Uma folha vira pássaro em 32 dobras.",
+      "palette": ["#D9381E", "#F3E9DC", "#1B1B1B", "#C9A227"],
+      "materials": ["washi", "vincos"],
+      "viewport": "Folha vermilion com diagrama de dobra.",
+      "case": "Bonito, mas estranho ao mundo da locadora.",
+      "kept": "Passos numerados numa coluna de margem rígida (vistoria em 7 passos).",
+      "risk": "Lê como estúdio de papelaria.",
+      "hero": "https://impeccable.style/worlds/cards/paper-folds-pleats-deployable-orizuru-crane-sequence-hero.webp"
+    }
+  ],
+  "reroll": { "registers": ["safer", "bolder"] },
+  "buildPath": { "value": "code", "toggle": true },
+  "canon": true,
+  "canonCard": {
+    "label": "Padrão da categoria",
+    "thesis": "A landing de SaaS que o mercado espera, feita com acabamento impecável.",
+    "palette": ["#FFFFFF", "#111827", "#2563EB"],
+    "materials": ["grid limpo", "screenshots do produto"],
+    "viewport": "Headline à esquerda, screenshot do dashboard à direita, cards de recursos e 3 planos.",
+    "risk": "Indistinguível dos concorrentes, por definição.",
+    "comp": ".impeccable/mocks/decision/canon.png"
+  },
+  "steer": true
+}

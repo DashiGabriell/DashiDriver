@@ -1,0 +1,1831 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "workflow",
+  "quality": "showcase",
+  "startedAt": "2026-10-05T16:19:15.881Z",
+  "specification": {
+    "path": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\candidate.json",
+    "sha256": "7a48f1646fa56d4bc7e6c711ad6a0d0bff431ea2bab6073a7d039729f8dcaa1f",
+    "bytes": 42089
+  },
+  "artifact": {
+    "path": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\criacao-de-conta.html",
+    "sha256": "76f50e1fa7f3af6e1a528723f4e0214f9a7ebe14f8d3290eb1f63d1e3f4eff36",
+    "bytes": 792764
+  },
+  "stages": {
+    "validate": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": null,
+      "execution": "embedded-in-deliver",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\Gabriell\\.agents\\skills\\archify\\bin\\archify.mjs",
+        "deliver",
+        "workflow",
+        "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\candidate.json",
+        "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\criacao-de-conta.html",
+        "--quality",
+        "showcase",
+        "--repo-root",
+        "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": true,
+        "command": "validate",
+        "specification": {
+          "sha256": "7a48f1646fa56d4bc7e6c711ad6a0d0bff431ea2bab6073a7d039729f8dcaa1f",
+          "bytes": 42089
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        }
+      }
+    },
+    "deliver": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 6863,
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\Gabriell\\.agents\\skills\\archify\\bin\\archify.mjs",
+        "deliver",
+        "workflow",
+        "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\candidate.json",
+        "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\criacao-de-conta.html",
+        "--quality",
+        "showcase",
+        "--repo-root",
+        "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "receiptId": "3efd8092-9c19-4e90-a2b0-5e269b755ed7",
+        "ok": true,
+        "command": "deliver",
+        "type": "workflow",
+        "input": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\candidate.json",
+        "output": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\criacao-de-conta.html",
+        "specification": {
+          "sha256": "7a48f1646fa56d4bc7e6c711ad6a0d0bff431ea2bab6073a7d039729f8dcaa1f",
+          "bytes": 42089
+        },
+        "artifact": {
+          "sha256": "76f50e1fa7f3af6e1a528723f4e0214f9a7ebe14f8d3290eb1f63d1e3f4eff36",
+          "bytes": 792764
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        },
+        "evidence": {
+          "verified": true,
+          "repository": "https://github.com/DashiGabriell/DashiDriver",
+          "revision": "56b905474060aa65eaf56e12e695ef799ac9755f",
+          "references": 31
+        }
+      },
+      "stderr": "archify: meta.translations for locale \"pt-BR\" covers 423/438 renderer-owned messages (97%); uncovered keys fall back to English."
+    },
+    "check": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 733,
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\Gabriell\\.agents\\skills\\archify\\bin\\archify.mjs",
+        "check",
+        "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\criacao-de-conta.html",
+        "--require-provenance"
+      ],
+      "receipt": {
+        "ok": true,
+        "file": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\criacao-de-conta.html",
+        "artifact": {
+          "sha256": "76f50e1fa7f3af6e1a528723f4e0214f9a7ebe14f8d3290eb1f63d1e3f4eff36",
+          "bytes": 792764
+        },
+        "checks": [
+          {
+            "name": "single_svg",
+            "ok": true,
+            "details": [
+              "found 1 <svg> block(s)"
+            ]
+          },
+          {
+            "name": "finite_svg",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "orthogonal_arrows",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "label_route_clearance",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_crossings",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_corridors",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "container_border_runs",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "route_rhythm",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "legend_clearance",
+            "ok": true,
+            "details": []
+          }
+        ],
+        "composition": {
+          "schemaVersion": 1,
+          "profile": "showcase",
+          "status": "pass",
+          "summary": {
+            "errors": 0,
+            "warnings": 0
+          },
+          "metrics": {
+            "properCrossings": 0,
+            "resolvedCrossovers": 0,
+            "ambiguousCorridors": 0,
+            "arrowheadCollisions": 0,
+            "containerBorderRuns": 0,
+            "labelRouteClearanceIssues": 0,
+            "labelCanvasOverflowIssues": 0,
+            "minLabelRouteClearance": 58,
+            "desktopReadabilityIssues": 0,
+            "viewportHeightIssues": 0,
+            "minProjectedNodeTextPx": 6.083401471790679,
+            "maxBends": 3,
+            "routesOverSuggestedBends": 1,
+            "maxStretch": 1,
+            "routesOverSuggestedStretch": 0,
+            "minSegmentPx": 16,
+            "minInteriorSegmentPx": 71,
+            "shortSegmentCount": 0,
+            "shortEndpointSegmentCount": 0,
+            "shortInteriorSegmentCount": 0,
+            "microSegmentCount": 0
+          },
+          "suggestedLimits": {
+            "bendsPerRelationship": 2,
+            "stretch": 1.35,
+            "segmentPx": 16,
+            "microSegmentPx": 8
+          },
+          "routeReview": {
+            "crossings": [],
+            "detours": [
+              {
+                "relationship": {
+                  "id": "e-google-bemvindo",
+                  "from": "google",
+                  "to": "bemvindo",
+                  "label": "",
+                  "collectionIndex": 9,
+                  "artifactIndex": 10
+                },
+                "bends": 3,
+                "stretch": 1
+              }
+            ]
+          },
+          "leadingSpace": {
+            "measured": false,
+            "reviewSuggested": false
+          },
+          "desktopReadability": {
+            "budgetBasis": "legacy-930",
+            "readerContract": "declared-wide-v1",
+            "availableDiagramWidth": 930,
+            "actualBudgetPx": 930,
+            "limit": "legacy",
+            "requestedTargetPx": null,
+            "requestedTargetMet": null,
+            "hardFloorPx": 6,
+            "hardFloorMet": true,
+            "minimumOwner": {
+              "kind": "node",
+              "id": "visitor"
+            },
+            "minimumSourceTextPx": 8,
+            "minimumProjectedTextPx": 6.083401471790679,
+            "semanticTextCount": 51
+          },
+          "issues": []
+        },
+        "provenance": "current",
+        "deliveryReceiptId": "3efd8092-9c19-4e90-a2b0-5e269b755ed7"
+      }
+    },
+    "browser-check": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 6548,
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\Gabriell\\.agents\\skills\\archify\\bin\\archify.mjs",
+        "browser-check",
+        "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\criacao-de-conta.html",
+        "--json",
+        "--require-provenance",
+        "--out-dir",
+        "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\review-2"
+      ],
+      "execution": "in-process",
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": true,
+        "command": "browser-check",
+        "evidenceKind": "automated-browser",
+        "status": "pass",
+        "visualReview": "not-requested",
+        "provenance": "current",
+        "deliveryReceiptId": "3efd8092-9c19-4e90-a2b0-5e269b755ed7",
+        "artifact": {
+          "path": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\criacao-de-conta.html",
+          "sha256": "76f50e1fa7f3af6e1a528723f4e0214f9a7ebe14f8d3290eb1f63d1e3f4eff36",
+          "bytes": 792764
+        },
+        "state": {
+          "detail": "read",
+          "motion": "still"
+        },
+        "chrome": {
+          "status": "available",
+          "executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        "diagnostics": [],
+        "containment": {
+          "status": "pass",
+          "policy": "fit-or-reader-declared-readable-vertical-scroll",
+          "viewports": [
+            {
+              "width": 1440,
+              "height": 900,
+              "theme": "light",
+              "innerWidth": 1440,
+              "innerHeight": 900,
+              "scrollWidth": 1440,
+              "scrollHeight": 900,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1191,
+              "diagramWidth": 1161,
+              "pageComposition": {
+                "bodyPaddingPx": 12,
+                "headerPx": 52,
+                "diagramChromePx": 78,
+                "svgPx": 746,
+                "cardsPx": 0,
+                "viewBoxHeight": 786
+              },
+              "viewBoxWidth": 1223,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 101,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "visitor",
+                    "form",
+                    "login_pwd",
+                    "google",
+                    "invite"
+                  ],
+                  "nodeSpanPx": 65,
+                  "spaceAboveNodesPx": 32,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 101,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "trigger",
+                    "signup",
+                    "email",
+                    "bemvindo",
+                    "com_empresa"
+                  ],
+                  "nodeSpanPx": 65,
+                  "spaceAboveNodesPx": 32,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 101,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "perfil",
+                    "frota",
+                    "dados"
+                  ],
+                  "nodeSpanPx": 65,
+                  "spaceAboveNodesPx": 32,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 101,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "motorista",
+                    "salvar",
+                    "plano"
+                  ],
+                  "nodeSpanPx": 65,
+                  "spaceAboveNodesPx": 32,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 101,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "trial_home",
+                    "empresa",
+                    "checkout"
+                  ],
+                  "nodeSpanPx": 65,
+                  "spaceAboveNodesPx": 32,
+                  "spaceBelowNodesPx": 4
+                }
+              ],
+              "minimumProjectedNodeTextPx": 7.594439901880621,
+              "minimumProjectedNonEdgeTextPx": 7.594439901880621,
+              "minimumProjectedEdgeTextPx": 7.594439901880621,
+              "minimumProjectedNodeText": "clica Criar conta",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "visitor"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 1600,
+              "height": 1000,
+              "theme": "light",
+              "innerWidth": 1600,
+              "innerHeight": 1000,
+              "scrollWidth": 1600,
+              "scrollHeight": 1000,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1244,
+              "diagramWidth": 1214,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 60,
+                "diagramChromePx": 84,
+                "svgPx": 780,
+                "cardsPx": 0,
+                "viewBoxHeight": 786
+              },
+              "viewBoxWidth": 1223,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 105,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "visitor",
+                    "form",
+                    "login_pwd",
+                    "google",
+                    "invite"
+                  ],
+                  "nodeSpanPx": 67,
+                  "spaceAboveNodesPx": 34,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 105,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "trigger",
+                    "signup",
+                    "email",
+                    "bemvindo",
+                    "com_empresa"
+                  ],
+                  "nodeSpanPx": 67,
+                  "spaceAboveNodesPx": 34,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 105,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "perfil",
+                    "frota",
+                    "dados"
+                  ],
+                  "nodeSpanPx": 67,
+                  "spaceAboveNodesPx": 34,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 105,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "motorista",
+                    "salvar",
+                    "plano"
+                  ],
+                  "nodeSpanPx": 67,
+                  "spaceAboveNodesPx": 34,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 105,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "trial_home",
+                    "empresa",
+                    "checkout"
+                  ],
+                  "nodeSpanPx": 67,
+                  "spaceAboveNodesPx": 34,
+                  "spaceBelowNodesPx": 4
+                }
+              ],
+              "minimumProjectedNodeTextPx": 7.941128372853639,
+              "minimumProjectedNonEdgeTextPx": 7.941128372853639,
+              "minimumProjectedEdgeTextPx": 7.941128372853639,
+              "minimumProjectedNodeText": "clica Criar conta",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "visitor"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 1920,
+              "height": 1080,
+              "theme": "light",
+              "innerWidth": 1920,
+              "innerHeight": 1080,
+              "scrollWidth": 1920,
+              "scrollHeight": 1080,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1368,
+              "diagramWidth": 1338,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 60,
+                "diagramChromePx": 84,
+                "svgPx": 860,
+                "cardsPx": 0,
+                "viewBoxHeight": 786
+              },
+              "viewBoxWidth": 1223,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 116,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "visitor",
+                    "form",
+                    "login_pwd",
+                    "google",
+                    "invite"
+                  ],
+                  "nodeSpanPx": 74,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 116,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "trigger",
+                    "signup",
+                    "email",
+                    "bemvindo",
+                    "com_empresa"
+                  ],
+                  "nodeSpanPx": 74,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 116,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "perfil",
+                    "frota",
+                    "dados"
+                  ],
+                  "nodeSpanPx": 74,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 116,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "motorista",
+                    "salvar",
+                    "plano"
+                  ],
+                  "nodeSpanPx": 74,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 116,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "trial_home",
+                    "empresa",
+                    "checkout"
+                  ],
+                  "nodeSpanPx": 74,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 4
+                }
+              ],
+              "minimumProjectedNodeTextPx": 8,
+              "minimumProjectedNonEdgeTextPx": 8,
+              "minimumProjectedEdgeTextPx": 8,
+              "minimumProjectedNodeText": "clica Criar conta",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "visitor"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 2048,
+              "height": 1320,
+              "theme": "light",
+              "innerWidth": 2048,
+              "innerHeight": 1320,
+              "scrollWidth": 2048,
+              "scrollHeight": 1320,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1734,
+              "diagramWidth": 1684,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 68,
+                "diagramChromePx": 94,
+                "svgPx": 1082,
+                "cardsPx": 0,
+                "viewBoxHeight": 786
+              },
+              "viewBoxWidth": 1223,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 146,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "visitor",
+                    "form",
+                    "login_pwd",
+                    "google",
+                    "invite"
+                  ],
+                  "nodeSpanPx": 94,
+                  "spaceAboveNodesPx": 47,
+                  "spaceBelowNodesPx": 6
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 146,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "trigger",
+                    "signup",
+                    "email",
+                    "bemvindo",
+                    "com_empresa"
+                  ],
+                  "nodeSpanPx": 94,
+                  "spaceAboveNodesPx": 47,
+                  "spaceBelowNodesPx": 6
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 146,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "perfil",
+                    "frota",
+                    "dados"
+                  ],
+                  "nodeSpanPx": 94,
+                  "spaceAboveNodesPx": 47,
+                  "spaceBelowNodesPx": 6
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 146,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "motorista",
+                    "salvar",
+                    "plano"
+                  ],
+                  "nodeSpanPx": 94,
+                  "spaceAboveNodesPx": 47,
+                  "spaceBelowNodesPx": 6
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 146,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "trial_home",
+                    "empresa",
+                    "checkout"
+                  ],
+                  "nodeSpanPx": 94,
+                  "spaceAboveNodesPx": 47,
+                  "spaceBelowNodesPx": 6
+                }
+              ],
+              "minimumProjectedNodeTextPx": 8,
+              "minimumProjectedNonEdgeTextPx": 8,
+              "minimumProjectedEdgeTextPx": 8,
+              "minimumProjectedNodeText": "clica Criar conta",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "visitor"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 44,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            }
+          ]
+        },
+        "themeStates": {
+          "status": "pass",
+          "viewports": [
+            {
+              "width": 1440,
+              "height": 900,
+              "requestedTheme": "light",
+              "resolvedTheme": "light",
+              "ok": true
+            },
+            {
+              "width": 1600,
+              "height": 1000,
+              "requestedTheme": "light",
+              "resolvedTheme": "light",
+              "ok": true
+            },
+            {
+              "width": 1920,
+              "height": 1080,
+              "requestedTheme": "light",
+              "resolvedTheme": "light",
+              "ok": true
+            },
+            {
+              "width": 2048,
+              "height": 1320,
+              "requestedTheme": "light",
+              "resolvedTheme": "light",
+              "ok": true
+            },
+            {
+              "width": 1440,
+              "height": 900,
+              "requestedTheme": "dark",
+              "resolvedTheme": "dark",
+              "ok": true
+            },
+            {
+              "width": 2048,
+              "height": 1320,
+              "requestedTheme": "dark",
+              "resolvedTheme": "dark",
+              "ok": true
+            }
+          ]
+        },
+        "readability": {
+          "status": "pass",
+          "minimumProjectedNodeTextPx": 6,
+          "viewports": [
+            {
+              "width": 1440,
+              "height": 900,
+              "theme": "light",
+              "innerWidth": 1440,
+              "innerHeight": 900,
+              "scrollWidth": 1440,
+              "scrollHeight": 900,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1191,
+              "diagramWidth": 1161,
+              "pageComposition": {
+                "bodyPaddingPx": 12,
+                "headerPx": 52,
+                "diagramChromePx": 78,
+                "svgPx": 746,
+                "cardsPx": 0,
+                "viewBoxHeight": 786
+              },
+              "viewBoxWidth": 1223,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 101,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "visitor",
+                    "form",
+                    "login_pwd",
+                    "google",
+                    "invite"
+                  ],
+                  "nodeSpanPx": 65,
+                  "spaceAboveNodesPx": 32,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 101,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "trigger",
+                    "signup",
+                    "email",
+                    "bemvindo",
+                    "com_empresa"
+                  ],
+                  "nodeSpanPx": 65,
+                  "spaceAboveNodesPx": 32,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 101,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "perfil",
+                    "frota",
+                    "dados"
+                  ],
+                  "nodeSpanPx": 65,
+                  "spaceAboveNodesPx": 32,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 101,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "motorista",
+                    "salvar",
+                    "plano"
+                  ],
+                  "nodeSpanPx": 65,
+                  "spaceAboveNodesPx": 32,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 101,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "trial_home",
+                    "empresa",
+                    "checkout"
+                  ],
+                  "nodeSpanPx": 65,
+                  "spaceAboveNodesPx": 32,
+                  "spaceBelowNodesPx": 4
+                }
+              ],
+              "minimumProjectedNodeTextPx": 7.594439901880621,
+              "minimumProjectedNonEdgeTextPx": 7.594439901880621,
+              "minimumProjectedEdgeTextPx": 7.594439901880621,
+              "minimumProjectedNodeText": "clica Criar conta",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "visitor"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 1600,
+              "height": 1000,
+              "theme": "light",
+              "innerWidth": 1600,
+              "innerHeight": 1000,
+              "scrollWidth": 1600,
+              "scrollHeight": 1000,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1244,
+              "diagramWidth": 1214,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 60,
+                "diagramChromePx": 84,
+                "svgPx": 780,
+                "cardsPx": 0,
+                "viewBoxHeight": 786
+              },
+              "viewBoxWidth": 1223,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 105,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "visitor",
+                    "form",
+                    "login_pwd",
+                    "google",
+                    "invite"
+                  ],
+                  "nodeSpanPx": 67,
+                  "spaceAboveNodesPx": 34,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 105,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "trigger",
+                    "signup",
+                    "email",
+                    "bemvindo",
+                    "com_empresa"
+                  ],
+                  "nodeSpanPx": 67,
+                  "spaceAboveNodesPx": 34,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 105,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "perfil",
+                    "frota",
+                    "dados"
+                  ],
+                  "nodeSpanPx": 67,
+                  "spaceAboveNodesPx": 34,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 105,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "motorista",
+                    "salvar",
+                    "plano"
+                  ],
+                  "nodeSpanPx": 67,
+                  "spaceAboveNodesPx": 34,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 105,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "trial_home",
+                    "empresa",
+                    "checkout"
+                  ],
+                  "nodeSpanPx": 67,
+                  "spaceAboveNodesPx": 34,
+                  "spaceBelowNodesPx": 4
+                }
+              ],
+              "minimumProjectedNodeTextPx": 7.941128372853639,
+              "minimumProjectedNonEdgeTextPx": 7.941128372853639,
+              "minimumProjectedEdgeTextPx": 7.941128372853639,
+              "minimumProjectedNodeText": "clica Criar conta",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "visitor"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 1920,
+              "height": 1080,
+              "theme": "light",
+              "innerWidth": 1920,
+              "innerHeight": 1080,
+              "scrollWidth": 1920,
+              "scrollHeight": 1080,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1368,
+              "diagramWidth": 1338,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 60,
+                "diagramChromePx": 84,
+                "svgPx": 860,
+                "cardsPx": 0,
+                "viewBoxHeight": 786
+              },
+              "viewBoxWidth": 1223,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 116,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "visitor",
+                    "form",
+                    "login_pwd",
+                    "google",
+                    "invite"
+                  ],
+                  "nodeSpanPx": 74,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 116,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "trigger",
+                    "signup",
+                    "email",
+                    "bemvindo",
+                    "com_empresa"
+                  ],
+                  "nodeSpanPx": 74,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 116,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "perfil",
+                    "frota",
+                    "dados"
+                  ],
+                  "nodeSpanPx": 74,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 116,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "motorista",
+                    "salvar",
+                    "plano"
+                  ],
+                  "nodeSpanPx": 74,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 116,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "trial_home",
+                    "empresa",
+                    "checkout"
+                  ],
+                  "nodeSpanPx": 74,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 4
+                }
+              ],
+              "minimumProjectedNodeTextPx": 8,
+              "minimumProjectedNonEdgeTextPx": 8,
+              "minimumProjectedEdgeTextPx": 8,
+              "minimumProjectedNodeText": "clica Criar conta",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "visitor"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 2048,
+              "height": 1320,
+              "theme": "light",
+              "innerWidth": 2048,
+              "innerHeight": 1320,
+              "scrollWidth": 2048,
+              "scrollHeight": 1320,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1734,
+              "diagramWidth": 1684,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 68,
+                "diagramChromePx": 94,
+                "svgPx": 1082,
+                "cardsPx": 0,
+                "viewBoxHeight": 786
+              },
+              "viewBoxWidth": 1223,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 146,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "visitor",
+                    "form",
+                    "login_pwd",
+                    "google",
+                    "invite"
+                  ],
+                  "nodeSpanPx": 94,
+                  "spaceAboveNodesPx": 47,
+                  "spaceBelowNodesPx": 6
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 146,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "trigger",
+                    "signup",
+                    "email",
+                    "bemvindo",
+                    "com_empresa"
+                  ],
+                  "nodeSpanPx": 94,
+                  "spaceAboveNodesPx": 47,
+                  "spaceBelowNodesPx": 6
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 146,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "perfil",
+                    "frota",
+                    "dados"
+                  ],
+                  "nodeSpanPx": 94,
+                  "spaceAboveNodesPx": 47,
+                  "spaceBelowNodesPx": 6
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 146,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "motorista",
+                    "salvar",
+                    "plano"
+                  ],
+                  "nodeSpanPx": 94,
+                  "spaceAboveNodesPx": 47,
+                  "spaceBelowNodesPx": 6
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 146,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "trial_home",
+                    "empresa",
+                    "checkout"
+                  ],
+                  "nodeSpanPx": 94,
+                  "spaceAboveNodesPx": 47,
+                  "spaceBelowNodesPx": 6
+                }
+              ],
+              "minimumProjectedNodeTextPx": 8,
+              "minimumProjectedNonEdgeTextPx": 8,
+              "minimumProjectedEdgeTextPx": 8,
+              "minimumProjectedNodeText": "clica Criar conta",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "visitor"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 44,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            }
+          ]
+        },
+        "viewerChrome": {
+          "status": "pass",
+          "viewports": [
+            {
+              "width": 1440,
+              "height": 900,
+              "theme": "light",
+              "innerWidth": 1440,
+              "innerHeight": 900,
+              "scrollWidth": 1440,
+              "scrollHeight": 900,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1191,
+              "diagramWidth": 1161,
+              "pageComposition": {
+                "bodyPaddingPx": 12,
+                "headerPx": 52,
+                "diagramChromePx": 78,
+                "svgPx": 746,
+                "cardsPx": 0,
+                "viewBoxHeight": 786
+              },
+              "viewBoxWidth": 1223,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 101,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "visitor",
+                    "form",
+                    "login_pwd",
+                    "google",
+                    "invite"
+                  ],
+                  "nodeSpanPx": 65,
+                  "spaceAboveNodesPx": 32,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 101,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "trigger",
+                    "signup",
+                    "email",
+                    "bemvindo",
+                    "com_empresa"
+                  ],
+                  "nodeSpanPx": 65,
+                  "spaceAboveNodesPx": 32,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 101,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "perfil",
+                    "frota",
+                    "dados"
+                  ],
+                  "nodeSpanPx": 65,
+                  "spaceAboveNodesPx": 32,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 101,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "motorista",
+                    "salvar",
+                    "plano"
+                  ],
+                  "nodeSpanPx": 65,
+                  "spaceAboveNodesPx": 32,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 101,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "trial_home",
+                    "empresa",
+                    "checkout"
+                  ],
+                  "nodeSpanPx": 65,
+                  "spaceAboveNodesPx": 32,
+                  "spaceBelowNodesPx": 4
+                }
+              ],
+              "minimumProjectedNodeTextPx": 7.594439901880621,
+              "minimumProjectedNonEdgeTextPx": 7.594439901880621,
+              "minimumProjectedEdgeTextPx": 7.594439901880621,
+              "minimumProjectedNodeText": "clica Criar conta",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "visitor"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 1600,
+              "height": 1000,
+              "theme": "light",
+              "innerWidth": 1600,
+              "innerHeight": 1000,
+              "scrollWidth": 1600,
+              "scrollHeight": 1000,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1244,
+              "diagramWidth": 1214,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 60,
+                "diagramChromePx": 84,
+                "svgPx": 780,
+                "cardsPx": 0,
+                "viewBoxHeight": 786
+              },
+              "viewBoxWidth": 1223,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 105,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "visitor",
+                    "form",
+                    "login_pwd",
+                    "google",
+                    "invite"
+                  ],
+                  "nodeSpanPx": 67,
+                  "spaceAboveNodesPx": 34,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 105,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "trigger",
+                    "signup",
+                    "email",
+                    "bemvindo",
+                    "com_empresa"
+                  ],
+                  "nodeSpanPx": 67,
+                  "spaceAboveNodesPx": 34,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 105,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "perfil",
+                    "frota",
+                    "dados"
+                  ],
+                  "nodeSpanPx": 67,
+                  "spaceAboveNodesPx": 34,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 105,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "motorista",
+                    "salvar",
+                    "plano"
+                  ],
+                  "nodeSpanPx": 67,
+                  "spaceAboveNodesPx": 34,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 105,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "trial_home",
+                    "empresa",
+                    "checkout"
+                  ],
+                  "nodeSpanPx": 67,
+                  "spaceAboveNodesPx": 34,
+                  "spaceBelowNodesPx": 4
+                }
+              ],
+              "minimumProjectedNodeTextPx": 7.941128372853639,
+              "minimumProjectedNonEdgeTextPx": 7.941128372853639,
+              "minimumProjectedEdgeTextPx": 7.941128372853639,
+              "minimumProjectedNodeText": "clica Criar conta",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "visitor"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 1920,
+              "height": 1080,
+              "theme": "light",
+              "innerWidth": 1920,
+              "innerHeight": 1080,
+              "scrollWidth": 1920,
+              "scrollHeight": 1080,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1368,
+              "diagramWidth": 1338,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 60,
+                "diagramChromePx": 84,
+                "svgPx": 860,
+                "cardsPx": 0,
+                "viewBoxHeight": 786
+              },
+              "viewBoxWidth": 1223,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 116,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "visitor",
+                    "form",
+                    "login_pwd",
+                    "google",
+                    "invite"
+                  ],
+                  "nodeSpanPx": 74,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 116,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "trigger",
+                    "signup",
+                    "email",
+                    "bemvindo",
+                    "com_empresa"
+                  ],
+                  "nodeSpanPx": 74,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 116,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "perfil",
+                    "frota",
+                    "dados"
+                  ],
+                  "nodeSpanPx": 74,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 116,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "motorista",
+                    "salvar",
+                    "plano"
+                  ],
+                  "nodeSpanPx": 74,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 4
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 116,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "trial_home",
+                    "empresa",
+                    "checkout"
+                  ],
+                  "nodeSpanPx": 74,
+                  "spaceAboveNodesPx": 37,
+                  "spaceBelowNodesPx": 4
+                }
+              ],
+              "minimumProjectedNodeTextPx": 8,
+              "minimumProjectedNonEdgeTextPx": 8,
+              "minimumProjectedEdgeTextPx": 8,
+              "minimumProjectedNodeText": "clica Criar conta",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "visitor"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 54,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            },
+            {
+              "width": 2048,
+              "height": 1320,
+              "theme": "light",
+              "innerWidth": 2048,
+              "innerHeight": 1320,
+              "scrollWidth": 2048,
+              "scrollHeight": 1320,
+              "overflowX": false,
+              "overflowY": false,
+              "verticalScrollAccepted": false,
+              "overflowDisposition": "contained",
+              "readerLayout": "adaptive",
+              "readerOverflow": null,
+              "readerFit": null,
+              "ok": true,
+              "readerWidth": 1734,
+              "diagramWidth": 1684,
+              "pageComposition": {
+                "bodyPaddingPx": 64,
+                "headerPx": 68,
+                "diagramChromePx": 94,
+                "svgPx": 1082,
+                "cardsPx": 0,
+                "viewBoxHeight": 786
+              },
+              "viewBoxWidth": 1223,
+              "workflowLanes": [
+                {
+                  "frameId": "lane-0",
+                  "heightPx": 146,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "visitor",
+                    "form",
+                    "login_pwd",
+                    "google",
+                    "invite"
+                  ],
+                  "nodeSpanPx": 94,
+                  "spaceAboveNodesPx": 47,
+                  "spaceBelowNodesPx": 6
+                },
+                {
+                  "frameId": "lane-1",
+                  "heightPx": 146,
+                  "nodeCount": 5,
+                  "nodeIds": [
+                    "trigger",
+                    "signup",
+                    "email",
+                    "bemvindo",
+                    "com_empresa"
+                  ],
+                  "nodeSpanPx": 94,
+                  "spaceAboveNodesPx": 47,
+                  "spaceBelowNodesPx": 6
+                },
+                {
+                  "frameId": "lane-2",
+                  "heightPx": 146,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "perfil",
+                    "frota",
+                    "dados"
+                  ],
+                  "nodeSpanPx": 94,
+                  "spaceAboveNodesPx": 47,
+                  "spaceBelowNodesPx": 6
+                },
+                {
+                  "frameId": "lane-3",
+                  "heightPx": 146,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "motorista",
+                    "salvar",
+                    "plano"
+                  ],
+                  "nodeSpanPx": 94,
+                  "spaceAboveNodesPx": 47,
+                  "spaceBelowNodesPx": 6
+                },
+                {
+                  "frameId": "lane-4",
+                  "heightPx": 146,
+                  "nodeCount": 3,
+                  "nodeIds": [
+                    "trial_home",
+                    "empresa",
+                    "checkout"
+                  ],
+                  "nodeSpanPx": 94,
+                  "spaceAboveNodesPx": 47,
+                  "spaceBelowNodesPx": 6
+                }
+              ],
+              "minimumProjectedNodeTextPx": 8,
+              "minimumProjectedNonEdgeTextPx": 8,
+              "minimumProjectedEdgeTextPx": 8,
+              "minimumProjectedNodeText": "clica Criar conta",
+              "minimumProjectedNodeTextDetail": "context",
+              "minimumProjectedNodeTextOwner": {
+                "kind": "node",
+                "id": "visitor"
+              },
+              "minimumRequiredNodeTextPx": 6,
+              "readabilityOk": true,
+              "hasLegend": true,
+              "hasNavigationDock": true,
+              "legendDockIntersectionArea": 0,
+              "dockStageIntersectionArea": 0,
+              "dockStageGap": 10,
+              "requiredDockStageGap": 10,
+              "viewerChromeStageOk": true,
+              "viewerChromeReserve": 44,
+              "viewerChromeActive": true,
+              "viewerChromeOk": true,
+              "resolvedTheme": "light"
+            }
+          ]
+        },
+        "captures": {
+          "status": "not-requested",
+          "screenshots": [],
+          "contactSheet": null
+        },
+        "sidecars": {
+          "directory": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\review-2",
+          "receipt": "criacao-de-conta.browser-check.json",
+          "files": []
+        }
+      }
+    }
+  },
+  "diagnostics": [],
+  "evidence": {
+    "receipt": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\review-2\\criacao-de-conta.finalize.json",
+    "summaryReceipt": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\review-2\\criacao-de-conta.finalize-summary.json",
+    "browserCheckReceipt": "C:\\Users\\Gabriell\\Documents\\Projects\\DashiDriver\\.archify\\workflow-criacao-de-conta-20261005-130332\\review-2\\criacao-de-conta.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "finishedAt": "2026-10-05T16:19:34.049Z",
+  "durationMs": 18168
+}

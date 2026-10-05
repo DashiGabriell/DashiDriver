@@ -23,6 +23,11 @@ export function useSaveOnboarding() {
         fleet_management: "admin",
       };
 
+      // Motorista não tem plano pago nem trial, mesmo que tenha escolhido um antes de voltar no funil
+      const isDriver = onboardingData.role === "driver";
+      const plan = isDriver ? "motorista" : onboardingData.plan;
+      const trialIntent = !isDriver && !!onboardingData.trial_intent;
+
       const { error } = await supabase
         .from("carcontrol_user")
         .update({
@@ -30,32 +35,52 @@ export function useSaveOnboarding() {
         })
         .eq("id", user.id);
 
-      // Atualiza role e plano na tabela de perfis
+      if (error) {
+        throw new Error(`Falha ao salvar dados: ${error.message}`);
+      }
+
+      // carcontrol_profiles não tem coluna própria para WhatsApp
+      const { data: currentProfile, error: readError } = await supabase
+        .from("carcontrol_profiles")
+        .select("preferencias")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (readError) {
+        throw new Error(`Falha ao salvar dados: ${readError.message}`);
+      }
+
+      const preferencias = {
+        ...((currentProfile?.preferencias as Record<string, unknown> | null) ?? {}),
+        whatsapp: onboardingData.whatsapp,
+      };
+
+      // Atualiza role, plano e WhatsApp na tabela de perfis
       const { error: profileError } = await supabase
         .from("carcontrol_profiles")
         .update({
           role: roleMapping[onboardingData.role] || "user",
-          plan: onboardingData.plan ?? (onboardingData.role === 'driver' ? 'motorista' : undefined),
-          trial_intent: !!onboardingData.trial_intent,
+          plan,
+          trial_intent: trialIntent,
+          preferencias,
         })
         .eq("id", user.id);
 
-      // Chama a função RPC para ativar o trial se necessário
-      if (onboardingData.trial_intent) {
-        const { error: rpcError } = await supabase
-          .rpc("activate_trial_onboarding", { 
-            p_user_id: user.id,
-            p_trial_intent: true 
-          });
-        
-        if (rpcError) {
-
-          throw new Error(`Falha ao ativar trial: ${rpcError.message}`);
-        }
+      if (profileError) {
+        throw new Error(`Falha ao salvar dados: ${profileError.message}`);
       }
 
-      if (error || profileError) {
-        throw new Error(`Falha ao salvar dados: ${(error || profileError)?.message}`);
+      // Só ativa o trial depois que perfil e plano foram gravados
+      if (trialIntent) {
+        const { error: rpcError } = await supabase
+          .rpc("activate_trial_onboarding", {
+            p_user_id: user.id,
+            p_trial_intent: true
+          });
+
+        if (rpcError) {
+          throw new Error(`Falha ao ativar trial: ${rpcError.message}`);
+        }
       }
 
       await Promise.all([

@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-05T14:25:00-03:00",
+  "title": "Design System: DashiDrive",
+  "scope": "Marketing/landing world only (src/pages/Landing.tsx, src/components/landing/*). App UI (dashboard, mobile, marketplace, lojista) still uses the incumbent system in src/index.css and tailwind.config.ts and is not migrated.",
+  "extensions": {
+    "colorMeta": {
+      "board": { "role": "neutral", "displayName": "Eucatex", "canonical": "#ba8550", "tonalRamp": ["#2b1909", "#4a2e14", "#6b4520", "#8f5f33", "#ba8550", "#cfa47a", "#e3c8a8", "#f5eadc"] },
+      "board-deep": { "role": "neutral", "displayName": "Eucatex Fundo", "canonical": "#a5733f" },
+      "hole": { "role": "neutral", "displayName": "Furo", "canonical": "#2b1909" },
+      "ink": { "role": "neutral", "displayName": "Tinta de Madeira", "canonical": "#1b1209" },
+      "ink-soft": { "role": "neutral", "displayName": "Tinta de Madeira Suave", "canonical": "#3d2914" },
+      "steel": { "role": "neutral", "displayName": "Grafite", "canonical": "#23272b", "tonalRamp": ["#141618", "#23272b", "#2c3136", "#454b52", "#6a727a", "#aab2b9", "#d3d8dc", "#edeff1"] },
+      "steel-2": { "role": "neutral", "displayName": "Grafite Claro", "canonical": "#2c3136" },
+      "steel-ink": { "role": "neutral", "displayName": "Tinta no Aço", "canonical": "#edeff1" },
+      "steel-soft": { "role": "neutral", "displayName": "Aço Suave", "canonical": "#aab2b9" },
+      "paper": { "role": "neutral", "displayName": "Papel", "canonical": "#fbfaf6" },
+      "tape": { "role": "neutral", "displayName": "Fita", "canonical": "#16171b" },
+      "azul": { "role": "primary", "displayName": "Etiqueta Azul", "canonical": "#2457d6", "tonalRamp": ["#0d1d4a", "#142f78", "#1a43ad", "#2457d6", "#4d78e3", "#7f9eec", "#b3c6f4", "#e3eafc"] },
+      "azul-deep": { "role": "primary", "displayName": "Azul Fundo", "canonical": "#1a43ad" },
+      "verde": { "role": "secondary", "displayName": "Etiqueta Verde", "canonical": "#1e9e5a", "tonalRamp": ["#0a3820", "#105c35", "#167e47", "#1e9e5a", "#45b97a", "#7ed0a2", "#b6e5ca", "#e5f6ec"] },
+      "amarelo": { "role": "secondary", "displayName": "Amarelo Oficina", "canonical": "#f2b705", "tonalRamp": ["#4a3700", "#7a5b00", "#a88003", "#d6a204", "#f2b705", "#f7cb4a", "#fbe08e", "#fef5d6"] },
+      "vermelho": { "role": "secondary", "displayName": "Vermelho Atraso", "canonical": "#d63a2a", "tonalRamp": ["#4a120c", "#7a1d13", "#a82a1d", "#d63a2a", "#e2655a", "#ec938b", "#f5c2bd", "#fceae8"] },
+      "tag-plano": { "role": "neutral", "displayName": "Etiqueta Plano", "canonical": "#f1efe9" },
+      "tag-grafite": { "role": "neutral", "displayName": "Etiqueta Grafite", "canonical": "#33393f" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headline only; Archivo at width 125%, weight 860, balanced wrap." },
+      "headline": { "displayName": "Headline", "purpose": "Section headings; closing heading scales toward display size." },
+      "title": { "displayName": "Title", "purpose": "Module names in the tag anatomy; plan names step up to 1.5rem/820/width 120%." },
+      "body": { "displayName": "Body", "purpose": "Section copy at 32–40rem measures, normal width." },
+      "label": { "displayName": "Label", "purpose": "Label-maker tape text and uppercase field labels on inserts and readouts." },
+      "numeral": { "displayName": "Numeral", "purpose": "Every price, count, km, date, step number, and plate (Saira Condensed, tabular)." }
+    },
+    "materials": [
+      { "name": "board", "purpose": "Perforated hardboard ground: fractal-noise grain (260px tile) over a 32px radial hole grid, aligned at runtime to the first hook via --hx/--hy." },
+      { "name": "quiet-patch", "purpose": "Masked plain-grain patch behind text on the board so perforations never cross copy." },
+      { "name": "steel", "purpose": "Brushed graphite ground with horizontal-streak noise at 5% white." },
+      { "name": "yellow", "purpose": "Safety-yellow ground with fine paper noise; text in tape." }
+    ],
+    "shadows": [
+      { "name": "tag-hang", "value": "0 7px 10px -3px rgba(45,22,6,0.5), 0 18px 26px -14px rgba(45,22,6,0.6)", "purpose": "Plastic key tags hanging on the board." },
+      { "name": "primary-lift", "value": "0 8px 16px -6px rgba(26,40,110,0.55), 0 2px 4px rgba(20,10,0,0.25)", "purpose": "Primary button at rest." },
+      { "name": "primary-lift-hover", "value": "0 14px 22px -8px rgba(26,40,110,0.6), 0 2px 4px rgba(20,10,0,0.25)", "purpose": "Primary button on hover." },
+      { "name": "tape-stick", "value": "drop-shadow(0 2px 2px rgba(40,20,5,0.4))", "purpose": "Label-maker tape (filter, follows the clip-path)." },
+      { "name": "tape-stick-hover", "value": "drop-shadow(0 5px 4px rgba(40,20,5,0.45))", "purpose": "Interactive tape on hover." },
+      { "name": "paper-sheet", "value": "0 18px 40px -18px rgba(70,45,0,0.65), 0 3px 6px rgba(70,45,0,0.2)", "purpose": "Inspection comparison sheet on the yellow ground." },
+      { "name": "steel-panel", "value": "0 14px 30px -14px rgba(40,20,5,0.75)", "purpose": "Graphite readout and picker panels resting on the board." },
+      { "name": "insert-recess", "value": "inset 0 0 0 1px rgba(0,0,0,0.1), inset 0 2px 3px rgba(0,0,0,0.08)", "purpose": "Paper insert slid into a tag window." },
+      { "name": "metal-knob", "value": "0 3px 6px rgba(40,20,5,0.5)", "purpose": "Hook heads and range thumbs." }
+    ],
+    "motion": [
+      { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "All state transitions and the tag swing." },
+      { "name": "button-transition", "value": "260ms", "purpose": "Button transform and shadow." },
+      { "name": "tape-transition", "value": "220ms", "purpose": "Interactive tape lift and tilt." },
+      { "name": "tag-color", "value": "140ms linear", "purpose": "Tag background change on status cycle." },
+      { "name": "tag-swing", "value": "rotate [0, 7, -5, 3, -1.5, 0.6, 0]deg over 1.6s, staggered 0.06s per tag", "purpose": "Damped swing on mount and on status change; hover tilt 2.5deg; disabled under prefers-reduced-motion." },
+      { "name": "header-scroll", "value": "300ms", "purpose": "Header gains graphite ground after 24px of scroll." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px", "purpose": "Board shows 16 tags instead of 9; tag columns widen to 144px." },
+      { "name": "md", "value": "768px", "purpose": "Tape nav appears; gutters 32px; sections 128px; plan rail appears." },
+      { "name": "lg", "value": "1024px", "purpose": "12-column split layouts; hero fills the viewport." },
+      { "name": "xl", "value": "1280px", "purpose": "Hero tag columns return to 144px." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The only call-to-action fill; azul molded button that lifts on hover and presses on click.",
+      "html": "<a class=\"ds-btn ds-btn-primary\" href=\"#\">Escolher meu plano <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></a>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; min-height: 3.25rem; padding: 0 1.5rem; border-radius: 12px; font-family: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif; font-weight: 700; font-stretch: 108%; font-size: 1.02rem; text-decoration: none; transition: transform 260ms cubic-bezier(0.16,1,0.3,1), box-shadow 260ms cubic-bezier(0.16,1,0.3,1), background-color 200ms ease; } .ds-btn-primary { background-color: #2457d6; background-image: linear-gradient(170deg, rgba(255,255,255,0.2), rgba(255,255,255,0) 45%); color: #fff; box-shadow: 0 8px 16px -6px rgba(26,40,110,0.55), 0 2px 4px rgba(20,10,0,0.25); } .ds-btn-primary:hover { background-color: #1a43ad; transform: translateY(-2px); box-shadow: 0 14px 22px -8px rgba(26,40,110,0.6), 0 2px 4px rgba(20,10,0,0.25); } .ds-btn:active { transform: translateY(1px); } .ds-btn:focus-visible { outline: 3px solid #f2b705; outline-offset: 3px; }"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Secondary action on the hardboard: translucent cream with an inset ink ring.",
+      "html": "<div style=\"background:#ba8550;padding:24px\"><a class=\"ds-btn-quiet\" href=\"#\">Já sou cliente</a></div>",
+      "css": ".ds-btn-quiet { display: inline-flex; align-items: center; justify-content: center; min-height: 3.25rem; padding: 0 1.5rem; border-radius: 12px; font-family: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif; font-weight: 700; font-stretch: 108%; font-size: 1.02rem; text-decoration: none; color: #1b1209; background: rgba(255,246,232,0.32); box-shadow: inset 0 0 0 1.5px rgba(27,18,9,0.55); transition: transform 260ms cubic-bezier(0.16,1,0.3,1), background-color 200ms ease; } .ds-btn-quiet:hover { background: rgba(255,246,232,0.5); } .ds-btn-quiet:active { transform: translateY(1px); } .ds-btn-quiet:focus-visible { outline: 3px solid #f2b705; outline-offset: 3px; }"
+    },
+    {
+      "name": "Steel Button",
+      "kind": "button",
+      "refersTo": "button-steel",
+      "description": "Secondary action on graphite: transparent with an inset light ring.",
+      "html": "<div style=\"background:#23272b;padding:24px\"><a class=\"ds-btn-steel\" href=\"#\">Entrar</a></div>",
+      "css": ".ds-btn-steel { display: inline-flex; align-items: center; justify-content: center; min-height: 3.25rem; padding: 0 1.5rem; border-radius: 12px; font-family: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif; font-weight: 700; font-stretch: 108%; font-size: 1.02rem; text-decoration: none; color: #edeff1; background: transparent; box-shadow: inset 0 0 0 1.5px rgba(237,239,241,0.45); transition: transform 260ms cubic-bezier(0.16,1,0.3,1), background-color 200ms ease; } .ds-btn-steel:hover { background: rgba(237,239,241,0.08); } .ds-btn-steel:active { transform: translateY(1px); } .ds-btn-steel:focus-visible { outline: 3px solid #f2b705; outline-offset: 3px; }"
+    },
+    {
+      "name": "Label-Maker Tape",
+      "kind": "chip",
+      "refersTo": "tape",
+      "description": "The world's chip, badge, nav link, and legend entry: slanted, tilted embossed tape in fita or a status color.",
+      "html": "<div style=\"background:#ba8550;padding:24px;display:flex;gap:8px;flex-wrap:wrap\"><a class=\"ds-tape\" href=\"#\">Como funciona</a><span class=\"ds-tape ds-tape-azul\">Alugado</span><span class=\"ds-tape ds-tape-verde\">No pátio</span><span class=\"ds-tape ds-tape-amarelo\">Oficina</span><span class=\"ds-tape ds-tape-vermelho\">Atrasado</span></div>",
+      "css": ".ds-tape { --tape-bg: #16171b; display: inline-flex; align-items: center; background-color: var(--tape-bg); color: #f4f4f2; font-family: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif; font-stretch: 118%; font-weight: 640; font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none; padding: 0.4em 1em 0.36em; clip-path: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%); filter: drop-shadow(0 2px 2px rgba(40,20,5,0.4)); transform: rotate(-0.6deg); white-space: nowrap; transition: transform 220ms cubic-bezier(0.16,1,0.3,1), filter 220ms cubic-bezier(0.16,1,0.3,1); } .ds-tape:nth-child(2n) { transform: rotate(0.5deg); } a.ds-tape:hover { transform: translateY(-2px) rotate(-1.2deg); filter: drop-shadow(0 5px 4px rgba(40,20,5,0.45)); } a.ds-tape:focus-visible { outline: 3px solid #f2b705; outline-offset: 3px; } .ds-tape-azul { --tape-bg: #2457d6; } .ds-tape-verde { --tape-bg: #1e9e5a; } .ds-tape-amarelo { --tape-bg: #f2b705; color: #16171b; } .ds-tape-vermelho { --tape-bg: #d63a2a; }"
+    },
+    {
+      "name": "Key Tag",
+      "kind": "custom",
+      "refersTo": "key-tag",
+      "description": "Signature component: a plastic status-colored tag hanging from a wire hook, with a paper insert holding the plate, model, and driver.",
+      "html": "<div style=\"background:#ba8550;padding:24px;display:flex;gap:16px\"><div class=\"ds-hook\"><button class=\"ds-tag\" type=\"button\"><div class=\"ds-insert\"><div class=\"ds-plate\"><div class=\"ds-plate-band\"><span>BRASIL</span><span>BR</span></div><div class=\"ds-plate-text\">QTP4E21</div></div><div class=\"ds-tag-line\"><b>Onix 1.0 · 2022</b></div><div class=\"ds-tag-line\">Jefferson S.</div></div><div class=\"ds-tag-foot\"><span>Alugado</span><span class=\"ds-num\">R$ 650</span></div></button></div><div class=\"ds-hook\"><button class=\"ds-tag\" type=\"button\" data-status=\"oficina\"><div class=\"ds-insert\"><div class=\"ds-plate\"><div class=\"ds-plate-band\"><span>BRASIL</span><span>BR</span></div><div class=\"ds-plate-text\">SGB3F09</div></div><div class=\"ds-tag-line\"><b>Spin · 2022</b></div><div class=\"ds-tag-line\">Embreagem</div></div><div class=\"ds-tag-foot\"><span>Oficina</span></div></button></div></div>",
+      "css": ".ds-hook { position: relative; width: 144px; padding-top: 26px; } .ds-hook::before { content: ''; position: absolute; top: 0; left: 50%; width: 13px; height: 13px; margin-left: -6.5px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fafafa, #a3a9af 55%, #4a4f55); box-shadow: 0 2px 3px rgba(40,20,5,0.5); z-index: 3; } .ds-hook::after { content: ''; position: absolute; top: 6px; left: 50%; width: 3px; height: 28px; margin-left: -1.5px; border-radius: 2px; background: linear-gradient(90deg, #5f646a, #e1e4e7, #6b7076); z-index: 2; } .ds-tag { --tag: #2457d6; --tag-ink: #fff; position: relative; display: block; width: 100%; text-align: left; border: 0; cursor: pointer; border-radius: 14px 14px 18px 18px; padding: 26px 8px 9px; background-color: var(--tag); background-image: linear-gradient(160deg, rgba(255,255,255,0.3), rgba(255,255,255,0) 42%, rgba(0,0,0,0.1)); color: var(--tag-ink); font-family: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif; box-shadow: 0 7px 10px -3px rgba(45,22,6,0.5), 0 18px 26px -14px rgba(45,22,6,0.6); transform-origin: 50% 4px; transition: background-color 140ms linear, transform 260ms cubic-bezier(0.16,1,0.3,1); } .ds-tag:hover { transform: rotate(2.5deg); } .ds-tag:focus-visible { outline: 3px solid #f2b705; outline-offset: 3px; } .ds-tag::before { content: ''; position: absolute; top: 8px; left: 50%; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: #a5733f; box-shadow: inset 0 2px 3px rgba(0,0,0,0.55); } .ds-tag::after { content: ''; position: absolute; top: 4px; left: 50%; width: 20px; height: 20px; margin-left: -10px; border-radius: 50%; border: 2.5px solid #c9ced3; border-bottom-color: #7d838a; box-sizing: border-box; } .ds-tag[data-status='oficina'] { --tag: #f2b705; --tag-ink: #16171b; } .ds-tag[data-status='disponivel'] { --tag: #1e9e5a; } .ds-tag[data-status='atrasado'] { --tag: #d63a2a; } .ds-insert { background: #fbfaf6; color: #16171b; border-radius: 6px; padding: 6px 7px 7px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1), inset 0 2px 3px rgba(0,0,0,0.08); } .ds-plate { border: 1.5px solid #1b1b1b; border-radius: 4px; background: #fff; overflow: hidden; text-align: center; } .ds-plate-band { display: flex; justify-content: space-between; background: #1f47b8; color: #fff; font-size: 6px; font-weight: 700; letter-spacing: 0.2em; padding: 1px 4px; line-height: 1.2; } .ds-plate-text { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-size: 1.2rem; letter-spacing: 0.06em; line-height: 1.05; color: #111; } .ds-tag-line { margin-top: 4px; font-size: 11px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-tag-foot { margin-top: 6px; display: flex; justify-content: space-between; align-items: baseline; padding: 0 2px; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; font-stretch: 115%; } .ds-num { font-family: 'Saira Condensed', sans-serif; font-variant-numeric: tabular-nums; font-size: 13px; letter-spacing: 0; text-transform: none; }"
+    },
+    {
+      "name": "Fleet Picker",
+      "kind": "input",
+      "refersTo": "step-button",
+      "description": "Steel panel with fita step buttons, a large numeral output, and a chrome-knob range slider filled azul.",
+      "html": "<div class=\"ds-picker\"><label class=\"ds-picker-label\" for=\"ds-cars\">Carros na frota</label><div class=\"ds-picker-row\"><button class=\"ds-step\" type=\"button\" aria-label=\"Menos um carro\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/></svg></button><output class=\"ds-picker-out\">12</output><button class=\"ds-step\" type=\"button\" aria-label=\"Mais um carro\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"M12 5v14\"/></svg></button><span class=\"ds-picker-fit\">Cabe no <b>Pro</b></span></div><input id=\"ds-cars\" class=\"ds-range\" type=\"range\" min=\"1\" max=\"100\" value=\"12\" style=\"--fill: 11%\"></div>",
+      "css": ".ds-picker { background: #23272b; color: #edeff1; border-radius: 12px; padding: 20px; box-shadow: 0 14px 30px -14px rgba(40,20,5,0.75); font-family: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif; } .ds-picker-label { font-size: 0.82rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; font-stretch: 115%; color: #aab2b9; } .ds-picker-row { margin-top: 8px; display: flex; align-items: center; gap: 16px; } .ds-picker-out { width: 4.5rem; text-align: center; font-family: 'Saira Condensed', sans-serif; font-variant-numeric: tabular-nums; font-size: 3rem; font-weight: 700; line-height: 1; color: #fff; } .ds-picker-fit { margin-left: auto; font-size: 0.95rem; color: #aab2b9; } .ds-picker-fit b { color: #fff; } .ds-step { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 10px; background: #16171b; color: #f4f4f2; cursor: pointer; box-shadow: 0 3px 6px -2px rgba(40,20,5,0.5); transition: transform 200ms cubic-bezier(0.16,1,0.3,1); } .ds-step:hover { transform: translateY(-1px); } .ds-step:disabled { opacity: 0.35; cursor: not-allowed; transform: none; } .ds-step:focus-visible, .ds-range:focus-visible { outline: 3px solid #f2b705; outline-offset: 3px; } .ds-range { -webkit-appearance: none; appearance: none; margin-top: 20px; width: 100%; height: 10px; border-radius: 5px; background: linear-gradient(90deg, #2457d6 var(--fill, 10%), rgba(27,18,9,0.35) var(--fill, 10%)); box-shadow: inset 0 1px 2px rgba(0,0,0,0.35); } .ds-range::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fafafa, #a3a9af 60%, #4a4f55); box-shadow: 0 3px 6px rgba(40,20,5,0.5); cursor: grab; } .ds-range::-moz-range-thumb { width: 30px; height: 30px; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fafafa, #a3a9af 60%, #4a4f55); box-shadow: 0 3px 6px rgba(40,20,5,0.5); cursor: grab; }"
+    },
+    {
+      "name": "Header Navigation",
+      "kind": "nav",
+      "description": "Fixed header: azul brand tape, fita section tapes, and the enter button; turns graphite after scroll (shown scrolled).",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-tape ds-nav-brand\" href=\"#\">DashiDrive</a><div class=\"ds-nav-links\"><a class=\"ds-nav-tape\" href=\"#\">Como funciona</a><a class=\"ds-nav-tape\" href=\"#\">Vistoria</a><a class=\"ds-nav-tape\" href=\"#\">Planos</a></div><a class=\"ds-nav-enter\" href=\"#\">Entrar</a></nav>",
+      "css": ".ds-nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 20px; background: #23272b; box-shadow: 0 8px 20px -10px rgba(0,0,0,0.6); font-family: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif; } .ds-nav-links { display: flex; gap: 12px; } .ds-nav-tape { display: inline-flex; background: #16171b; color: #f4f4f2; font-stretch: 118%; font-weight: 640; font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none; padding: 0.4em 1em 0.36em; clip-path: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%); filter: drop-shadow(0 2px 2px rgba(40,20,5,0.4)); transform: rotate(-0.6deg); transition: transform 220ms cubic-bezier(0.16,1,0.3,1); } .ds-nav-tape:hover { transform: translateY(-2px) rotate(-1.2deg); } .ds-nav-tape:focus-visible, .ds-nav-enter:focus-visible { outline: 3px solid #f2b705; outline-offset: 3px; } .ds-nav-brand { background: #2457d6; font-size: 0.95rem; } .ds-nav-enter { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0 1.25rem; border-radius: 12px; font-weight: 700; font-stretch: 108%; font-size: 0.95rem; color: #edeff1; text-decoration: none; box-shadow: inset 0 0 0 1.5px rgba(237,239,241,0.45); transition: background-color 200ms ease; } .ds-nav-enter:hover { background: rgba(237,239,241,0.08); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Quadro de Chaves",
+    "overview": "The rental company is its key board. A natural hardboard panel with a real perforation grid carries the page; every hook is a car, and every plastic tag's color says where that car is right now. Headings and navigation are embossed label-maker tape stuck onto the board; cabinet sections are brushed graphite steel; paper inserts and Mercosul-style plates carry the data. Everything on the page is a physical object from a locadora's back office, so the product reads as the owner's own operation rather than as a software brochure.\n\nThe world is tactile and slightly imperfect on purpose: tapes sit a fraction of a degree off level, tags hang from wire hooks and swing when they change, the comparison sheet is laid on the yellow section at a slight angle. Density is moderate; the board breathes, and type is set large and expanded so it reads like stencilled lettering on wood. All numbers are condensed and tabular, like plate stamping.\n\nInteraction belongs to the objects: a tag cycles its status when tapped and swings on its hook; a fleet-size picker lights the plan tag that fits. Example data is always labeled as example.",
+    "keyCharacteristics": [
+      "Three materials carry every section: perforated hardboard, graphite steel, and safety yellow.",
+      "Status colors (azul, verde, amarelo, vermelho) are semantic first and decorative never.",
+      "Label-maker tape replaces chips, nav pills, and small badges.",
+      "Expanded heavy Archivo for display, Saira Condensed for every number and plate.",
+      "Depth comes from soft, warm, brown-tinted shadows of objects resting on wood."
+    ],
+    "rules": [
+      { "name": "The Status Is Semantic Rule", "body": "Azul, verde, amarelo, and vermelho mean alugado, disponível, oficina, and atrasado. Never use one of them decoratively where it could be read as a car's status; azul doubles as the CTA color because \"alugado\" is the outcome the owner is buying.", "section": "colors" },
+      { "name": "The Three Grounds Rule", "body": "A section's ground is board, steel, or yellow, with its grain. No flat white or gray sections, no gradients as backgrounds.", "section": "colors" },
+      { "name": "The Stamped Numbers Rule", "body": "Every money value, count, km reading, date range, and plate is set in Saira Condensed with tabular figures. Never set a figure in Archivo.", "section": "typography" },
+      { "name": "The Wide Means Heading Rule", "body": "Width above 118% is reserved for headings and tape. Body copy stays at the normal width.", "section": "typography" },
+      { "name": "The Warm Light Rule", "body": "Every shadow is tinted toward the wood. A gray or black-only shadow is wrong in this world.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do set every section on one of the three grounds (board, steel, yellow) with its grain.",
+      "Do use status colors only to mean the status they name, and label demonstration data as example.",
+      "Do set every figure, price, plate, and date in Saira Condensed with tabular numerals.",
+      "Do express small labels, nav, and badges as label-maker tape with its slant and tilt.",
+      "Do tint every shadow warm brown and keep it soft and downward.",
+      "Do put a plain-grain patch behind text that sits on the perforated board.",
+      "Do gate swing and transition motion behind prefers-reduced-motion."
+    ],
+    "donts": [
+      "Don't use a split hero with a dashboard screenshot, a feature-card grid, or three floating pricing cards; information hangs as tags, ledgers, and sheets instead.",
+      "Don't use a status color decoratively where it could be read as a car's state.",
+      "Don't use gray or black-only shadows, hard offset shadows, or glows.",
+      "Don't set body copy in the expanded heading widths.",
+      "Don't bring the app's Inter, indigo, or neumorphic shadows into this world."
+    ]
+  }
+}
