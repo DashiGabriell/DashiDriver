@@ -1,260 +1,254 @@
-import { useState, useEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-// Import only the chevron icons needed for the collapse button.
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { motion } from "framer-motion";
-// Reutiliza o componente de ícone customizado usado no Sidebar
-import { SidebarIcon } from "@/components/layout/Sidebar";
+import {
+  animate,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+  type MotionValue,
+  type PanInfo,
+} from "framer-motion";
+import { cn } from "@/lib/utils";
+
+const NAV_ITEMS = [
+  { src: "/assets/sidebar-dashboard.png", label: "Início", to: "/dashboard" },
+  { src: "/assets/sidebar-carro.png", label: "Veículos", to: "/veiculos" },
+  { src: "/assets/sidebar-motoristas.png", label: "Motoristas", to: "/motoristas" },
+  { src: "/assets/checklist-sideabar.png", label: "Checklists", to: "/checklists" },
+  { src: "/assets/sidebar-recebimentos.png", label: "Pagamentos", to: "/pagamentos" },
+  { src: "/assets/sidebar-parcelaseguro.png", label: "Financiamento", to: "/financiamento-seguro" },
+  { src: "/assets/sidebar-ferramentas.png", label: "Manutenção", to: "/manutencao" },
+  { src: "/assets/sidebar-lucratividade.png", label: "Lucro", to: "/lucratividade" },
+  { src: "/assets/sidebar-km.png", label: "KM", to: "/controle-km" },
+  { src: "/assets/sidebar-alertas.png", label: "Alertas", to: "/alertas" },
+  { src: "/assets/sidebar-users.png", label: "Usuários", to: "/usuarios" },
+  { src: "/assets/sidebar-perfil.png", label: "Perfil", to: "/perfil" },
+  { src: "/assets/suporte.png", label: "Suporte", to: "/suporte" },
+] as const;
+
+const VISIBLE = 5;
+const CENTER_SLOT = Math.floor(VISIBLE / 2);
+const MAX_START = NAV_ITEMS.length - VISIBLE;
+
+const SPRING = { type: "spring", stiffness: 320, damping: 34, mass: 0.9 } as const;
+
+const clampStart = (value: number) => Math.min(MAX_START, Math.max(0, value));
+
+const findActiveIndex = (pathname: string) =>
+  NAV_ITEMS.findIndex((item) => pathname === item.to || pathname.startsWith(`${item.to}/`));
+
+// Janela que deixa o item no centro quando possível; os 2 primeiros e os 2 últimos
+// nunca chegam ao centro porque a lista não tem espaços vazios nas pontas.
+const startFor = (index: number) => (index < 0 ? 0 : clampStart(index - CENTER_SLOT));
 
 interface NavItemProps {
-  icon: React.ReactNode;
-  label: string;
-  to: string;
+  index: number;
+  item: (typeof NAV_ITEMS)[number];
+  x: MotionValue<number>;
+  itemWidth: number;
   isActive: boolean;
-  onClick: () => void;
+  isCentered: boolean;
+  onFocusItem: (index: number) => void;
 }
 
-const NavItem: React.FC<NavItemProps> = ({
-  icon: Icon,
-  label,
-  to,
-  isActive,
-  onClick,
-}) => {
+const NavItem = ({ index, item, x, itemWidth, isActive, isCentered, onFocusItem }: NavItemProps) => {
+  // 1 quando o item está exatamente no centro da janela, 0 a partir de um item de distância.
+  const centerness = useTransform(x, (latest) => {
+    if (!itemWidth) return isCentered ? 1 : 0;
+    const itemCenter = index * itemWidth + latest + itemWidth / 2;
+    const viewportCenter = (CENTER_SLOT + 0.5) * itemWidth;
+    return 1 - Math.min(1, Math.abs(itemCenter - viewportCenter) / itemWidth);
+  });
+  const circleScale = useTransform(centerness, [0, 1], [0.4, 1]);
+  const circleOpacity = useTransform(centerness, [0.15, 0.85], [0, 1]);
+  const iconFilter = useTransform(
+    centerness,
+    [0.35, 0.75],
+    ["brightness(1) invert(0)", "brightness(0) invert(1)"],
+  );
+  const iconScale = useTransform(centerness, [0, 1], [1, 1.04]);
+
   return (
     <NavLink
-      to={to}
-      onClick={onClick}
-      className="relative flex flex-col items-center justify-center w-[72px] h-full py-2 transition-all duration-200 touch-target shrink-0"
+      to={item.to}
+      onFocus={() => onFocusItem(index)}
+      aria-current={isActive ? "page" : undefined}
+      className="relative flex h-full shrink-0 flex-col items-center justify-center gap-1 outline-none focus-visible:[&>span:first-child]:ring-2 focus-visible:[&>span:first-child]:ring-ring"
+      style={{ width: itemWidth || `${100 / VISIBLE}%` }}
+      draggable={false}
     >
-      {/* Ícone com animação de salto */}
-      <motion.div
-        animate={
-          isActive
-            ? {
-                y: [0, -4, 0],
-              }
-            : {
-                y: 0,
-              }
-        }
-        transition={{
-          duration: 0.6,
-          ease: "easeInOut",
-          repeat: isActive ? Infinity : 0,
-          repeatDelay: 3,
-        }}
-        className="relative z-10"
-      >
-        {Icon}
-      </motion.div>
-
-      {/* Label */}
-      <span
-        className={`text-[10px] mt-1 font-medium transition-colors duration-200 relative z-10 ${
-          isActive ? "text-primary" : "text-muted-foreground"
-        }`}
-      >
-        {label}
+      <span className="relative grid h-11 w-11 place-items-center rounded-full">
+        <motion.span
+          aria-hidden
+          className="absolute inset-0 rounded-full bg-primary shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.55)]"
+          style={{ scale: circleScale, opacity: circleOpacity }}
+        />
+        <motion.img
+          src={item.src}
+          alt=""
+          draggable={false}
+          className="relative h-[22px] w-[22px] object-contain select-none"
+          style={{ filter: iconFilter, scale: iconScale }}
+        />
       </span>
+      <span
+        className={cn(
+          "max-w-full truncate px-0.5 text-[10px] leading-none transition-colors duration-300",
+          isCentered || isActive ? "font-semibold text-primary" : "font-medium text-muted-foreground",
+        )}
+      >
+        {item.label}
+      </span>
+      <span
+        aria-hidden
+        className={cn(
+          "absolute bottom-1 h-1 w-1 rounded-full bg-primary transition-opacity duration-300",
+          isActive && !isCentered ? "opacity-100" : "opacity-0",
+        )}
+      />
     </NavLink>
   );
 };
 
 export const MobileNavbar = () => {
   const location = useLocation();
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(true);
+  const reduceMotion = useReducedMotion();
+  const activeIndex = findActiveIndex(location.pathname);
 
-  // Todos os itens de navegação
-  const allNavItems = [
-    { icon: <div style={{ transform: "translateY(-15px)", scale: "1.5" }}><SidebarIcon src="/assets/sidebar-dashboard.png" label="Início" /></div>, label: "Início", to: "/dashboard" },
-    { icon: <SidebarIcon src="/assets/sidebar-carro.png" label="Veículos" />, label: "Veículos", to: "/veiculos" },
-    { icon: <SidebarIcon src="/assets/sidebar-motoristas.png" label="Motoristas" />, label: "Motoristas", to: "/motoristas" },
-    { icon: <SidebarIcon src="/assets/checklist-sideabar.png" label="Checklists" />, label: "Checklists", to: "/checklists" },
-    { icon: <SidebarIcon src="/assets/sidebar-recebimentos.png" label="Pagamentos" />, label: "Pagamentos", to: "/pagamentos" },
-    { icon: <SidebarIcon src="/assets/sidebar-parcelaseguro.png" label="Financiamento" />, label: "Financiamento", to: "/financiamento-seguro" },
-    { icon: <SidebarIcon src="/assets/sidebar-ferramentas.png" label="Manutenção" />, label: "Manutenção", to: "/manutencao" },
-    { icon: <SidebarIcon src="/assets/sidebar-lucratividade.png" label="Lucro" />, label: "Lucro", to: "/lucratividade" },
-    { icon: <SidebarIcon src="/assets/sidebar-km.png" label="KM" />, label: "KM", to: "/controle-km" },
-    { icon: <SidebarIcon src="/assets/sidebar-alertas.png" label="Alertas" />, label: "Alertas", to: "/alertas" },
-    { icon: <SidebarIcon src="/assets/sidebar-users.png" label="Usuários" />, label: "Usuários", to: "/usuarios" },
-    { icon: <SidebarIcon src="/assets/sidebar-perfil.png" label="Perfil" />, label: "Perfil", to: "/perfil" },
-    { icon: <SidebarIcon src="/assets/suporte.png" label="Suporte" />, label: "Suporte", to: "/suporte" },
-  ];
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const draggedRef = useRef(false);
+  const [itemWidth, setItemWidth] = useState(0);
+  const [start, setStart] = useState(() => startFor(activeIndex));
+  const [centerIndex, setCenterIndex] = useState(() => startFor(activeIndex) + CENTER_SLOT);
+  const x = useMotionValue(0);
 
-  // Constantes para controle de visualização
-  const ITEMS_VISIVEIS = 4;
-  const ITEM_WIDTH = 72; // largura fixa de cada item
-
-  // Garantir que o navbar seja sempre visível
-  useEffect(() => {
-    setIsVisible(true);
+  useLayoutEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+    const measure = () => setItemWidth(el.clientWidth / VISIBLE);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
-  // Atualizar índice ativo baseado na rota atual
+  const snapTo = useCallback(
+    (nextStart: number) => {
+      const target = clampStart(nextStart);
+      setStart(target);
+      setCenterIndex(target + CENTER_SLOT);
+      if (!itemWidth) return;
+      const to = -target * itemWidth;
+      if (reduceMotion) {
+        x.set(to);
+      } else {
+        animate(x, to, SPRING);
+      }
+    },
+    [itemWidth, reduceMotion, x],
+  );
+
+  // Largura mudou (rotação, primeira medição): reposiciona sem animar.
+  useLayoutEffect(() => {
+    if (itemWidth) x.set(-start * itemWidth);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemWidth]);
+
   useEffect(() => {
-    const currentIndex = allNavItems.findIndex((item) => location.pathname.startsWith(item.to));
-    if (currentIndex !== -1) {
-      setActiveIndex(currentIndex);
-      // Scroll automático para o item ativo
-      scrollToItem(currentIndex);
-    }
+    snapTo(startFor(activeIndex));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
-  // Função para scroll suave até o item
-  const scrollToItem = (index: number) => {
-    if (scrollContainerRef.current) {
-      // Calcula a posição para mostrar o item no início da área visível
-      const scrollLeft = Math.max(0, index * ITEM_WIDTH);
-      
-      scrollContainerRef.current.scrollTo({
-        left: scrollLeft,
-        behavior: "smooth",
-      });
-    }
+  useEffect(
+    () =>
+      x.on("change", (latest) => {
+        if (!itemWidth) return;
+        const next = clampStart(Math.round(-latest / itemWidth)) + CENTER_SLOT;
+        setCenterIndex((prev) => (prev === next ? prev : next));
+      }),
+    [x, itemWidth],
+  );
+
+  const handleDragEnd = (_: unknown, info: PanInfo) => {
+    if (!itemWidth) return;
+    const projected = x.get() + info.velocity.x * 0.18;
+    snapTo(Math.round(-projected / itemWidth));
   };
 
-  // Navegar para esquerda (mostra 4 itens anteriores)
-  const handleScrollLeft = () => {
-    if (scrollContainerRef.current) {
-      const newPosition = Math.max(0, scrollPosition - (ITEM_WIDTH * ITEMS_VISIVEIS));
-      scrollContainerRef.current.scrollTo({
-        left: newPosition,
-        behavior: "smooth",
-      });
-    }
-  };
+  const canGoLeft = start > 0;
+  const canGoRight = start < MAX_START;
 
-  // Navegar para direita (mostra 4 próximos itens)
-  const handleScrollRight = () => {
-    if (scrollContainerRef.current) {
-      const maxScroll = scrollContainerRef.current.scrollWidth - scrollContainerRef.current.offsetWidth;
-      const newPosition = Math.min(maxScroll, scrollPosition + (ITEM_WIDTH * ITEMS_VISIVEIS));
-      scrollContainerRef.current.scrollTo({
-        left: newPosition,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  // Atualizar posição do scroll
-  const handleScroll = () => {
-    if (scrollContainerRef.current) {
-      setScrollPosition(scrollContainerRef.current.scrollLeft);
-    }
-  };
-
-  // Verificar se pode scrollar
-  const canScrollLeft = scrollPosition > 5;
-  const canScrollRight = scrollContainerRef.current
-    ? scrollPosition < scrollContainerRef.current.scrollWidth - scrollContainerRef.current.offsetWidth - 5
-    : true; // Assume true inicialmente
-
-  if (!isVisible) return null;
+  const arrowClass =
+    "grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted/70 text-foreground transition-[opacity,transform,background-color] duration-200 active:scale-90 disabled:pointer-events-none disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
   return (
-    <nav 
-      className="w-full bg-background border-t border-border"
-      style={{
-        paddingBottom: 'env(safe-area-inset-bottom)',
-        height: 'calc(64px + env(safe-area-inset-bottom))',
-      }}
-    >
-      <div className="relative flex items-center h-16 w-full">
-        {/* Indicador animado no topo - CORRIGIDO */}
-        <motion.div
-          className="absolute top-0 h-[3px] bg-primary rounded-full z-10"
-          animate={{
-            left: `calc(${activeIndex * ITEM_WIDTH}px - ${scrollPosition}px + 16px)`,
-            width: "40px",
-          }}
-          transition={{
-            type: "spring",
-            stiffness: 400,
-            damping: 35,
-          }}
-        />
-
-        {/* Botão de navegação esquerda - SEMPRE VISÍVEL */}
+    <div className="px-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
+      <nav
+        aria-label="Navegação principal"
+        className="flex h-[68px] items-center gap-1 rounded-[26px] border border-border/70 bg-card px-1.5 shadow-[0_12px_32px_-10px_rgba(15,23,42,0.28),0_2px_6px_-2px_rgba(15,23,42,0.08)]"
+      >
         <button
-          onClick={handleScrollLeft}
-          disabled={!canScrollLeft}
-          className={`absolute left-0 z-30 h-full w-12 flex items-center justify-center bg-gradient-to-r from-background via-background/95 to-transparent transition-opacity duration-200 ${
-            canScrollLeft ? 'opacity-100' : 'opacity-30'
-          }`}
-          aria-label="Navegar para esquerda"
+          type="button"
+          onClick={() => snapTo(start - 1)}
+          disabled={!canGoLeft}
+          className={arrowClass}
+          aria-label="Ver opções anteriores"
         >
-          <ChevronLeft 
-            className={`w-6 h-6 transition-colors ${
-              canScrollLeft ? 'text-primary' : 'text-muted-foreground'
-            }`} 
-            strokeWidth={2.5} 
-          />
+          <ChevronLeft className="h-5 w-5" strokeWidth={2.25} />
         </button>
 
-        {/* Container de itens com scroll horizontal - LARGURA FIXA para 4 itens */}
-        <div
-          ref={scrollContainerRef}
-          onScroll={handleScroll}
-          className="flex items-center overflow-x-auto scrollbar-none h-full mx-12"
-          style={{
-            width: `${ITEM_WIDTH * ITEMS_VISIVEIS}px`,
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-            WebkitOverflowScrolling: "touch",
-            scrollSnapType: "x mandatory",
-          }}
-        >
-          {allNavItems.map((item, index) => (
-            <div
-              key={item.to}
-              style={{
-                scrollSnapAlign: "start",
-                width: `${ITEM_WIDTH}px`,
-              }}
-            >
+        <div ref={viewportRef} className="relative h-full min-w-0 flex-1 overflow-hidden">
+          <motion.div
+            className="flex h-full touch-pan-y"
+            style={{ x }}
+            drag={itemWidth ? "x" : false}
+            dragConstraints={{ left: -MAX_START * itemWidth, right: 0 }}
+            dragElastic={0.12}
+            dragMomentum={false}
+            onPointerDown={() => {
+              draggedRef.current = false;
+            }}
+            onDragStart={() => {
+              draggedRef.current = true;
+            }}
+            onDragEnd={handleDragEnd}
+            onClickCapture={(e) => {
+              if (draggedRef.current) {
+                e.preventDefault();
+                e.stopPropagation();
+                draggedRef.current = false;
+              }
+            }}
+          >
+            {NAV_ITEMS.map((item, index) => (
               <NavItem
-                icon={item.icon}
-                label={item.label}
-                to={item.to}
-                isActive={activeIndex === index}
-                onClick={() => {
-                  setActiveIndex(index);
-                  scrollToItem(index);
+                key={item.to}
+                index={index}
+                item={item}
+                x={x}
+                itemWidth={itemWidth}
+                isActive={index === activeIndex}
+                isCentered={index === centerIndex}
+                onFocusItem={(i) => {
+                  if (i < start || i >= start + VISIBLE) snapTo(startFor(i));
                 }}
               />
-            </div>
-          ))}
+            ))}
+          </motion.div>
         </div>
 
-        {/* Botão de navegação direita - SEMPRE VISÍVEL */}
         <button
-          onClick={handleScrollRight}
-          disabled={!canScrollRight}
-          className={`absolute right-0 z-30 h-full w-12 flex items-center justify-center bg-gradient-to-l from-background via-background/80 to-transparent transition-opacity duration-200 ${
-            canScrollRight ? 'opacity-100' : 'opacity-30'
-          }`}
-          aria-label="Navegar para direita"
+          type="button"
+          onClick={() => snapTo(start + 1)}
+          disabled={!canGoRight}
+          className={arrowClass}
+          aria-label="Ver próximas opções"
         >
-          <ChevronRight 
-            className={`w-6 h-6 transition-colors ${
-              canScrollRight ? 'text-primary' : 'text-muted-foreground'
-            }`} 
-            strokeWidth={2.5} 
-          />
+          <ChevronRight className="h-5 w-5" strokeWidth={2.25} />
         </button>
-      </div>
-
-      {/* CSS para esconder scrollbar */}
-      <style>{`
-        .scrollbar-none::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
-    </nav>
+      </nav>
+    </div>
   );
 };

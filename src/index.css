@@ -171,6 +171,11 @@
   /* Safe area support for mobile devices (notch, home indicator) */
   html {
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    overflow-x: clip;
+  }
+
+  body {
+    overflow-x: clip;
   }
 
   body {
@@ -401,6 +406,26 @@
   }
   .dialog-3d-content[data-state="open"] { animation: dialog-3d-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
   .dialog-3d-content[data-state="closed"] { animation: dialog-3d-out 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+  /* Celular: as páginas passam w-full / max-w-* / max-h-[vh] no DialogContent; aqui o modal
+     ganha respiro lateral, cantos e rolagem própria sem depender de cada chamada. */
+  @media (max-width: 639px) {
+    .dialog-3d-content {
+      width: calc(100vw - 1.5rem) !important;
+      max-width: calc(100vw - 1.5rem) !important;
+      max-height: calc(100dvh - 1.5rem) !important;
+      overflow-y: auto !important;
+      overscroll-behavior: contain;
+      border-radius: 1.25rem;
+    }
+  }
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @property --alert-angle {
