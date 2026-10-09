@@ -1,4 +1,4 @@
-﻿import { AppShell } from "@/components/layout/AppShell";
+import { AppShell } from "@/components/layout/AppShell";
 import { Topbar } from "@/components/layout/Topbar";
 import { fmtBRL, fmtDate } from "@/lib/utils";
 import { useCountAnimation } from "@/hooks/useCountAnimation";
@@ -323,21 +323,21 @@ const Manutencao = () => {
         helpPath="/ajuda/gestao/manutencao"
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-        <div className="neu p-6 animate-blur-in transition-shadow duration-200 shadow-sm shadow-gray-200 hover:shadow-md hover:shadow-gray-400/40">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 mb-6 md:mb-8">
+        <div className="col-span-2 md:col-span-1 neu p-4 md:p-6 animate-blur-in transition-shadow duration-200 shadow-sm shadow-gray-200 hover:shadow-md hover:shadow-gray-400/40">
           <div className="text-xs uppercase tracking-wider text-muted-foreground">Gasto total</div>
-          <div className="font-display text-3xl font-bold mt-2">
+          <div className="font-display text-2xl md:text-3xl font-bold mt-2 tabular-nums">
             R$ <span ref={totalRef}>0,00</span>
           </div>
         </div>
-        <div className="neu p-6 animate-blur-in delay-75 transition-shadow duration-200 shadow-sm shadow-gray-200 hover:shadow-md hover:shadow-gray-400/40">
-          <div className="text-xs uppercase tracking-wider text-muted-foreground">Serviços realizados</div>
-          <div className="font-display text-3xl font-bold mt-2"><span ref={servicosRef}>0</span></div>
+        <div className="neu p-4 md:p-6 animate-blur-in delay-75 transition-shadow duration-200 shadow-sm shadow-gray-200 hover:shadow-md hover:shadow-gray-400/40 min-w-0">
+          <div className="text-xs uppercase tracking-wider text-muted-foreground leading-tight">Serviços realizados</div>
+          <div className="font-display text-2xl md:text-3xl font-bold mt-2 tabular-nums"><span ref={servicosRef}>0</span></div>
         </div>
-        <div className="neu p-6 animate-blur-in delay-150 transition-shadow duration-200 shadow-sm shadow-gray-200 hover:shadow-md hover:shadow-gray-400/40 flex items-center justify-between">
+        <div className="neu p-4 md:p-6 animate-blur-in delay-150 transition-shadow duration-200 shadow-sm shadow-gray-200 hover:shadow-md hover:shadow-gray-400/40 flex items-center justify-between min-w-0">
           <div>
-            <div className="text-xs uppercase tracking-wider text-muted-foreground">Em oficina</div>
-            <div className="font-display text-3xl font-bold mt-2 text-warning"><span ref={emOficinaRef}>0</span></div>
+            <div className="text-xs uppercase tracking-wider text-muted-foreground leading-tight">Em oficina</div>
+            <div className="font-display text-2xl md:text-3xl font-bold mt-2 text-warning tabular-nums"><span ref={emOficinaRef}>0</span></div>
           </div>
           {/* <button 
             className="neu-interactive px-4 py-2.5 text-sm font-medium flex items-center gap-2"
@@ -348,8 +348,63 @@ const Manutencao = () => {
         </div>
       </div>
 
+      {/* Lista mobile */}
+      <ul className="md:hidden space-y-3 animate-blur-in">
+        {maintenances.map((m: any) => {
+          const v = m.carcontrol_vehicles;
+          return (
+            <li key={m.id} className="neu p-4">
+              <button type="button" className="w-full text-left" onClick={() => openDetailsModal(m)}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold leading-snug break-words flex items-center gap-1.5">
+                      {m.servico}
+                      {m.photo_url && <Camera className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {v ? `${v.modelo} · ${v.placa}` : "Sem veículo"}
+                    </p>
+                  </div>
+                  <span className="font-display font-bold tabular-nums shrink-0">{fmtBRL(m.valor)}</span>
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground">
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-medium capitalize ${
+                    m.tipo === 'preventiva' ? 'bg-emerald-100 text-emerald-700' :
+                    m.tipo === 'corretiva' ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-red-100 text-red-700'
+                  }`}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                    {m.tipo}
+                  </span>
+                  <span>{m.data ? fmtDate(m.data) : "—"}</span>
+                  {m.km_atual ? <span className="tabular-nums">{m.km_atual.toLocaleString("pt-BR")} km</span> : null}
+                  {m.oficina && <span className="truncate max-w-full">{m.oficina}</span>}
+                </div>
+              </button>
+              <div className="mt-3 flex items-center justify-end gap-2 border-t border-border/60 pt-3">
+                <Button size="sm" variant="outline" className="h-10 flex-1" onClick={(e) => openEditModal(e, m)}>
+                  <Edit3 className="w-4 h-4" /> Editar
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-10 w-10 p-0 text-danger hover:text-danger hover:bg-danger/10"
+                  aria-label="Excluir manutenção"
+                  onClick={(e) => deleteMaintenance(e, m)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </li>
+          );
+        })}
+        {maintenances.length === 0 && (
+          <li className="neu p-10 text-center text-muted-foreground">Nenhum histórico de manutenção</li>
+        )}
+      </ul>
+
       {/* Tabela de Manutenções */}
-      <div className="neu overflow-hidden animate-blur-in">
+      <div className="hidden md:block neu overflow-x-auto animate-blur-in">
         <Table>
           <TableHeader>
             <TableRow>
@@ -397,9 +452,9 @@ const Manutencao = () => {
                     </span>
                   </TableCell>
                   <TableCell>{m.oficina}</TableCell>
-                  <TableCell>{m.data ? fmtDate(m.data) : "â€”"}</TableCell>
+                  <TableCell>{m.data ? fmtDate(m.data) : "—"}</TableCell>
                   <TableCell>
-                    {m.km_atual ? m.km_atual.toLocaleString("pt-BR") + " km" : "â€”"}
+                    {m.km_atual ? m.km_atual.toLocaleString("pt-BR") + " km" : "—"}
                   </TableCell>
                   <TableCell className="font-semibold">{fmtBRL(m.valor)}</TableCell>
                   <TableCell className="text-right">
@@ -450,9 +505,9 @@ const Manutencao = () => {
           <DialogTitle className="sr-only">Detalhes da manutencao</DialogTitle>
           {viewingMaintenance && (
             <div className="flex flex-col">
-              <div className="bg-gradient-to-br from-primary/10 via-background to-background p-8 border-b border-primary/5">
-                <div className="flex justify-between items-start mb-6">
-                  <div>
+              <div className="bg-gradient-to-br from-primary/10 via-background to-background p-5 pr-12 sm:p-8 border-b border-primary/5">
+                <div className="flex justify-between items-start mb-5 sm:mb-6">
+                  <div className="min-w-0">
                     <Badge variant="outline" className={`mb-3 uppercase tracking-widest text-[10px] font-bold ${
                       viewingMaintenance.tipo === 'preventiva' ? 'border-success/30 text-success bg-success/5' :
                       viewingMaintenance.tipo === 'corretiva' ? 'border-warning/30 text-warning bg-warning/5' :
@@ -460,13 +515,13 @@ const Manutencao = () => {
                     }`}>
                       Manutenção {viewingMaintenance.tipo}
                     </Badge>
-                    <h2 className="font-display text-3xl font-black tracking-tight leading-none text-foreground uppercase">
+                    <h2 className="font-display text-2xl sm:text-3xl font-black tracking-tight leading-tight sm:leading-none text-foreground uppercase break-words">
                       {viewingMaintenance.servico}
                     </h2>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Data</span>
                     <p className="font-medium">{fmtDate(viewingMaintenance.data)}</p>
@@ -477,17 +532,17 @@ const Manutencao = () => {
                   </div>
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">KM Atual</span>
-                    <p className="font-medium">{viewingMaintenance.km_atual?.toLocaleString() || "â€”"} km</p>
+                    <p className="font-medium">{viewingMaintenance.km_atual?.toLocaleString() || "—"} km</p>
                   </div>
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Próxima Revisão</span>
-                    <p className="font-medium">{viewingMaintenance.proximo_km?.toLocaleString() || "â€”"} km</p>
+                    <p className="font-medium">{viewingMaintenance.proximo_km?.toLocaleString() || "—"} km</p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-8 space-y-8 bg-background">
-                <div className="grid md:grid-cols-2 gap-8">
+              <div className="p-5 sm:p-8 space-y-6 sm:space-y-8 bg-background">
+                <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
                   <div className="space-y-6">
                     <div>
                       <h4 className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-3">Veículo & Oficina</h4>
@@ -529,12 +584,13 @@ const Manutencao = () => {
                           alt="Comprovante" 
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <div className="absolute inset-0 flex items-end justify-end p-3 transition-opacity md:items-center md:justify-center md:p-0 md:bg-black/40 md:opacity-0 md:group-hover:opacity-100">
                           <a 
                             href={viewingMaintenance.photo_url} 
                             target="_blank" 
                             rel="noreferrer"
-                            className="bg-white/20 backdrop-blur-md p-3 rounded-full hover:bg-white/40 transition-colors"
+                            aria-label="Abrir foto em nova aba"
+                            className="bg-black/50 md:bg-white/20 backdrop-blur-md p-3 rounded-full hover:bg-white/40 transition-colors"
                           >
                             <ExternalLink className="w-6 h-6 text-white" />
                           </a>
@@ -549,7 +605,7 @@ const Manutencao = () => {
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-border/50">
+                <div className="flex justify-end gap-3 pt-4 border-t border-border/50 [&>button]:flex-1 sm:[&>button]:flex-none [&>button]:h-11 sm:[&>button]:h-10">
                   <Button 
                     variant="outline" 
                     className="rounded-xl font-bold uppercase tracking-widest text-[10px]"
@@ -573,8 +629,8 @@ const Manutencao = () => {
       {/* Dialog de Criar/Editar */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="max-h-[83vh] w-full overflow-hidden sm:max-h-[90vh] max-w-[42rem] p-0 rounded-3xl border-none shadow-2xl">
-          <DialogHeader className="p-8 pb-0">
-            <DialogTitle className="font-display text-2xl font-black uppercase tracking-tight">
+          <DialogHeader className="p-5 pb-0 pr-12 sm:p-8 sm:pb-0">
+            <DialogTitle className="font-display text-xl sm:text-2xl font-black uppercase tracking-tight">
               {selectedMaintenance ? "Editar Manutenção" : "Registrar Manutenção"}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-medium">
@@ -584,7 +640,7 @@ const Manutencao = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="max-h-[calc(83vh-11rem)] px-8 py-4">
+          <ScrollArea className="sm:max-h-[calc(83vh-11rem)] px-5 sm:px-8 py-4">
             <div className="grid gap-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -702,10 +758,10 @@ const Manutencao = () => {
 
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Anexar Foto da Manutenção / Comprovante</Label>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
                   <div 
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex-1 border-2 border-dashed border-border/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-all bg-muted/10 group"
+                    className="flex-1 border-2 border-dashed border-border/50 rounded-2xl p-5 sm:p-6 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-all bg-muted/10 group"
                   >
                     <input 
                       type="file" 
@@ -715,7 +771,7 @@ const Manutencao = () => {
                       accept="image/*"
                     />
                     <Camera className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
-                    <span className="text-xs font-bold text-muted-foreground group-hover:text-primary">Clique para selecionar foto</span>
+                    <span className="text-xs font-bold text-muted-foreground group-hover:text-primary">Toque para selecionar foto</span>
                     <span className="text-[10px] text-muted-foreground/60 uppercase tracking-tighter">Máximo 5MB</span>
                   </div>
 
@@ -723,10 +779,12 @@ const Manutencao = () => {
                     <div className="relative w-28 h-28 rounded-2xl overflow-hidden border border-border shadow-neu-sm">
                       <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
                       <button 
+                        type="button"
                         onClick={removePhoto}
-                        className="absolute top-1 right-1 bg-black/60 p-1 rounded-full text-white hover:bg-black transition-colors"
+                        aria-label="Remover foto"
+                        className="absolute top-1 right-1 bg-black/60 p-2 rounded-full text-white hover:bg-black transition-colors"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   )}
@@ -747,7 +805,7 @@ const Manutencao = () => {
             </div>
           </ScrollArea>
 
-          <DialogFooter className="p-8 pt-4">
+          <DialogFooter className="gap-2 p-5 pt-4 sm:p-8 sm:pt-4 [&>button]:h-11 sm:[&>button]:h-10">
             <Button variant="ghost" onClick={closeModal} type="button" className="rounded-xl font-bold uppercase tracking-widest text-[10px]">
               Cancelar
             </Button>

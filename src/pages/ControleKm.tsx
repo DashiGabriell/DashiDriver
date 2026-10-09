@@ -134,67 +134,34 @@ export default function ControleKm() {
 
   return (
     <AppShell>
-      <Topbar title="Controle de KM" />
-      <div className="p-6 max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="font-display text-2xl font-bold">Controle de KM</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Acompanhamento semanal de quilometragem da frota
-          </p>
+      <Topbar title="Controle de KM" subtitle="Acompanhamento semanal de quilometragem da frota" />
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
+          {[
+            { img: "/assets/carroAmarelo.png", label: "Frota total", value: totalVehicles, cls: "text-foreground", delay: "" },
+            { img: "/assets/limite.png", label: "Dentro do limite", value: okCount, cls: "text-emerald-500", delay: "delay-75" },
+            { img: "/assets/alerta.png", label: "Excedendo limite", value: exceededCount, cls: exceededCount > 0 ? "text-danger" : "text-foreground", delay: "delay-150" },
+            { img: "/assets/up.png", label: "KM médio semanal", value: Math.round(avgKm).toLocaleString("pt-BR"), cls: "text-foreground", delay: "delay-300" },
+          ].map((kpi) => (
+            <div
+              key={kpi.label}
+              className={`neu p-4 md:p-5 animate-blur-in ${kpi.delay} flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4 min-w-0`}
+            >
+              <img src={kpi.img} alt="" className="w-9 h-9 md:w-12 md:h-12 object-contain flex-shrink-0" />
+              <div className="min-w-0">
+                <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1 leading-tight">
+                  {kpi.label}
+                </div>
+                <div className={`font-display text-xl font-bold tabular-nums ${kpi.cls}`}>
+                  {kpi.value}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="neu p-5 animate-blur-in flex items-center gap-4">
-            <img src="/assets/carroAmarelo.png" alt="Frota total" className="w-12 h-12 object-contain flex-shrink-0" />
-            <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">
-                Frota total
-              </div>
-              <div className="font-display text-xl font-bold text-foreground">
-                {totalVehicles}
-              </div>
-            </div>
-          </div>
-
-          <div className="neu p-5 animate-blur-in delay-75 flex items-center gap-4">
-            <img src="/assets/limite.png" alt="Dentro do limite" className="w-12 h-12 object-contain flex-shrink-0" />
-            <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">
-                Dentro do limite
-              </div>
-              <div className="font-display text-xl font-bold text-emerald-500">
-                {okCount}
-              </div>
-            </div>
-          </div>
-
-          <div className="neu p-5 animate-blur-in delay-150 flex items-center gap-4">
-            <img src="/assets/alerta.png" alt="Excedendo limite" className="w-12 h-12 object-contain flex-shrink-0" />
-            <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">
-                Excedendo limite
-              </div>
-              <div className={`font-display text-xl font-bold ${exceededCount > 0 ? "text-danger" : "text-foreground"}`}>
-                {exceededCount}
-              </div>
-            </div>
-          </div>
-
-          <div className="neu p-5 animate-blur-in delay-300 flex items-center gap-4">
-            <img src="/assets/up.png" alt="KM médio semanal" className="w-12 h-12 object-contain flex-shrink-0" />
-            <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">
-                KM médio semanal
-              </div>
-              <div className="font-display text-xl font-bold text-foreground">
-                {Math.round(avgKm).toLocaleString("pt-BR")}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between gap-4 mb-6">
-          <div className="flex gap-2">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <div className="flex flex-wrap gap-2">
             {(["all", "ok", "exceeded"] as const).map((f) => (
               <Button
                 key={f}
@@ -209,7 +176,7 @@ export default function ControleKm() {
               </Button>
             ))}
           </div>
-          <Button variant="outline" size="sm" onClick={openLimitsDialog}>
+          <Button variant="outline" size="sm" onClick={openLimitsDialog} className="w-full sm:w-auto">
             <Settings2 className="w-4 h-4 mr-2" />
             Configurar Limites
           </Button>
@@ -229,7 +196,107 @@ export default function ControleKm() {
             </p>
           </div>
         ) : (
-          <div className="neu rounded-3xl overflow-hidden animate-blur-in">
+          <>
+          <ul className="md:hidden space-y-3 animate-blur-in">
+            {filtered.map((v) => {
+              const isExceeded = v.excedente > 0;
+              const hasLimit = v.limite_semanal > 0;
+              return (
+                <li
+                  key={v.vehicle_id}
+                  className={`neu p-4 ${isExceeded ? "ring-1 ring-danger/30" : ""}`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <span className="text-xs text-muted-foreground uppercase">{v.placa}</span>
+                      <p className="font-semibold truncate">{v.modelo}</p>
+                    </div>
+                    {hasLimit ? (
+                      isExceeded ? (
+                        <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-danger bg-danger/10 px-2.5 py-1 rounded-full">
+                          <AlertCircle className="w-3 h-3" />
+                          Excedido
+                        </span>
+                      ) : (
+                        <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full">
+                          <Check className="w-3 h-3" />
+                          OK
+                        </span>
+                      )
+                    ) : (
+                      <span className="shrink-0 text-xs text-muted-foreground">Sem limite</span>
+                    )}
+                  </div>
+
+                  <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                    <div>
+                      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">KM atual</dt>
+                      <dd className="font-mono tabular-nums">{v.km_atual?.toLocaleString("pt-BR") || "0"} km</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">Esta semana</dt>
+                      <dd className="font-mono tabular-nums">{v.km_semana_atual?.toLocaleString("pt-BR") || "0"} km</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">Limite semanal</dt>
+                      <dd className="font-mono tabular-nums">
+                        {hasLimit ? `${v.limite_semanal.toLocaleString("pt-BR")} km` : "—"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">Excedente</dt>
+                      <dd className="font-mono tabular-nums">
+                        {hasLimit ? (
+                          <span className={isExceeded ? "text-danger font-bold" : "text-emerald-500"}>
+                            {isExceeded ? "+" : ""}
+                            {v.excedente.toLocaleString("pt-BR")} km
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  {editingId === v.vehicle_id ? (
+                    <div className="mt-3 flex items-center gap-2">
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        min={0}
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleSaveLimit(v.vehicle_id);
+                          if (e.key === "Escape") handleCancelEdit();
+                        }}
+                        placeholder="Limite em km"
+                        className="h-11 flex-1 text-right"
+                        autoFocus
+                      />
+                      <Button size="icon" variant="outline" className="h-11 w-11" onClick={() => handleSaveLimit(v.vehicle_id)} aria-label="Salvar limite">
+                        <Check className="w-4 h-4 text-emerald-500" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="h-11 w-11" onClick={handleCancelEdit} aria-label="Cancelar">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-3 h-10 w-full"
+                      onClick={() => handleStartEdit(v)}
+                    >
+                      {hasLimit ? "Editar limite" : "Definir limite"}
+                    </Button>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="hidden md:block neu rounded-3xl overflow-hidden animate-blur-in">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -342,6 +409,7 @@ export default function ControleKm() {
               </Table>
             </div>
           </div>
+          </>
         )}
       </div>
 
@@ -354,22 +422,22 @@ export default function ControleKm() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="overflow-y-auto max-h-[calc(85vh-12rem)] space-y-3 pr-1">
+          <div className="sm:overflow-y-auto sm:max-h-[calc(85vh-12rem)] space-y-3 sm:pr-1">
             {fleet.map((v) => (
               <div
                 key={v.vehicle_id}
-                className="flex items-center gap-4 neu-sm p-4 rounded-2xl"
+                className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 neu-sm p-4 rounded-2xl"
               >
                 <div className="flex-1 min-w-0">
                   <span className="text-xs text-muted-foreground uppercase font-mono">{v.placa}</span>
                   <p className="font-semibold truncate">{v.modelo}</p>
                 </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <div className="text-right">
+                <div className="flex items-center justify-between gap-3 sm:justify-end sm:shrink-0">
+                  <div className="sm:text-right">
                     <div className="text-[10px] text-muted-foreground uppercase">KM semana</div>
                     <div className="font-mono text-sm">{v.km_semana_atual.toLocaleString("pt-BR")}</div>
                   </div>
-                  <div className="w-px h-8 bg-border" />
+                  <div className="hidden sm:block w-px h-8 bg-border" />
                   <div className="flex items-center gap-2">
                     <Label htmlFor={`limit-${v.vehicle_id}`} className="sr-only">
                       Limite {v.placa}
@@ -383,7 +451,8 @@ export default function ControleKm() {
                       onChange={(e) =>
                         setLimitForm((prev) => ({ ...prev, [v.vehicle_id]: e.target.value }))
                       }
-                      className="w-24 h-9 text-right text-sm"
+                      inputMode="numeric"
+                      className="w-28 h-10 text-right text-sm"
                     />
                     <span className="text-xs text-muted-foreground">km</span>
                   </div>

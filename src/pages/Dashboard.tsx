@@ -1,4 +1,4 @@
-﻿import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Topbar } from "@/components/layout/Topbar";
 import { StatCard } from "@/components/StatCard";
@@ -38,10 +38,10 @@ import {
 import { darkChartTheme, sunsetGradient } from "@/components/charts/ChartTheme";
 import { useTheme } from "next-themes";
 
-// â”€â”€â”€â”€ Constantes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ──── Constantes ───────────────────────────────────────────────────────
 const STORAGE_KEY_DATE_RANGE = "dashboard_date_range";
 
-// â”€â”€â”€â”€ Helper: Obter período padrão (1º ao último dia do mês) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ──── Helper: Obter período padrão (1º ao último dia do mês) ──────────
 const getDefaultDateRange = (): DateRange => {
   const today = new Date();
   const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -49,7 +49,7 @@ const getDefaultDateRange = (): DateRange => {
   return { from: firstDay, to: lastDay };
 };
 
-// â”€â”€â”€â”€ Helper: Carregar período do localStorage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ──── Helper: Carregar período do localStorage ────────────────────────
 const loadDateRangeFromStorage = (): DateRange | undefined => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_DATE_RANGE);
@@ -65,7 +65,7 @@ const loadDateRangeFromStorage = (): DateRange | undefined => {
   }
 };
 
-// â”€â”€â”€â”€ Helper: Salvar período no localStorage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ──── Helper: Salvar período no localStorage ──────────────────────────
 const saveDateRangeToStorage = (dateRange: DateRange | undefined): void => {
   try {
     if (!dateRange) {
@@ -111,15 +111,15 @@ const FluxoCaixaTooltip = ({ active, payload, label }: any) => {
 const Dashboard = () => {
   const { user } = useAuth();
   
-  // â”€â”€â”€â”€ Estado do Período (com persistência) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ──── Estado do Período (com persistência) ────────────────────────────
   const [dateRange, setDateRange] = useState<DateRange | undefined>(loadDateRangeFromStorage);
 
-  // â”€â”€â”€â”€ Persistir período no localStorage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ──── Persistir período no localStorage ───────────────────────────────
   useEffect(() => {
     saveDateRangeToStorage(dateRange);
   }, [dateRange]);
 
-  // â”€â”€â”€â”€ Helper: Verificar se data está no período â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ──── Helper: Verificar se data está no período ───────────────────────
   const isInDateRange = (dateString: string | null | undefined): boolean => {
     if (!dateString || !dateRange?.from) return true;
     try {
@@ -132,13 +132,13 @@ const Dashboard = () => {
     }
   };
 
-  // â”€â”€â”€â”€ Dados Real-time â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ──── Dados Real-time ──────────────────────────────────────────────────
   const { data: vehicles, loading: loadingVehicles } = useRealtimeData("carcontrol_vehicles");
   const { data: drivers, loading: loadingDrivers } = useRealtimeData("carcontrol_drivers");
   const { data: payments, loading: loadingPayments } = useRealtimeData("carcontrol_payments");
   const { data: alerts, loading: loadingAlerts } = useRealtimeData("carcontrol_alerts");
 
-  // â”€â”€â”€â”€ KPIs Calculados no Backend (RPC) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ──── KPIs Calculados no Backend (RPC) ────────────────────────────────
   const { data: kpis, isLoading: loadingKPIs } = useDashboardKPIs(dateRange);
 
   const { data: confirmedPayments } = useRealtimeData(
@@ -161,7 +161,7 @@ const Dashboard = () => {
   const isLoading =
     loadingVehicles || loadingDrivers || loadingPayments || loadingAlerts || loadingKPIs;
 
-  // â”€â”€â”€â”€ Busca global (Motoristas, Modelo, Placa) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ──── Busca global (Motoristas, Modelo, Placa) ────────────────────────
   const [searchTerm, setSearchTerm] = useState<string>("");
   const normalizedSearch = searchTerm.trim().toLowerCase();
   const filteredDrivers = drivers.filter((d: any) =>
@@ -172,12 +172,12 @@ const Dashboard = () => {
     v.placa?.toLowerCase().includes(normalizedSearch)
   );
 
-  // â”€â”€â”€â”€ Dados Filtrados por Período â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ──── Dados Filtrados por Período ─────────────────────────────────────
   const filteredAlerts = useMemo(() => {
     return alerts.filter(a => isInDateRange(a.data));
   }, [alerts, dateRange]);
 
-  // â”€â”€â”€â”€ KPIs â€” Fileira 1 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ──── KPIs — Fileira 1 ────────────────────────────────────────────────
 
   // 1. Frota Total
   const totalVeiculos = vehicles.length;
@@ -192,7 +192,7 @@ const Dashboard = () => {
   const veiculosDisponiveis = vehicles.filter(v => v.status === "disponivel").length;
   const veiculosOficina = vehicles.filter(v => v.status === "oficina").length;
 
-  // â”€â”€â”€â”€ KPIs â€” Fileira 2 (Calculados no Backend) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ──── KPIs — Fileira 2 (Calculados no Backend) ───────────────────────
   // Valores vêm da função RPC get_dashboard_kpis
   const pagamentosAtrasados = kpis?.pagamentos_atrasados ?? 0;
   const receitaEstimada = kpis?.receita_estimada ?? 0;
@@ -200,7 +200,7 @@ const Dashboard = () => {
   const custoTotalEstimado = kpis?.custo_total_estimado ?? 0;
   const lucroEstimado = kpis?.lucro_estimado ?? 0;
 
-  // â”€â”€â”€â”€ Dados para o Gráfico de Fluxo de Caixa â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ──── Dados para o Gráfico de Fluxo de Caixa ─────────────────────────
   // Recebimentos confirmados com data e valor (para a linha de receita)
   const { data: recebimentosConfirmados } = useRealtimeData(
     "carcontrol_payments",
@@ -294,7 +294,7 @@ const Dashboard = () => {
     [fluxoCaixaData]
   );
 
-  // â”€â”€â”€â”€ Valores Atrasados (não recebidos até a data atual) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ──── Valores Atrasados (não recebidos até a data atual) ────────────────────────
   // 1. Busca as programações de pagamentos (recebimentos) em tempo real
   const { data: paymentSchedules, loading: loadingPaymentSchedules } = useRealtimeData(
     "carcontrol_payment_schedules",
@@ -404,7 +404,7 @@ const Dashboard = () => {
         />
       </section>
 
-      {/* KPIs â€” Fileira 1: Indicadores Operacionais */}
+      {/* KPIs — Fileira 1: Indicadores Operacionais */}
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
         <StatCard
           label="Frota Total"
@@ -435,7 +435,7 @@ const Dashboard = () => {
         />
       </section>
 
-      {/* KPIs â€” Fileira 2: Indicadores Financeiros do Período */}
+      {/* KPIs — Fileira 2: Indicadores Financeiros do Período */}
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 mt-3 md:mt-5">
         <StatCard
           label="Receb. Previsto"
@@ -574,7 +574,7 @@ const Dashboard = () => {
                     <div className="text-xs md:text-sm font-semibold leading-tight line-clamp-2">{a.titulo}</div>
                     <div className="text-[10px] md:text-xs text-muted-foreground mt-0.5 line-clamp-2">{a.descricao}</div>
                   </div>
-                  <span className="text-[9px] md:text-[10px] text-muted-foreground whitespace-nowrap shrink-0">{a.data ? fmtDate(a.data) : "â€”"}</span>
+                  <span className="text-[9px] md:text-[10px] text-muted-foreground whitespace-nowrap shrink-0">{a.data ? fmtDate(a.data) : "—"}</span>
                 </div>
               </li>
             ))}

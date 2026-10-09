@@ -7,6 +7,8 @@ import { useAuth } from "@/integrations/supabase/auth";
 import { useRealtimeData } from "@/hooks/useRealtimeData";
 import { Tables, TablesInsert } from "@/integrations/supabase/types";
 import { AppShell } from "@/components/layout/AppShell";
+import { Topbar } from "@/components/layout/Topbar";
+import { fmtBRL } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -522,56 +524,39 @@ export default function ParcelaSeguro() {
     return (
       <div className="space-y-4">
         {/* Cards de Resumo */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardDescription>Total</CardDescription>
-              <CardTitle className="text-2xl">
-                R$ {totals.total.toFixed(2)}
-              </CardTitle>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardDescription className="text-green-600">Pago</CardDescription>
-              <CardTitle className="text-2xl text-green-600">
-                R$ {totals.pago.toFixed(2)}
-              </CardTitle>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardDescription className="text-yellow-600">Pendente</CardDescription>
-              <CardTitle className="text-2xl text-yellow-600">
-                R$ {totals.pendente.toFixed(2)}
-              </CardTitle>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardDescription className="text-red-600">Atrasado</CardDescription>
-              <CardTitle className="text-2xl text-danger">
-                R$ {totals.atrasado.toFixed(2)}
-              </CardTitle>
-            </CardHeader>
-          </Card>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          {[
+            { label: "Total", value: totals.total, labelCls: "", valueCls: "" },
+            { label: "Pago", value: totals.pago, labelCls: "text-green-600", valueCls: "text-green-600" },
+            { label: "Pendente", value: totals.pendente, labelCls: "text-yellow-600", valueCls: "text-yellow-600" },
+            { label: "Atrasado", value: totals.atrasado, labelCls: "text-red-600", valueCls: "text-danger" },
+          ].map((kpi) => (
+            <Card key={kpi.label} className="min-w-0">
+              <CardHeader className="p-4 pb-4 md:p-6 md:pb-3">
+                <CardDescription className={kpi.labelCls}>{kpi.label}</CardDescription>
+                <CardTitle className={`text-base sm:text-xl md:text-2xl tabular-nums break-words ${kpi.valueCls}`}>
+                  {fmtBRL(kpi.value)}
+                </CardTitle>
+              </CardHeader>
+            </Card>
+          ))}
         </div>
 
         {/* Botões de Ação Rápida */}
         <Card>
-          <CardHeader>
+          <CardHeader className="p-4 md:p-6">
             <CardTitle className="text-lg">Adicionar Pagamento Rápido</CardTitle>
             <CardDescription>
-              Clique em um veículo para adicionar um pagamento de {tipo}
+              Toque em um veículo para adicionar um pagamento de {tipo}
             </CardDescription>
           </CardHeader>
-          <CardContent>
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
               {vehicles.map((vehicle) => (
                 <Button
                   key={vehicle.id}
                   variant="outline"
-                  className="justify-start gap-2"
+                  className="justify-start gap-2 h-11 sm:h-10 min-w-0"
                   onClick={() => handleQuickAdd(vehicle.id, tipo)}
                 >
                   <Car className="h-4 w-4" />
@@ -586,16 +571,52 @@ export default function ParcelaSeguro() {
 
         {/* Tabela de Pagamentos */}
         <Card>
-          <CardHeader>
+          <CardHeader className="p-4 md:p-6">
             <CardTitle>Histórico de Pagamentos</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
             {filtered.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 Nenhum pagamento de {tipo} registrado
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <>
+              <ul className="md:hidden space-y-3">
+                {filtered.map((payment) => (
+                  <li key={payment.id} className="rounded-xl border p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="min-w-0 text-sm font-medium break-words">{getVehicleInfo(payment.vehicle_id)}</p>
+                      <span className="shrink-0 font-semibold tabular-nums">{fmtBRL(payment.valor)}</span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground">
+                      {getStatusBadge(payment.status)}
+                      <span>Vence {format(parseISO(payment.data_vencimento), "dd/MM/yyyy", { locale: ptBR })}</span>
+                      {payment.data_pagamento && (
+                        <span>Pago {format(parseISO(payment.data_pagamento), "dd/MM/yyyy", { locale: ptBR })}</span>
+                      )}
+                      {payment.metodo_pagamento && <span className="capitalize">{payment.metodo_pagamento}</span>}
+                    </div>
+                    <div className="mt-3 flex gap-2 border-t pt-3">
+                      <Button variant="outline" size="sm" className="h-10 flex-1" onClick={() => handleOpenDialog(payment)}>
+                        <Edit3 className="h-4 w-4" /> Editar
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-10 flex-1 text-danger hover:text-danger hover:bg-danger/10"
+                        onClick={() => {
+                          if (confirm("Deseja realmente excluir este pagamento?")) {
+                            deleteMutation.mutate(payment.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" /> Excluir
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div className="hidden md:block overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -616,7 +637,7 @@ export default function ParcelaSeguro() {
                         </TableCell>
                         <TableCell>
                           <span className="font-semibold">
-                            R$ {payment.valor.toFixed(2)}
+                            {fmtBRL(payment.valor)}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -654,6 +675,7 @@ export default function ParcelaSeguro() {
                   </TableBody>
                 </Table>
               </div>
+              </>
             )}
           </CardContent>
         </Card>
@@ -673,7 +695,7 @@ export default function ParcelaSeguro() {
 
     return (
       <Card className="neu mb-4">
-        <CardHeader>
+        <CardHeader className="p-4 md:p-6">
           <CardTitle className="flex items-center gap-2">
             <Repeat2 className="h-5 w-5 text-primary" />
             Programações Ativas
@@ -682,8 +704,71 @@ export default function ParcelaSeguro() {
             {activeSchedules.length} programação(ões) ativa(s) para {tipo}
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto rounded-lg border">
+        <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+          <ul className="md:hidden space-y-3">
+            {activeSchedules.map((schedule) => (
+              <li key={schedule.id} className="rounded-xl border p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <Car className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{schedule.carcontrol_vehicles?.modelo || "N/A"}</p>
+                      <p className="text-xs text-muted-foreground">{schedule.carcontrol_vehicles?.placa}</p>
+                    </div>
+                  </div>
+                  <span className="shrink-0 font-medium text-green-600 tabular-nums">{fmtBRL(schedule.valor)}</span>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span>{recurrenceLabel(schedule)}</span>
+                  <span>
+                    {format(parseISO(schedule.data_inicio), "dd/MM/yyyy", { locale: ptBR })}
+                    {" → "}
+                    {schedule.data_fim
+                      ? format(parseISO(schedule.data_fim), "dd/MM/yyyy", { locale: ptBR })
+                      : "sem fim"}
+                  </span>
+                  {(schedule as any).parcelas_restantes ? (
+                    <span>{(schedule as any).parcelas_restantes} parcelas restantes</span>
+                  ) : null}
+                </div>
+                <div className="mt-3 flex items-center justify-between gap-2 border-t pt-3">
+                  <button
+                    type="button"
+                    onClick={() => toggleScheduleAtivo(schedule)}
+                    className="flex h-10 items-center gap-1.5 text-sm"
+                  >
+                    {schedule.ativo ? (
+                      <ToggleRight className="h-5 w-5 text-green-500" />
+                    ) : (
+                      <ToggleLeft className="h-5 w-5 text-gray-400" />
+                    )}
+                    <span className={schedule.ativo ? "text-green-600" : "text-gray-500"}>
+                      {schedule.ativo ? "Ativo" : "Inativo"}
+                    </span>
+                  </button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="h-10 w-10 p-0" aria-label="Editar programação" onClick={() => handleOpenScheduleDialog(schedule)}>
+                      <Edit3 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-10 w-10 p-0 text-danger hover:text-danger hover:bg-danger/10"
+                      aria-label="Excluir programação"
+                      onClick={() => {
+                        if (confirm("Deseja realmente excluir esta programação?")) {
+                          deleteScheduleMutation.mutate(schedule.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden md:block overflow-x-auto rounded-lg border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -715,7 +800,7 @@ export default function ParcelaSeguro() {
                     </TableCell>
                     <TableCell>
                       <span className="font-medium text-green-600">
-                        R$ {schedule.valor.toFixed(2)}
+                        {fmtBRL(schedule.valor)}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -785,9 +870,9 @@ export default function ParcelaSeguro() {
     const totalSeguros = confirmed.filter((p: any) => p.tipo === "seguro").length;
 
     return (
-      <div className="neu p-6">
+      <div className="neu p-4 sm:p-6">
         <div className="mb-5">
-          <h2 className="font-display text-xl font-bold flex items-center gap-2">
+          <h2 className="font-display text-lg sm:text-xl font-bold flex items-center gap-2">
             <Receipt className="w-5 h-5 text-emerald-600" />
             Pagamentos Confirmados
           </h2>
@@ -798,11 +883,11 @@ export default function ParcelaSeguro() {
 
         {/* Cards de resumo */}
         {confirmed.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6">
             <div className="neu-inset px-4 py-3 rounded-xl">
               <div className="text-xs text-muted-foreground uppercase tracking-wide">Total confirmado</div>
               <div className="font-display text-xl font-bold text-emerald-600 mt-1">
-                R$ {totalValor.toFixed(2)}
+                {fmtBRL(totalValor)}
               </div>
             </div>
             <div className="neu-inset px-4 py-3 rounded-xl">
@@ -825,7 +910,58 @@ export default function ParcelaSeguro() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border">
+          <>
+          <ul className="md:hidden space-y-3">
+            {confirmed.map((p: any) => {
+              const veh = p.carcontrol_vehicles;
+              const isParcela = p.tipo === "parcela";
+              return (
+                <li key={p.id} className="neu-inset p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{veh ? veh.modelo : "—"}</p>
+                      {veh && <p className="text-xs text-muted-foreground font-mono">{veh.placa}</p>}
+                    </div>
+                    <span className={`shrink-0 font-display font-bold tabular-nums ${isParcela ? "text-blue-600" : "text-orange-600"}`}>
+                      {fmtBRL(p.valor)}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-medium ${isParcela ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"}`}>
+                      {isParcela ? "Parcela" : "Seguro"}
+                    </span>
+                    <span className="font-mono">
+                      {p.schedule_date ? format(parseISO(p.schedule_date), "dd/MM/yyyy", { locale: ptBR }) : "—"}
+                    </span>
+                    {p.data_pagamento && (
+                      <span>Pago {format(parseISO(p.data_pagamento), "dd/MM/yyyy", { locale: ptBR })}</span>
+                    )}
+                    {p.metodo_pagamento && <span className="capitalize">{p.metodo_pagamento}</span>}
+                  </div>
+                  <div className="mt-3 flex items-center justify-between gap-2 border-t border-border/60 pt-3">
+                    <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium bg-emerald-100 text-emerald-700">
+                      <CheckCircle2 className="w-3 h-3" />
+                      Confirmado
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="h-9 w-9 p-0"
+                      aria-label="Excluir confirmação"
+                      onClick={() => {
+                        if (confirm("Deseja excluir este pagamento confirmado?")) {
+                          deleteMutation.mutate(p.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="hidden md:block overflow-x-auto rounded-lg border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -884,7 +1020,7 @@ export default function ParcelaSeguro() {
                       </TableCell>
                       <TableCell className="text-right">
                         <span className={`font-display font-bold ${isParcela ? "text-blue-600" : "text-orange-600"}`}>
-                          R$ {p.valor.toFixed(2)}
+                          {fmtBRL(p.valor)}
                         </span>
                       </TableCell>
                       <TableCell>
@@ -914,6 +1050,7 @@ export default function ParcelaSeguro() {
               </TableBody>
             </Table>
           </div>
+          </>
         )}
       </div>
     );
@@ -921,32 +1058,21 @@ export default function ParcelaSeguro() {
 
   return (
     <AppShell>
+      <Topbar
+        title="Financiamento & Seguro"
+        subtitle="Gerencie os pagamentos de financiamentos e seguros dos seus veículos"
+        helpPath="/ajuda/gestao/financiamento-seguro"
+      />
       <div className="space-y-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Financiamento & Seguro</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Gerencie os pagamentos de financiamentos e seguros dos seus veículos
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => navigate("/ajuda/gestao/financiamento-seguro")}
-              className="neu-sm h-8 w-8 grid place-items-center rounded-full text-muted-foreground/50 hover:text-foreground transition-all"
-              title="Ajuda"
-            >
-              <img src="/assets/question.png" alt="Ajuda" className="w-4 h-4" />
-            </button>
-            <Button onClick={() => handleOpenScheduleDialog()} variant="outline" className="flex-1 sm:flex-none text-xs sm:text-sm">
-              <Repeat2 className="mr-2 h-4 w-4" />
-              Nova Programação
-            </Button>
-            <Button onClick={() => handleOpenDialog()} className="flex-1 sm:flex-none text-xs sm:text-sm">
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Pagamento
-            </Button>
-          </div>
+        <div className="-mt-2 grid grid-cols-2 gap-2 sm:flex sm:justify-end md:-mt-4">
+          <Button onClick={() => handleOpenScheduleDialog()} variant="outline" className="h-11 sm:h-10 text-xs sm:text-sm">
+            <Repeat2 className="mr-1.5 h-4 w-4 shrink-0" />
+            Nova Programação
+          </Button>
+          <Button onClick={() => handleOpenDialog()} className="h-11 sm:h-10 text-xs sm:text-sm">
+            <Plus className="mr-1.5 h-4 w-4 shrink-0" />
+            Novo Pagamento
+          </Button>
         </div>
 
         <Tabs defaultValue="parcela" className="space-y-4">
@@ -992,7 +1118,7 @@ export default function ParcelaSeguro() {
               </DialogDescription>
             </DialogHeader>
 
-            <ScrollArea className="max-h-[calc(83vh-11rem)] overflow-hidden rounded-3xl border border-primary/10 bg-background/90 p-1 shadow-sm">
+            <ScrollArea className="sm:max-h-[calc(83vh-11rem)] overflow-hidden rounded-3xl border border-primary/10 bg-background/90 p-1 shadow-sm">
               <form onSubmit={handleSubmit} className="grid gap-4 p-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -1152,7 +1278,7 @@ export default function ParcelaSeguro() {
               </DialogDescription>
             </DialogHeader>
 
-            <ScrollArea className="max-h-[calc(83vh-11rem)] overflow-hidden rounded-3xl border border-primary/10 bg-background/90 p-1 shadow-sm">
+            <ScrollArea className="sm:max-h-[calc(83vh-11rem)] overflow-hidden rounded-3xl border border-primary/10 bg-background/90 p-1 shadow-sm">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();

@@ -61,6 +61,7 @@ const tipoColor: Record<string, string> = {
 export default function MotoristaDetalhe() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   const { data: driverArr, loading: loadingDriver } = useRealtimeData(
     "carcontrol_drivers",
@@ -218,7 +219,6 @@ export default function MotoristaDetalhe() {
   }
 
   const initials = driver.nome.split(" ").map((n: string) => n[0]).slice(0, 2).join("");
-  const { theme } = useTheme();
   const isDark = theme === "dark";
 
   return (

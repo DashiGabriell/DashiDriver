@@ -1,9 +1,10 @@
-﻿import { AppShell } from "@/components/layout/AppShell";
+import { AppShell } from "@/components/layout/AppShell";
 import { Topbar } from "@/components/layout/Topbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -83,6 +84,8 @@ const Motoristas = () => {
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
+  const isTabletUp = useMediaQuery("(min-width: 768px)");
+  const effectiveView = isTabletUp ? viewMode : "cards";
   
   // Estados para arquivos
   const [fotoFile, setFotoFile] = useState<File | null>(null);
@@ -489,7 +492,7 @@ const Motoristas = () => {
         helpPath="/ajuda/gestao/motoristas"
       />
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="hidden md:flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <Button
             variant={viewMode === "cards" ? "default" : "outline"}
@@ -521,37 +524,37 @@ const Motoristas = () => {
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
-      ) : viewMode === "cards" ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      ) : effectiveView === "cards" ? (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5">
           {drivers.map((d, i) => {
             const v = d.carcontrol_vehicles;
             return (
-              <div key={d.id} className={`neu p-6 animate-blur-in delay-${(i % 4) * 75} transition-shadow duration-200 shadow-sm shadow-gray-200 hover:shadow-md hover:shadow-gray-400/40 cursor-pointer`} onClick={() => navigate(`/motoristas/${d.id}`)}>
-                <div className="flex items-start gap-4">
+              <div key={d.id} className={`neu p-4 sm:p-6 min-w-0 animate-blur-in delay-${(i % 4) * 75} transition-shadow duration-200 shadow-sm shadow-gray-200 hover:shadow-md hover:shadow-gray-400/40 cursor-pointer`} onClick={() => navigate(`/motoristas/${d.id}`)}>
+                <div className="flex items-start gap-3 sm:gap-4">
                   {d.foto_url ? (
                     <img 
                       src={d.foto_url} 
                       alt={d.nome}
-                      className="neu-sm w-14 h-14 rounded-full object-cover"
+                      className="neu-sm w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover shrink-0"
                     />
                   ) : (
-                    <div className="neu-sm w-14 h-14 grid place-items-center font-display font-bold text-lg">
+                    <div className="neu-sm w-12 h-12 sm:w-14 sm:h-14 grid place-items-center font-display font-bold text-base sm:text-lg shrink-0">
                       {d.nome.split(" ").map((n: string) => n[0]).slice(0, 2).join("")}
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-display text-lg font-bold leading-tight">{d.nome}</h3>
+                    <h3 className="font-display text-base sm:text-lg font-bold leading-tight break-words">{d.nome}</h3>
                     <div className="text-sm text-muted-foreground">CPF {d.cpf}</div>
                   </div>
-                  <span className={`chip ${statusCls[d.status] || "text-muted-foreground"} capitalize`}>
+                  <span className={`chip shrink-0 ${statusCls[d.status] || "text-muted-foreground"} capitalize`}>
                     <span className="w-1.5 h-1.5 rounded-full bg-current" /> {d.status}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 mt-5">
-                  <div className="neu-inset px-4 py-3">
+                <div className="grid grid-cols-2 gap-3 mt-4 sm:mt-5">
+                  <div className="neu-inset px-3 sm:px-4 py-3 min-w-0">
                     <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Veículo</div>
-                    <div className="text-sm font-semibold mt-0.5">
+                    <div className="text-sm font-semibold mt-0.5 truncate">
                       {v ? (
                         <>
                           {v.modelo} <span className="font-mono text-xs text-muted-foreground">{v.placa}</span>
@@ -561,21 +564,21 @@ const Motoristas = () => {
                       )}
                     </div>
                   </div>
-                  <div className="neu-inset px-4 py-3">
+                  <div className="neu-inset px-3 sm:px-4 py-3 min-w-0">
                     <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Semanal</div>
-                    <div className="text-sm font-semibold mt-0.5">{fmtBRL(d.valor_semanal)}</div>
+                    <div className="text-sm font-semibold mt-0.5 tabular-nums">{fmtBRL(d.valor_semanal)}</div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 mt-5 text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-4 sm:mt-5 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1.5"><Phone className="w-4 h-4" /> {d.telefone}</span>
-                  <span className="flex items-center gap-1.5"><IdCard className="w-4 h-4" /> CNH {d.cnh?.slice(0, 6)}â€¦</span>
-                  <span className="ml-auto text-xs">desde {d.inicio ? fmtDate(d.inicio) : "â€”"}</span>
+                  <span className="flex items-center gap-1.5"><IdCard className="w-4 h-4" /> CNH {d.cnh?.slice(0, 6)}…</span>
+                  <span className="ml-auto text-xs">desde {d.inicio ? fmtDate(d.inicio) : "—"}</span>
                 </div>
 
                 {/* Indicadores de documentos */}
                 {(d.contrato_url || d.antecedentes_url || d.comprovante_residencia_url) && (
-                  <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border/30">
+                  <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-border/30">
                     <span className="text-xs text-muted-foreground">Documentos:</span>
                     {d.contrato_url && (
                       <span className="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium flex items-center gap-1">
@@ -595,10 +598,11 @@ const Motoristas = () => {
                   </div>
                 )}
 
-                <div className="flex items-center justify-end gap-2 mt-5 pt-5 border-t border-border/60">
+                <div className="flex items-center justify-end gap-2 mt-4 pt-4 sm:mt-5 sm:pt-5 border-t border-border/60">
                   <Button
                     size="sm"
                     variant="outline"
+                    className="h-10 flex-1 sm:h-9 sm:flex-none"
                     onClick={(e) => { e.stopPropagation(); openEditModal(d); }}
                   >
                     <Edit3 className="w-3 h-3" /> Editar
@@ -606,6 +610,7 @@ const Motoristas = () => {
                   <Button
                     size="sm"
                     variant="destructive"
+                    className="h-10 flex-1 sm:h-9 sm:flex-none"
                     onClick={(e) => { e.stopPropagation(); deleteDriver(d); }}
                   >
                     <Trash2 className="w-3 h-3" /> Excluir
@@ -621,7 +626,7 @@ const Motoristas = () => {
           )}
         </div>
       ) : (
-        <div className="neu overflow-hidden">
+        <div className="neu overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -744,7 +749,7 @@ const Motoristas = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="max-h-[calc(83vh-11rem)] overflow-hidden rounded-3xl border border-primary/10 bg-background/90 p-1 shadow-sm">
+          <ScrollArea className="sm:max-h-[calc(83vh-11rem)] overflow-hidden rounded-3xl border border-primary/10 bg-background/90 p-1 shadow-sm">
             <div className="grid gap-4 p-3">
               <div>
                 <Label htmlFor="nome">Nome completo</Label>
@@ -758,7 +763,7 @@ const Motoristas = () => {
 
               {/* Foto do Motorista */}
               <div>
-                <Label htmlFor="foto" className="flex items-center justify-between">
+                <Label htmlFor="foto" className="flex flex-wrap items-center justify-between gap-1">
                   <span className="flex items-center gap-2">
                     <ImageIcon className="w-4 h-4" /> Foto do Motorista
                   </span>
@@ -828,7 +833,7 @@ const Motoristas = () => {
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="cpf">CPF</Label>
                   <Input
@@ -850,7 +855,7 @@ const Motoristas = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="telefone">Telefone</Label>
                   <Input
@@ -873,7 +878,7 @@ const Motoristas = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="caucao">Caução (R$)</Label>
                   <Input
@@ -910,7 +915,7 @@ const Motoristas = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="status">Status</Label>
                   <Select
@@ -958,7 +963,7 @@ const Motoristas = () => {
 
                 {/* Contrato */}
                 <div className="mb-4">
-                  <Label htmlFor="contrato" className="flex items-center justify-between">
+                  <Label htmlFor="contrato" className="flex flex-wrap items-center justify-between gap-1">
                     <span>Contrato</span>
                     {formValues.contrato_url && !contratoFile && (
                       <div className="flex gap-2">
@@ -1016,7 +1021,7 @@ const Motoristas = () => {
 
                 {/* Antecedentes Criminais */}
                 <div className="mb-4">
-                  <Label htmlFor="antecedentes" className="flex items-center justify-between">
+                  <Label htmlFor="antecedentes" className="flex flex-wrap items-center justify-between gap-1">
                     <span>Antecedentes Criminais</span>
                     {formValues.antecedentes_url && !antecedentesFile && (
                       <div className="flex gap-2">
@@ -1074,7 +1079,7 @@ const Motoristas = () => {
 
                 {/* Comprovante de Residência */}
                 <div>
-                  <Label htmlFor="comprovante" className="flex items-center justify-between">
+                  <Label htmlFor="comprovante" className="flex flex-wrap items-center justify-between gap-1">
                     <span>Comprovante de Residência</span>
                     {formValues.comprovante_residencia_url && !comprovanteFile && (
                       <div className="flex gap-2">

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
 import { Topbar } from "@/components/layout/Topbar";
@@ -733,7 +733,7 @@ const Perfil = () => {
                     </div>
                     <div>
                       <p className="text-sm font-semibold">E-mail de Acesso</p>
-                      <p className="text-xs text-muted-foreground">{profile?.email || "â€”"}</p>
+                      <p className="text-xs text-muted-foreground">{profile?.email || "—"}</p>
                     </div>
                   </div>
                   <AlterarEmailDialog emailAtual={profile?.email || ""} />
@@ -747,7 +747,7 @@ const Perfil = () => {
                     </div>
                     <div>
                       <p className="text-sm font-semibold">Senha</p>
-                      <p className="text-xs text-muted-foreground">â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢</p>
+                      <p className="text-xs text-muted-foreground">••••••••••</p>
                     </div>
                   </div>
                   <AlterarSenhaDialog />

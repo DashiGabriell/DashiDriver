@@ -591,12 +591,12 @@ const Veiculos = () => {
       />
 
       <div className="flex flex-wrap items-center gap-3 mb-6 animate-blur-in">
-        <div className="neu-sm p-1.5 flex gap-1">
+        <div className="neu-sm p-1.5 flex gap-1 max-w-full overflow-x-auto scrollbar-none">
           {filters.map(f => (
             <button
               key={f.key}
               onClick={() => setActive(f.key)}
-              className={`px-4 py-2 text-sm rounded-xl font-medium transition-all ${
+              className={`shrink-0 whitespace-nowrap px-4 py-2 text-sm rounded-xl font-medium transition-all ${
                 active === f.key ? "neu-press text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >

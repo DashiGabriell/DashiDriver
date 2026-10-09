@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 import { AppShell } from "@/components/layout/AppShell";
 import { Topbar } from "@/components/layout/Topbar";
 import { useNavigate, useParams } from "react-router-dom";
@@ -213,7 +213,7 @@ export default function VeiculoDetalhe() {
     return Array.from(map.entries()).map(([name, value]) => ({ name, value }));
   }, [maintenances, periodo]);
 
-  // â”€â”€ Cálculos de KPIs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Cálculos de KPIs ─────────────────────────────────────────────────
   // Receita total do período selecionado
   const receitaPeriodo = useMemo(() => {
     return payments
@@ -302,7 +302,7 @@ export default function VeiculoDetalhe() {
   const nextPhoto = () =>
     setPhotoIndex((i) => (i + 1) % photos.length);
 
-  // â”€â”€ Document Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Document Helpers ──────────────────────────────────────────
   const VEHICLE_DOCUMENTS_BUCKET = "vehicle-documents";
 
   const getDocumentStoragePath = (url: string) => {
@@ -416,7 +416,7 @@ export default function VeiculoDetalhe() {
         </span>
       </div>
 
-      {/* â”€â”€ Seletor de Período â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Seletor de Período ──────────────────────────────────────── */}
       <div className="neu p-4 mb-6 animate-blur-in">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
           <div className="flex items-center gap-2">
@@ -505,7 +505,7 @@ export default function VeiculoDetalhe() {
         </div>
       </div>
 
-      {/* â”€â”€ Photo Slideshow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Photo Slideshow ─────────────────────────────────────────── */}
       {photos.length > 0 ? (
         <div className="relative mb-8 overflow-hidden rounded-3xl border border-border/60 bg-muted/30 h-64 md:h-[22rem]">
           <img
@@ -562,7 +562,7 @@ export default function VeiculoDetalhe() {
         </div>
       )}
 
-      {/* â”€â”€ KPI Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── KPI Cards ───────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="neu p-5 animate-blur-in">
           <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">
@@ -615,7 +615,7 @@ export default function VeiculoDetalhe() {
         </div>
       </div>
 
-      {/* â”€â”€ Financiamento Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Financiamento Card ──────────────────────────────────────── */}
       <div className="neu p-6 mb-8 animate-blur-in">
         <h2 className="font-display text-base font-bold mb-5 flex items-center gap-2">
           <CreditCard className="w-4 h-4" /> Informações de Financiamento
@@ -663,7 +663,7 @@ export default function VeiculoDetalhe() {
         </div>
       </div>
 
-      {/* â”€â”€ Vehicle Info â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Vehicle Info ─────────────────────────────────────────────── */}
       <div className="neu p-6 mb-8 animate-blur-in">
         <h2 className="font-display text-base font-bold mb-5 flex items-center gap-2">
           <Car className="w-4 h-4" /> Informações do Veículo
@@ -678,9 +678,9 @@ export default function VeiculoDetalhe() {
             { label: "KM inicial", value: vehicle.km_inicial.toLocaleString("pt-BR") },
             { label: "Banco", value: vehicle.banco },
             { label: "Parcela", value: fmtBRL(vehicle.parcela) },
-            { label: "Venc. parcela", value: vehicle.vencimento_parcela ? fmtDate(vehicle.vencimento_parcela) : "â€”" },
+            { label: "Venc. parcela", value: vehicle.vencimento_parcela ? fmtDate(vehicle.vencimento_parcela) : "—" },
             { label: "Seguro", value: fmtBRL(vehicle.seguro) },
-            { label: "Venc. seguro", value: vehicle.vencimento_seguro ? fmtDate(vehicle.vencimento_seguro) : "â€”" },
+            { label: "Venc. seguro", value: vehicle.vencimento_seguro ? fmtDate(vehicle.vencimento_seguro) : "—" },
             { label: "Custo / mês", value: fmtBRL(vehicle.custo_mes) },
           ].map(({ label, value, mono }) => (
             <div key={label}>
@@ -858,7 +858,7 @@ export default function VeiculoDetalhe() {
           )}
         </div>
 
-        {/* Pie chart â€“ maintenance by type */}
+        {/* Pie chart – maintenance by type */}
         <div className="neu p-6 animate-blur-in delay-75">
           <h2 className="font-display text-base font-bold flex items-center gap-2">
             <Wrench className="w-4 h-4" /> Manutenção no Período
@@ -909,7 +909,7 @@ export default function VeiculoDetalhe() {
         </div>
       </div>
 
-      {/* â”€â”€ Summary Totals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Summary Totals ───────────────────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div className="neu p-5 animate-blur-in">
           <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">
@@ -949,7 +949,7 @@ export default function VeiculoDetalhe() {
         </div>
       </div>
 
-      {/* â”€â”€ Payment History â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Payment History ──────────────────────────────────────────── */}
       <div className="neu p-6 mb-8 animate-blur-in overflow-x-auto">
         <h2 className="font-display text-base font-bold mb-5 flex items-center gap-2">
           <DollarSign className="w-4 h-4" /> Recebimento de Alugueis
@@ -998,7 +998,7 @@ export default function VeiculoDetalhe() {
         )}
       </div>
 
-      {/* â”€â”€ Maintenance History â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Maintenance History ──────────────────────────────────────── */}
       <div className="neu p-6 mb-8 animate-blur-in overflow-x-auto">
         <h2 className="font-display text-base font-bold mb-5 flex items-center gap-2">
           <Wrench className="w-4 h-4" /> Histórico de Manutenção
@@ -1048,7 +1048,7 @@ export default function VeiculoDetalhe() {
         )}
       </div>
 
-      {/* â”€â”€ Checklist History â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Checklist History ───────────────────────────────────────── */}
       <div className="neu p-6 mb-8 animate-blur-in overflow-x-auto">
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-display text-base font-bold flex items-center gap-2">
@@ -1114,7 +1114,7 @@ export default function VeiculoDetalhe() {
         )}
       </div>
 
-      {/* â”€â”€ Linked Drivers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Linked Drivers ───────────────────────────────────────────── */}
       {drivers.length > 0 && (
         <div className="neu p-6 mb-8 animate-blur-in">
           <h2 className="font-display text-base font-bold mb-5 flex items-center gap-2">
@@ -1151,12 +1151,12 @@ export default function VeiculoDetalhe() {
           </div>
         </div>
       )}
-      {/* â”€â”€ Modal de Visualização do Documento â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Modal de Visualização do Documento ─────────────────────────── */}
       <Dialog open={docModalOpen} onOpenChange={setDocModalOpen}>
         <DialogContent className="max-w-4xl w-full h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>
-              Documento â€” {vehicle?.modelo} ({vehicle?.placa})
+              Documento — {vehicle?.modelo} ({vehicle?.placa})
             </DialogTitle>
           </DialogHeader>
 

@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import React from "react";
 import { AppShell } from "@/components/layout/AppShell";
@@ -380,7 +380,7 @@ export default function ChecklistDetail() {
                 {checklist.vehicle_modelo}
               </h1>
               <p className="text-muted-foreground mt-1">
-                {checklist.vehicle_placa} â€¢ {typeLabel}
+                {checklist.vehicle_placa} • {typeLabel}
               </p>
             </div>
           </div>

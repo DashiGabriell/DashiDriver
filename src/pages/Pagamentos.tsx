@@ -454,22 +454,22 @@ const Pagamentos = () => {
       <Topbar title="Recebimentos" subtitle="Gestao completa dos recebimentos dos veiculos alugados!" helpPath="/ajuda/gestao/pagamentos" />
  
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-        <div className="neu p-6 animate-blur-in transition-shadow duration-200 shadow-sm shadow-gray-200 hover:shadow-md hover:shadow-gray-400/40">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 mb-6 md:mb-8">
+        <div className="col-span-2 md:col-span-1 neu p-4 md:p-6 animate-blur-in transition-shadow duration-200 shadow-sm shadow-gray-200 hover:shadow-md hover:shadow-gray-400/40">
           <div className="text-xs uppercase tracking-wider text-muted-foreground">Total recebido</div>
-          <div className="font-display text-3xl font-bold mt-2">
+          <div className="font-display text-2xl md:text-3xl font-bold mt-2 tabular-nums">
             R$ <span ref={totalRef}>0,00</span>
           </div>
         </div>
-        <div className="neu p-6 animate-blur-in delay-75 transition-shadow duration-200 shadow-sm shadow-gray-200 hover:shadow-md hover:shadow-gray-400/40">
+        <div className="neu p-4 md:p-6 animate-blur-in delay-75 transition-shadow duration-200 shadow-sm shadow-gray-200 hover:shadow-md hover:shadow-gray-400/40 min-w-0">
           <div className="text-xs uppercase tracking-wider text-muted-foreground">A receber</div>
-          <div className="font-display text-3xl font-bold mt-2 text-warning">
+          <div className="font-display text-lg md:text-3xl font-bold mt-2 text-warning tabular-nums truncate">
             R$ <span ref={aReceberRef}>0,00</span>
           </div>
         </div>
-        <div className="neu p-6 animate-blur-in delay-150 transition-shadow duration-200 shadow-sm shadow-gray-200 hover:shadow-md hover:shadow-gray-400/40">
+        <div className="neu p-4 md:p-6 animate-blur-in delay-150 transition-shadow duration-200 shadow-sm shadow-gray-200 hover:shadow-md hover:shadow-gray-400/40 min-w-0">
           <div className="text-xs uppercase tracking-wider text-muted-foreground">Atrasos</div>
-          <div className="font-display text-3xl font-bold mt-2 text-danger">
+          <div className="font-display text-lg md:text-3xl font-bold mt-2 text-danger tabular-nums">
             <span ref={atrasosRef}>0</span>
           </div>
         </div>
@@ -477,42 +477,44 @@ const Pagamentos = () => {
 
       {/* Tabs */}
       <Tabs value={searchParams.get("tab") || "programacao"} onValueChange={(v) => setSearchParams({ tab: v })} className="animate-blur-in delay-300">
-        <TabsList className="mb-6 neu px-1 py-1 h-auto gap-1 bg-transparent">
+        <TabsList className="mb-4 md:mb-6 neu px-1 py-1 h-auto gap-1 bg-transparent grid w-full grid-cols-3 sm:inline-flex sm:w-auto">
           <TabsTrigger
             value="programacao"
-            className="flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+            className="flex items-center gap-1.5 sm:gap-2 rounded-2xl px-2 sm:px-4 py-2.5 text-xs sm:text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
           >
-            <CalendarDays className="w-4 h-4" />
-            Programacao
+            <CalendarDays className="hidden sm:block w-4 h-4 shrink-0" />
+            Programação
           </TabsTrigger>
           <TabsTrigger
             value="lancamentos"
-            className="flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+            className="flex items-center gap-1.5 sm:gap-2 rounded-2xl px-2 sm:px-4 py-2.5 text-xs sm:text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
           >
-            <Repeat2 className="w-4 h-4" />
-            Lancamentos Manuais
+            <Repeat2 className="hidden sm:block w-4 h-4 shrink-0" />
+            <span className="sm:hidden">Manuais</span>
+            <span className="hidden sm:inline">Lançamentos Manuais</span>
           </TabsTrigger>
           <TabsTrigger
             value="confirmados"
-            className="flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+            className="flex items-center gap-1.5 sm:gap-2 rounded-2xl px-2 sm:px-4 py-2.5 text-xs sm:text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
           >
-            <Receipt className="w-4 h-4" />
-            Recebimentos Confirmados
+            <Receipt className="hidden sm:block w-4 h-4 shrink-0" />
+            <span className="sm:hidden">Confirmados</span>
+            <span className="hidden sm:inline">Recebimentos Confirmados</span>
           </TabsTrigger>
         </TabsList>
 
         {/* Tab: Programacao */}
         <TabsContent value="programacao">
-          <div className="neu p-6">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <h2 className="font-display text-xl font-bold">Programacao de pagamentos</h2>
+          <div className="neu p-4 sm:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-5">
+              <div className="min-w-0">
+                <h2 className="font-display text-lg sm:text-xl font-bold">Programação de pagamentos</h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Recorrencias mensais (dia do mes) ou semanais (dia da semana) configuradas automaticamente.
+                  Recorrências mensais (dia do mês) ou semanais (dia da semana) configuradas automaticamente.
                 </p>
               </div>
               <button
-                className="neu-interactive px-4 py-2 text-sm font-medium flex items-center gap-2"
+                className="neu-interactive px-4 py-2.5 sm:py-2 text-sm font-medium flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto"
                 onClick={openCreateSchedule}
               >
                 <Plus className="w-4 h-4" /> Programar
@@ -529,7 +531,7 @@ const Pagamentos = () => {
                   const driver = s.carcontrol_drivers;
                   const veh    = s.carcontrol_vehicles;
                   return (
-                    <div key={s.id} className="neu-inset px-4 py-3 flex items-center gap-4">
+                    <div key={s.id} className="neu-inset px-3 py-3 sm:px-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 sm:flex-nowrap sm:gap-4">
                       <div className={`neu-sm w-10 h-10 grid place-items-center flex-shrink-0 ${s.ativo ? "text-primary" : "text-muted-foreground"}`}>
                         <CalendarDays className="w-4 h-4" />
                       </div>
@@ -545,10 +547,11 @@ const Pagamentos = () => {
                         <div className="font-display font-bold">{fmtBRL(s.valor)}</div>
                         <div className="text-xs text-muted-foreground capitalize">{s.metodo}</div>
                       </div>
-                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium hidden md:inline-flex ${s.ativo ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"}`}>
+                      <div className="order-last basis-full h-0 sm:hidden" aria-hidden />
+                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium order-last sm:order-none inline-flex ${s.ativo ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"}`}>
                         {s.ativo ? "Ativa" : "Pausada"}
                       </span>
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <div className="flex items-center gap-2 sm:gap-1.5 flex-shrink-0 order-last sm:order-none ml-auto sm:ml-0 [&_button]:h-9 [&_button]:w-9 sm:[&_button]:h-8 sm:[&_button]:w-8">
                         <Button
                           size="sm" variant="outline"
                           className={`h-8 w-8 p-0 ${s.ativo ? "text-emerald-600 border-emerald-200 hover:bg-emerald-50" : "text-gray-400 border-gray-200 hover:bg-gray-50"}`}
@@ -583,11 +586,11 @@ const Pagamentos = () => {
 
         {/* Tab: Lancamentos Manuais */}
         <TabsContent value="lancamentos">
-          <div className="neu p-6">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-display text-xl font-bold">Historico de pagamentos</h2>
+          <div className="neu p-4 sm:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
+              <h2 className="font-display text-lg sm:text-xl font-bold">Histórico de pagamentos</h2>
               <button
-                className="neu-interactive px-4 py-2 text-sm font-medium flex items-center gap-2"
+                className="neu-interactive px-4 py-2.5 sm:py-2 text-sm font-medium flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto"
                 onClick={openCreatePayment}
               >
                 <Plus className="w-4 h-4" /> Registrar
@@ -600,7 +603,7 @@ const Pagamentos = () => {
                 const m      = paymentMeta[p.status] ?? paymentMeta.pendente;
                 const Icon   = m.icon;
                 return (
-                  <div key={p.id} className="neu-inset px-4 py-3 flex items-center gap-4">
+                  <div key={p.id} className="neu-inset px-3 py-3 sm:px-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 sm:flex-nowrap sm:gap-4">
                     <div className={`neu-sm w-10 h-10 grid place-items-center flex-shrink-0 ${m.cls}`}>
                       <Icon className="w-4 h-4" />
                     </div>
@@ -614,10 +617,11 @@ const Pagamentos = () => {
                       <div className="font-display font-bold">{fmtBRL(p.valor)}</div>
                       <div className="text-xs text-muted-foreground">{p.data ? fmtDate(p.data) : "..."}</div>
                     </div>
-                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium hidden md:inline-flex ${statusRowCls[p.status] ?? "bg-gray-100 text-gray-700"}`}>
+                    <div className="order-last basis-full h-0 sm:hidden" aria-hidden />
+                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium order-last sm:order-none inline-flex ${statusRowCls[p.status] ?? "bg-gray-100 text-gray-700"}`}>
                       {m.label}
                     </span>
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <div className="flex items-center gap-2 sm:gap-1.5 flex-shrink-0 order-last sm:order-none ml-auto sm:ml-0 [&_button]:h-9 [&_button]:w-9 sm:[&_button]:h-8 sm:[&_button]:w-8">
                       {p.comprovante_url && (
                         <Button
                           size="sm" variant="outline"
@@ -660,9 +664,9 @@ const Pagamentos = () => {
 
         {/* Tab: Recebimentos Confirmados */}
         <TabsContent value="confirmados">
-          <div className="neu p-6">
+          <div className="neu p-4 sm:p-6">
             <div className="mb-5">
-              <h2 className="font-display text-xl font-bold flex items-center gap-2">
+              <h2 className="font-display text-lg sm:text-xl font-bold flex items-center gap-2">
                 <Receipt className="w-5 h-5 text-emerald-600" />
                 Recebimentos Confirmados
               </h2>
@@ -673,7 +677,7 @@ const Pagamentos = () => {
 
             {/* Resumo */}
             {confirmedPayments.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6">
                 <div className="neu-inset px-4 py-3 rounded-xl">
                   <div className="text-xs text-muted-foreground uppercase tracking-wide">Total confirmado</div>
                   <div className="font-display text-xl font-bold text-emerald-600 mt-1">
@@ -710,7 +714,79 @@ const Pagamentos = () => {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-lg border">
+              <>
+              <ul className="md:hidden space-y-3">
+                {(confirmedPayments as any[]).map((p: any) => {
+                  const driver = p.carcontrol_drivers;
+                  const veh    = p.carcontrol_vehicles;
+                  return (
+                    <li key={p.id} className="neu-inset p-3">
+                      <button
+                        type="button"
+                        className="w-full text-left"
+                        onClick={() => setDetailPayment(p)}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold truncate">{driver?.nome ?? "—"}</div>
+                            <div className="text-xs text-muted-foreground truncate">
+                              {veh ? `${veh.modelo} · ${veh.placa}` : "Sem veículo"}
+                            </div>
+                          </div>
+                          <span className="font-display font-bold text-emerald-600 tabular-nums shrink-0">
+                            {fmtBRL(p.valor)}
+                          </span>
+                        </div>
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                          <span className="font-mono">
+                            {p.schedule_date ? fmtDate(p.schedule_date) : (p.data ? fmtDate(p.data) : "—")}
+                          </span>
+                          {p.schedule_date && p.data && p.schedule_date !== p.data && (
+                            <span>Pago em {fmtDate(p.data)}</span>
+                          )}
+                          <span className="capitalize">{p.metodo}</span>
+                        </div>
+                      </button>
+                      <div className="mt-3 flex items-center justify-between gap-2 border-t border-border/60 pt-3">
+                        <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium bg-emerald-100 text-emerald-700">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Confirmado
+                        </span>
+                        <div className="flex items-center gap-2">
+                          {p.comprovante_url && (
+                            <Button
+                              size="sm" variant="outline"
+                              className="h-9 w-9 p-0 text-blue-600 border-blue-200 hover:bg-blue-50"
+                              aria-label="Ver comprovante"
+                              onClick={async () => {
+                                try {
+                                  const url = await getComprovanteUrl(p.comprovante_url);
+                                  window.open(url, "_blank", "noopener,noreferrer");
+                                } catch {
+                                  toast.error("Nao foi possivel abrir o comprovante.");
+                                }
+                              }}
+                            >
+                              <FileText className="w-4 h-4" />
+                            </Button>
+                          )}
+                          <Button
+                            size="sm" variant="destructive" className="h-9 w-9 p-0"
+                            disabled={deletingPaymentId === p.id}
+                            aria-label="Excluir confirmação"
+                            onClick={() => handleDeletePayment(p.id)}
+                          >
+                            {deletingPaymentId === p.id
+                              ? <Loader2 className="w-4 h-4 animate-spin" />
+                              : <Trash2 className="w-4 h-4" />}
+                          </Button>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="hidden md:block overflow-x-auto rounded-lg border">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -819,6 +895,7 @@ const Pagamentos = () => {
                   </TableBody>
                 </Table>
               </div>
+              </>
             )}
           </div>
         </TabsContent>
@@ -836,7 +913,7 @@ const Pagamentos = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="max-h-[calc(88vh-12rem)] overflow-hidden rounded-3xl border border-primary/10 bg-background/90 p-1 shadow-sm">
+          <ScrollArea className="sm:max-h-[calc(88vh-12rem)] overflow-hidden rounded-3xl border border-primary/10 bg-background/90 p-1 shadow-sm">
             <div className="grid gap-4 p-3">
               <div>
                 <Label htmlFor="sched-driver">Motorista *</Label>
@@ -885,7 +962,7 @@ const Pagamentos = () => {
                 </Select>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="sched-valor">Valor (R$) *</Label>
                   <Input
@@ -969,7 +1046,7 @@ const Pagamentos = () => {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="sched-inicio">Data de inicio *</Label>
                   <Input
@@ -1032,7 +1109,7 @@ const Pagamentos = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="max-h-[calc(83vh-11rem)] overflow-hidden rounded-3xl border border-primary/10 bg-background/90 p-1 shadow-sm">
+          <ScrollArea className="sm:max-h-[calc(83vh-11rem)] overflow-hidden rounded-3xl border border-primary/10 bg-background/90 p-1 shadow-sm">
             <div className="grid gap-4 p-3">
               <div>
                 <Label htmlFor="pay-driver">Motorista *</Label>
@@ -1065,7 +1142,7 @@ const Pagamentos = () => {
                 </Select>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="pay-data">Data *</Label>
                   <Input
@@ -1091,7 +1168,7 @@ const Pagamentos = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="pay-metodo">Metodo de pagamento</Label>
                   <Select
