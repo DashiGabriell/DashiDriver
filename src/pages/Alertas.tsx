@@ -4,7 +4,7 @@ import { NotificationItem } from "@/components/notifications/NotificationItem";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNotifications } from "@/hooks/useNotifications";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 
 const Alertas = () => {
   const {
@@ -17,6 +17,7 @@ const Alertas = () => {
     markAsRead,
     markAllAsRead,
     deleteNotification,
+    deleteAll,
   } = useNotifications();
 
   const renderList = (items: typeof critical) => {
@@ -76,14 +77,28 @@ const Alertas = () => {
               {unreadCriticalCount + unreadOperationalCount === 1 ? "" : "s"}
             </p>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => markAllAsRead(undefined)}
-          >
-            Marcar todas como lidas
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={unreadCriticalCount + unreadOperationalCount === 0}
+              onClick={() => markAllAsRead(undefined)}
+            >
+              Marcar todas como lidas
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-danger"
+              disabled={critical.length + operational.length === 0}
+              onClick={() => deleteAll(undefined)}
+            >
+              <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+              Limpar todas
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="critical">

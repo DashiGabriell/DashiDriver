@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 import { useAuth } from '@/integrations/supabase/auth';
@@ -36,7 +36,7 @@ export function useRealtimeData<T extends TableName, R = Database['public']['Tab
   // Ref to track if we're currently fetching to avoid race conditions
   const fetchingRef = useRef(false);
 
-  // ID único por instância do hook â€” evita conflito de canal quando a mesma
+  // ID único por instância do hook — evita conflito de canal quando a mesma
   // tabela é subscrita por múltiplos componentes simultaneamente
   const channelIdRef = useRef<string | null>(null);
   if (!channelIdRef.current) {
@@ -77,7 +77,7 @@ export function useRealtimeData<T extends TableName, R = Database['public']['Tab
             ascending: opts.order.ascending ?? false,
           });
         } else {
-          // created_at may not exist in all tables â€” use a safe fallback
+          // created_at may not exist in all tables — use a safe fallback
           query = (query as any).order('created_at', { ascending: false });
         }
 
@@ -118,7 +118,7 @@ export function useRealtimeData<T extends TableName, R = Database['public']['Tab
 
     fetchData('initial');
 
-    // Nome de canal único por instância â€” evita o erro "cannot add postgres_changes
+    // Nome de canal único por instância — evita o erro "cannot add postgres_changes
     // callbacks after subscribe()" quando múltiplos hooks observam a mesma tabela
     const channelName = `public:${String(table)}:${session.user.id}:${channelIdRef.current}`;
     const channel = supabase
@@ -156,7 +156,7 @@ export function useRealtimeData<T extends TableName, R = Database['public']['Tab
 
       supabase.removeChannel(channel);
     };
-    // Only re-run when table or session changes â€” options handled via ref
+    // Only re-run when table or session changes — options handled via ref
   }, [table, session?.user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return { data, loading, error };

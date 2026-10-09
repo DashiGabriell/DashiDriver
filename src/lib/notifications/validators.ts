@@ -9,6 +9,8 @@ const validCategories = new Set<NotificationCategory>([
   "payment_confirmed",
   "vehicle_returned",
   "plan_expiring",
+  "km_limit_exceeded",
+  "system_broadcast",
 ]);
 const validEntityTypes = new Set<NotificationEntityType>([
   "veiculo",

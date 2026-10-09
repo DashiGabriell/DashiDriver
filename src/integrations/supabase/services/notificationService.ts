@@ -11,7 +11,8 @@ export type NotificationCategory =
   | "payment_confirmed"
   | "vehicle_returned"
   | "plan_expiring"
-  | "km_limit_exceeded";
+  | "km_limit_exceeded"
+  | "system_broadcast";
 export type NotificationEntityType =
   | "veiculo"
   | "pagamento"
@@ -34,6 +35,7 @@ export interface AppNotification {
   metadata: Record<string, unknown>;
   read: boolean;
   read_at: string | null;
+  dismissed_at?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -65,6 +67,7 @@ export const notificationService = {
   async list(limit = MAX_NOTIFICATIONS_PER_FETCH): Promise<AppNotification[]> {
     const { data, error } = await notificationsTable()
       .select("*")
+      .is("dismissed_at", null)
       .order("created_at", { ascending: false })
       .limit(limit);
 
@@ -121,8 +124,24 @@ export const notificationService = {
     if (error) throw error;
   },
 
+  // Exclusão lógica: refresh_user_notifications recriaria alertas derivados apagados fisicamente.
   async deleteNotification(notificationId: string) {
-    const { error } = await notificationsTable().delete().eq("id", notificationId);
+    const { error } = await notificationsTable()
+      .update({ dismissed_at: new Date().toISOString() })
+      .eq("id", notificationId);
+    if (error) throw error;
+  },
+
+  async deleteAll(type?: NotificationType) {
+    let query = notificationsTable()
+      .update({ dismissed_at: new Date().toISOString() })
+      .is("dismissed_at", null);
+
+    if (type) {
+      query = query.eq("type", type);
+    }
+
+    const { error } = await query;
     if (error) throw error;
   },
 };

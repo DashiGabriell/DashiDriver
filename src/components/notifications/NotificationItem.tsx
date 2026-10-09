@@ -5,6 +5,7 @@ import {
   Clock,
   CreditCard,
   FileWarning,
+  Megaphone,
   Trash2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -29,6 +30,7 @@ const categoryIcon: Record<string, ComponentType<{ className?: string }>> = {
   vehicle_returned: Car,
   plan_expiring: Clock,
   km_limit_exceeded: Car,
+  system_broadcast: Megaphone,
 };
 
 function formatRelativeDate(value: string) {

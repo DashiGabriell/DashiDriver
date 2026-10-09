@@ -12,6 +12,7 @@ export const NotificationCategories = {
   VEHICLE_RETURNED: "vehicle_returned",
   PLAN_EXPIRING: "plan_expiring",
   KM_LIMIT_EXCEEDED: "km_limit_exceeded",
+  SYSTEM_BROADCAST: "system_broadcast",
 } as const;
 
 export const NotificationLabels = {
@@ -23,6 +24,7 @@ export const NotificationLabels = {
   vehicle_returned: "Veiculo devolvido",
   plan_expiring: "Plano proximo do vencimento",
   km_limit_exceeded: "Limite semanal de KM excedido",
+  system_broadcast: "Aviso do sistema",
 } as const;
 
 export const CRITICAL_NOTIFICATION_CATEGORIES = [

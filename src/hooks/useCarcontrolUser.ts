@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/integrations/supabase/auth';
@@ -33,6 +33,8 @@ interface UseCarcontrolUserReturn {
   refreshProfile: () => Promise<void>;
 }
 
+const lastAccessTouched = new Set<string>();
+
 export function useCarcontrolUser(): UseCarcontrolUserReturn {
   const { session } = useAuth();
   const [profile, setProfile] = useState<CarcontrolUser | null>(null);
@@ -56,7 +58,7 @@ export function useCarcontrolUser(): UseCarcontrolUserReturn {
         .maybeSingle();
 
       if (fetchError) {
-        // Perfil ainda não existe â€” será criado pelo trigger na próxima autenticação
+        // Perfil ainda não existe — será criado pelo trigger na próxima autenticação
         if (fetchError.code === 'PGRST116') {
           setProfile(null);
         } else {
@@ -65,23 +67,16 @@ export function useCarcontrolUser(): UseCarcontrolUserReturn {
         }
         return;
       }
-      
-      // ... (rest of the function, need to make sure fields match)
 
-
-      // Buscar informações da empresa se houver company_id
-      const { data: profileCompany, error: profileCompanyError } = await supabase
-        .from('carcontrol_profiles')
-        .select('company_id, role')
-        .eq('id', session.user.id)
-        .maybeSingle();
-
-      if (profileCompanyError) {
-
+      if (!data) {
+        setProfile(null);
+        setCompany(null);
+        setUserRole('user');
+        return;
       }
 
-      const companyId = profileCompany?.company_id || data.company_id;
-      setUserRole((profileCompany?.role as UserRole | null) || 'user');
+      const companyId = data.company_id;
+      setUserRole((data.role as UserRole | null) || 'user');
       let fetchedCompany: CarcontrolCompany | null = null;
 
       if (companyId) {
@@ -153,25 +148,17 @@ export function useCarcontrolUser(): UseCarcontrolUserReturn {
     fetchProfile();
   }, [fetchProfile]);
 
-  // Update last access on session start
+  // Registra último acesso uma vez por sessão (o hook é montado em vários componentes).
   useEffect(() => {
-    if (!session?.user?.id || !profile) return;
+    const userId = session?.user?.id;
+    if (!userId || !profile?.id || lastAccessTouched.has(userId)) return;
+    lastAccessTouched.add(userId);
 
-    // Nota: A tabela carcontrol_profiles pode não ter 'ultimo_acesso'.
-    // Se não tiver, ignoramos este update ou criamos a coluna.
-    // Para agora, vamos apenas logar um warning se falhar.
     supabase
       .from('carcontrol_profiles')
       .update({ updated_at: new Date().toISOString() })
-      .eq('id', session.user.id)
-      .then(({ error }) => {
-        if (error) {
-
-        }
-      })
-      .catch(err => {
-
-      });
+      .eq('id', userId)
+      .then(() => undefined, () => undefined);
   }, [session?.user?.id, profile?.id]);
 
   const updateProfile = useCallback(async (updates: Partial<CarcontrolProfileUpdate>) => {
