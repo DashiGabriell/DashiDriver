@@ -37,6 +37,14 @@ const METHODS: Array<{ value: BillingType; label: string; hint: string; icon: ty
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+const COUPON_ERRORS: Record<string, string> = {
+  "Cupom invalido": "Cupom não encontrado. Confira o código.",
+  "Cupom inativo": "Este cupom não está mais ativo.",
+  "Cupom expirado": "Este cupom já venceu.",
+  "Cupom esgotado": "Este cupom já foi usado o máximo de vezes.",
+  "Valor minimo nao atingido para este cupom": "Este cupom não vale para este plano.",
+};
+
 const Section = ({ title, children }: { title: string; children: ReactNode }) => (
   <fieldset className="min-w-0 border-0 p-0">
     <legend className="qc-tape mb-5 !text-[0.8rem]">{title}</legend>
@@ -176,19 +184,17 @@ export const CheckoutForm = ({
     setCouponLoading(true);
     setCouponError("");
     try {
-      const { data: found, error } = await supabase.from("coupons").select("*").eq("code", code).maybeSingle();
-      if (error) throw new Error("Não deu para consultar o cupom agora. Tente de novo.");
-      if (!found) throw new Error("Cupom não encontrado. Confira o código.");
-      if (!found.active) throw new Error("Este cupom não está mais ativo.");
-      if (found.expires_at && new Date(found.expires_at) < new Date()) throw new Error("Este cupom já venceu.");
-      if (found.max_uses !== null && found.current_uses >= found.max_uses) throw new Error("Este cupom já foi usado o máximo de vezes.");
-      if (found.min_amount !== null && amount < found.min_amount) throw new Error("Este cupom não vale para este plano.");
+      const { data, error } = await supabase.functions.invoke("process-payment", {
+        body: { plan: slug, planType, coupon_code: code, validate_only: true },
+      });
+      const serverError = error
+        ? await readFunctionError(error, "")
+        : (data as { error?: string } | null)?.error ?? "";
+      if (serverError || !data) throw new Error(COUPON_ERRORS[serverError] ?? "Não deu para consultar o cupom agora. Tente de novo.");
 
-      const discount =
-        found.discount_type === "percentual"
-          ? Math.round(amount * (found.discount_value / 100) * 100) / 100
-          : Math.min(found.discount_value, amount);
-      setCoupon({ code, amount: discount, total: Math.max(0, amount - discount) });
+      const result = data as { discount_amount: number; final_amount: number };
+      const discount = result.discount_amount;
+      setCoupon({ code, amount: discount, total: result.final_amount });
       setCouponInput(code);
       toast.success(`Cupom aplicado: ${fmtBRL(discount)} de desconto`);
     } catch (err) {

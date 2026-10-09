@@ -36,10 +36,15 @@ export const asaasWebhookSchema = z.object({
       status: z.string().optional(),
     })
     .passthrough()
-    .optional(),
-  subscription: z.string().optional().nullable(),
+    .optional()
+    .nullable(),
+  subscription: z
+    .union([z.string(), z.object({ id: z.string().optional() }).passthrough()])
+    .optional()
+    .nullable(),
 }).passthrough().superRefine((data, ctx) => {
-  const sub = data.payment?.subscription ?? data.subscription;
+  const top = typeof data.subscription === "string" ? data.subscription : data.subscription?.id;
+  const sub = data.payment?.subscription ?? top;
   if (!sub) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,

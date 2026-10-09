@@ -1,19 +1,20 @@
-﻿import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from "../_shared/rate-limit.ts";
 import { processPaymentSchema } from "../_shared/schemas.ts";
 import { readAndParseJsonBody } from "../_shared/validate.ts";
+import { corsHeaders as sharedCors } from "../_shared/cors.ts";
+import { hasActiveAccess } from "../_shared/asaas-webhook-logic.ts";
+import {
+  asaasErrorMessage,
+  asaasRequest,
+  cancelSubscriptionRows,
+  createAdminClient,
+  grantPlan,
+  hasAsaasConfig,
+  otherSubscriptionRows,
+} from "../_shared/billing.ts";
 
-const ALLOWED_ORIGINS = [
-  "https://dashidrive.com",
-  "https://dashidrive.com.br",
-  "http://localhost:8080",
-];
-const corsHeaders = (origin: string | null) => ({
-  "Access-Control-Allow-Origin": origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-});
+const corsHeaders = (origin: string | null) => sharedCors(origin, "POST, OPTIONS");
 
 type PlanType = "gestao" | "marketplace";
 type PlanDef = {
@@ -58,10 +59,6 @@ const priceFor = (planDef: PlanDef): number => {
   return price;
 };
 
-const log = (msg: string, data?: unknown) => {
-
-};
-
 const sanitizeDigits = (v: string) => (v || "").replace(/\D/g, "");
 
 const normalizeKey = (value: string) =>
@@ -88,21 +85,89 @@ const normalizePlan = (plan: string, requestedType?: PlanType): PlanDef => {
   return exact;
 };
 
-const computeExpiration = () => {
-  const d = new Date();
-  d.setMonth(d.getMonth() + 1);
-  return d.toISOString();
+type Coupon = {
+  id: string;
+  code: string;
+  active: boolean;
+  expires_at: string | null;
+  max_uses: number | null;
+  current_uses: number;
+  min_amount: number | null;
+  discount_type: string;
+  discount_value: number;
 };
+
+async function loadCoupon(supabaseAdmin: any, code: string, amount: number) {
+  const { data: coupon, error } = await supabaseAdmin
+    .from("coupons")
+    .select("id, code, active, expires_at, max_uses, current_uses, min_amount, discount_type, discount_value")
+    .eq("code", code)
+    .maybeSingle();
+
+  if (error) throw new Error("Erro ao validar cupom: " + error.message);
+  if (!coupon) throw new Error("Cupom invalido");
+  const c = coupon as Coupon;
+  if (!c.active) throw new Error("Cupom inativo");
+  if (c.expires_at && new Date(c.expires_at) < new Date()) throw new Error("Cupom expirado");
+  if (c.max_uses !== null && c.current_uses >= c.max_uses) throw new Error("Cupom esgotado");
+  if (c.min_amount !== null && amount < c.min_amount) throw new Error("Valor minimo nao atingido para este cupom");
+
+  const discount = c.discount_type === "percentual"
+    ? Math.round(amount * (c.discount_value / 100) * 100) / 100
+    : Math.min(c.discount_value, amount);
+
+  return { coupon: c, discount, finalAmount: Math.max(0, Math.round((amount - discount) * 100) / 100) };
+}
+
+/** Counts one use with optimistic concurrency so two checkouts cannot both take the last use. */
+async function claimCoupon(supabaseAdmin: any, couponId: string): Promise<void> {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const { data: current, error } = await supabaseAdmin
+      .from("coupons")
+      .select("current_uses, max_uses")
+      .eq("id", couponId)
+      .single();
+    if (error) throw new Error("Erro ao atualizar uso do cupom");
+    if (current.max_uses !== null && current.current_uses >= current.max_uses) throw new Error("Cupom esgotado");
+
+    const { data: updated, error: updateError } = await supabaseAdmin
+      .from("coupons")
+      .update({ current_uses: current.current_uses + 1 })
+      .eq("id", couponId)
+      .eq("current_uses", current.current_uses)
+      .select("id");
+    if (updateError) throw new Error("Erro ao atualizar uso do cupom");
+    if (updated?.length) return;
+  }
+  throw new Error("Erro ao atualizar uso do cupom");
+}
+
+async function releaseCoupon(supabaseAdmin: any, couponId: string): Promise<void> {
+  const { data: current } = await supabaseAdmin.from("coupons").select("current_uses").eq("id", couponId).single();
+  if (!current || current.current_uses <= 0) return;
+  await supabaseAdmin
+    .from("coupons")
+    .update({ current_uses: current.current_uses - 1 })
+    .eq("id", couponId)
+    .eq("current_uses", current.current_uses);
+}
 
 async function ensureCompany(supabaseAdmin: any, user: any, body: any) {
   const { data: profile, error: profileError } = await supabaseAdmin
     .from("carcontrol_profiles")
-    .select("id, email, full_name, nome, company_id, asaas_customer_id")
+    .select("id, company_id, asaas_customer_id")
     .eq("id", user.id)
     .maybeSingle();
 
   if (profileError) throw new Error(`DB carcontrol_profiles: ${profileError.message}`);
-  if (profile?.company_id) return { profile, companyId: profile.company_id };
+  if (profile?.company_id) return { profile, companyId: profile.company_id as string };
+
+  if (!profile) {
+    const { error: createError } = await supabaseAdmin
+      .from("carcontrol_profiles")
+      .upsert({ id: user.id, email: user.email ?? null, nome: body?.nome ?? null }, { onConflict: "id" });
+    if (createError) throw new Error(`DB carcontrol_profiles: ${createError.message}`);
+  }
 
   const companyName = body?.empresa || body?.locadora || body?.nome || user.email || "DashiDrive";
   const { data: company, error: companyError } = await supabaseAdmin
@@ -125,76 +190,91 @@ async function ensureCompany(supabaseAdmin: any, user: any, body: any) {
     .eq("id", user.id);
 
   if (linkError) throw new Error(`DB link company: ${linkError.message}`);
-  return { profile, companyId: company.id };
+  return { profile, companyId: company.id as string };
 }
 
-async function applyPlan(
+/**
+ * Records a checkout awaiting payment. Access the user already has (trial, paid plan) is kept
+ * until the new charge is confirmed; only users without access are sent to the pending screen.
+ */
+async function recordPendingCheckout(
   supabaseAdmin: any,
   user: any,
   companyId: string,
   planDef: PlanDef,
-  status: "pending" | "ativo",
   body: any,
-  asaasCustomerId?: string | null,
+  customerId: string,
 ) {
-  const expiration = computeExpiration();
-
-  const profileUpdate: Record<string, unknown> = {
-    email: user.email,
-    nome: body?.nome ?? null,
-    plan: planDef.slug,
-    plano_ativo: planDef.slug,
-    status,
-    data_expiracao: expiration,
-    trial: null,
-  };
-
-  if (asaasCustomerId) profileUpdate.asaas_customer_id = asaasCustomerId;
-
-  const { error: profileError } = await supabaseAdmin
-    .from("carcontrol_profiles")
-    .upsert({ id: user.id, ...profileUpdate }, { onConflict: "id" });
-
+  const [{ data: profile, error: profileError }, { data: company, error: companyError }] = await Promise.all([
+    supabaseAdmin.from("carcontrol_profiles").select("trial, created_at, status, plano_ativo").eq("id", user.id).maybeSingle(),
+    supabaseAdmin.from("carcontrol_companies").select("ativo").eq("id", companyId).maybeSingle(),
+  ]);
   if (profileError) throw new Error(`DB carcontrol_profiles: ${profileError.message}`);
+  if (companyError) throw new Error(`DB carcontrol_companies: ${companyError.message}`);
 
-  const companyUpdate: Record<string, unknown> = { trial: null };
-
-  if (planDef.type === "gestao") {
-    companyUpdate.saas_plan = planDef.saasPlan;
-    companyUpdate.ativo = status === "ativo";
-  } else if (status === "ativo") {
-    companyUpdate.mkt_plan = planDef.mktPlan;
+  const update: Record<string, unknown> = { asaas_customer_id: customerId, email: user.email };
+  if (body?.nome) update.nome = body.nome;
+  if (!hasActiveAccess(profile ?? null, company?.ativo === true)) {
+    update.plan = planDef.slug;
+    update.plano_ativo = planDef.slug;
+    update.status = "pending";
   }
 
-  const { error: companyError } = await supabaseAdmin
-    .from("carcontrol_companies")
-    .update(companyUpdate)
-    .eq("id", companyId);
+  const { error } = await supabaseAdmin.from("carcontrol_profiles").update(update).eq("id", user.id);
+  if (error) throw new Error(`DB carcontrol_profiles: ${error.message}`);
+}
 
-  if (companyError) throw new Error(`DB carcontrol_companies: ${companyError.message}`);
+async function firstChargeInfo(subscriptionId: string, metodo: string): Promise<Record<string, unknown> | null> {
+  if (metodo !== "BOLETO" && metodo !== "PIX") return null;
+
+  const paymentsRes = await asaasRequest(`/subscriptions/${subscriptionId}/payments?limit=1`);
+  const firstPayment = paymentsRes.ok ? paymentsRes.data?.data?.[0] : null;
+  if (!firstPayment) return null;
+
+  if (metodo === "BOLETO") {
+    return {
+      invoiceUrl: firstPayment.invoiceUrl || null,
+      bankSlipUrl: firstPayment.bankSlipUrl || null,
+      boletoBarCode: firstPayment.boletoBarCode || null,
+      boletoCode: firstPayment.boletoCode || null,
+    };
+  }
+
+  let info: Record<string, unknown> = {
+    invoiceUrl: firstPayment.invoiceUrl || null,
+    pixQrCode: firstPayment.pixQrCode || null,
+    pixCopiaECola: firstPayment.pixCopiaECola || null,
+    payload: firstPayment.payload || null,
+  };
+
+  if (!info.pixQrCode && !info.pixCopiaECola && !info.payload && firstPayment.id) {
+    const pixRes = await asaasRequest(`/payments/${firstPayment.id}/pixQrCode`);
+    if (pixRes.ok) {
+      const pixData = pixRes.data ?? {};
+      info = {
+        invoiceUrl: firstPayment.invoiceUrl || null,
+        pixQrCode: pixData.encodedImage || pixData.pixQrCode || null,
+        pixCopiaECola: pixData.payload || pixData.pixCopiaECola || null,
+        payload: pixData.payload || pixData.pixCopiaECola || null,
+      };
+    }
+  }
+  return info;
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { status: 200, headers: corsHeaders(req.headers.get("origin")) });
-  }
+  const origin = req.headers.get("origin");
+  const headers = corsHeaders(origin);
+  const reply = (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), { status, headers: { ...headers, "Content-Type": "application/json" } });
 
-  const _secretKeys = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") ?? "[]");
-  const _secretKey = _secretKeys[0] ?? Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-  const supabaseAdmin = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    _secretKey,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-        detectSessionInUrl: false,
-      },
-      global: { headers: { apikey: _secretKey } },
-    },
-  );
+  if (req.method === "OPTIONS") return new Response("ok", { status: 200, headers });
 
-  let createdAsaasId: { type: "subscription" | "payment"; id: string } | null = null;
+  const supabaseAdmin = createAdminClient();
+
+  let createdSubscriptionId: string | null = null;
+  let insertedPaymentId: string | null = null;
+  let claimedCouponId: string | null = null;
 
   try {
     const authHeader = req.headers.get("Authorization");
@@ -211,15 +291,12 @@ serve(async (req) => {
       RATE_LIMITS.payment.max,
       RATE_LIMITS.payment.windowSeconds,
     );
-    if (!allowed) return rateLimitResponse(req.headers.get("origin"), retryAfter);
+    if (!allowed) return rateLimitResponse(origin, retryAfter);
 
-    const origin = req.headers.get("origin");
-    const headers = corsHeaders(origin);
     const parsed = await readAndParseJsonBody(req, processPaymentSchema, headers);
     if (!parsed.ok) return parsed.response;
 
     const body = parsed.data;
-    log("Body recebido com sucesso", { keys: Object.keys(body), hasCoupon: !!body.coupon_code });
     const {
       nome, cpf, cep, endereco, numero, complemento, bairro, cidade, estado, telefone,
       cardName, cardNumber, cardExpiry, cardCvv,
@@ -227,108 +304,76 @@ serve(async (req) => {
     } = body;
 
     const metodo = billingType || "CREDIT_CARD";
-
     const planDef = normalizePlan(plan, planType);
     const amount = priceFor(planDef);
-    const { profile, companyId } = await ensureCompany(supabaseAdmin, user, body);
-
-    const asaasApiKey = Deno.env.get("ASAAS_API_KEY");
-    const asaasBaseUrl = Deno.env.get("ASAAS_BASE_URL");
-    if (!asaasApiKey || !asaasBaseUrl) {
-      throw new Error("Credenciais Asaas nao configuradas no servidor");
-    }
 
     let discountAmount = 0;
     let finalAmount = amount;
-    let appliedCoupon: string | null = null;
-
-    log("coupon_code received", coupon_code);
+    let coupon: Coupon | null = null;
 
     if (coupon_code) {
-      const { data: coupon, error: couponError } = await supabaseAdmin
-        .from("coupons")
-        .select("*")
-        .eq("code", coupon_code)
-        .maybeSingle();
-
-      if (couponError) {
-        log("Erro ao consultar cupom", { error: couponError, code: coupon_code });
-        throw new Error("Erro ao validar cupom: " + couponError.message);
-      }
-
-      if (!coupon) throw new Error("Cupom invalido");
-      if (!coupon.active) throw new Error("Cupom inativo");
-      if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) throw new Error("Cupom expirado");
-      if (coupon.max_uses !== null && coupon.current_uses >= coupon.max_uses) throw new Error("Cupom esgotado");
-      if (coupon.min_amount !== null && amount < coupon.min_amount) throw new Error("Valor minimo nao atingido para este cupom");
-
-      if (coupon.discount_type === "percentual") {
-        discountAmount = Math.round(amount * (coupon.discount_value / 100) * 100) / 100;
-      } else {
-        discountAmount = Math.min(coupon.discount_value, amount);
-      }
-
-      finalAmount = Math.max(0, amount - discountAmount);
-
-      if (!validate_only) {
-        const { error: updateError } = await supabaseAdmin
-          .from("coupons")
-          .update({ current_uses: coupon.current_uses + 1 })
-          .eq("id", coupon.id);
-
-        if (updateError) throw new Error("Erro ao atualizar uso do cupom");
-      }
-
-      appliedCoupon = coupon_code;
-      log("Cupom validado", { code: coupon_code, discountAmount, finalAmount, validate_only });
+      const result = await loadCoupon(supabaseAdmin, coupon_code, amount);
+      coupon = result.coupon;
+      discountAmount = result.discount;
+      finalAmount = result.finalAmount;
     }
+    const appliedCoupon = coupon?.code ?? null;
 
     if (validate_only) {
-      return new Response(
-        JSON.stringify({
-          valid: true,
-          coupon_code: appliedCoupon,
-          original_amount: amount,
-          discount_amount: discountAmount,
-          final_amount: finalAmount,
-        }),
-        { headers: { ...corsHeaders(req.headers.get("origin")), "Content-Type": "application/json" } },
-      );
+      return reply({
+        valid: true,
+        coupon_code: appliedCoupon,
+        original_amount: amount,
+        discount_amount: discountAmount,
+        final_amount: finalAmount,
+      });
     }
 
+    const { profile, companyId } = await ensureCompany(supabaseAdmin, user, body);
+
     if (amount === 0 || finalAmount <= 0) {
-      log("Ativando plano gratuito (ou 100% de desconto)", { user: user.id, plan: planDef.slug, discountAmount });
+      if (coupon) {
+        await claimCoupon(supabaseAdmin, coupon.id);
+        claimedCouponId = coupon.id;
+      }
 
-      await applyPlan(supabaseAdmin, user, companyId, planDef, "ativo", body, profile?.asaas_customer_id ?? null);
+      await grantPlan(supabaseAdmin, user.id, planDef.slug, null);
 
-      const paymentInsert = {
+      const { error: payError } = await supabaseAdmin.from("payments").insert({
         user_id: user.id,
         plan: planDef.slug,
-        amount,
+        amount: 0,
         status: "APPROVED",
         paid_at: new Date().toISOString(),
         discount_amount: discountAmount,
         coupon_code: appliedCoupon,
-      };
-      const { error: payError } = await supabaseAdmin.from("payments").insert(paymentInsert);
-      if (payError) log("Erro ao registrar pagamento gratuito", payError);
+      });
+      if (payError) throw new Error(`DB payments: ${payError.message}`);
+      claimedCouponId = null;
 
-      return new Response(
-        JSON.stringify({
-          success: true,
-          free: true,
-          status: "APPROVED",
-          plan: planDef.slug,
-          coupon_applied: !!appliedCoupon,
-          coupon_code: appliedCoupon,
-          original_amount: amount,
-          discount_amount: discountAmount,
-          final_amount: 0,
-        }),
-        { headers: { ...corsHeaders(req.headers.get("origin")), "Content-Type": "application/json" } },
-      );
+      try {
+        const replaced = await otherSubscriptionRows(
+          supabaseAdmin, user.id, planDef.slug, ["PENDING", "APPROVED", "REJECTED"],
+        );
+        if (replaced.length && hasAsaasConfig()) await cancelSubscriptionRows(supabaseAdmin, replaced);
+      } catch (err) {
+        console.error("Falha ao cancelar assinaturas substituidas", (err as Error)?.message);
+      }
+
+      return reply({
+        success: true,
+        free: true,
+        status: "APPROVED",
+        plan: planDef.slug,
+        coupon_applied: !!appliedCoupon,
+        coupon_code: appliedCoupon,
+        original_amount: amount,
+        discount_amount: discountAmount,
+        final_amount: 0,
+      });
     }
 
+    if (!hasAsaasConfig()) throw new Error("Credenciais Asaas nao configuradas no servidor");
     if (!telefone) throw new Error("Telefone de contato e obrigatorio");
 
     for (const [k, v] of Object.entries({ nome, cpf, cep, endereco, numero, cidade, estado })) {
@@ -341,75 +386,45 @@ serve(async (req) => {
       }
     }
 
-    const cpfClean = sanitizeDigits(cpf);
-    const cepClean = sanitizeDigits(cep);
+    const cpfClean = sanitizeDigits(cpf as string);
+    const cepClean = sanitizeDigits(cep as string);
 
     let cardNumberClean = "";
     let expiryMonth = "";
-    let expiryYearShort = "";
     let expiryYear = "";
     if (metodo === "CREDIT_CARD") {
-      cardNumberClean = sanitizeDigits(cardNumber);
-      [expiryMonth, expiryYearShort] = String(cardExpiry).split("/");
-      if (!expiryMonth || !expiryYearShort) throw new Error("Validade do cartao invalida");
-      expiryYear = expiryYearShort.length === 2 ? `20${expiryYearShort}` : expiryYearShort;
+      cardNumberClean = sanitizeDigits(cardNumber as string);
+      const [month, yearShort] = String(cardExpiry).split("/");
+      if (!month || !yearShort) throw new Error("Validade do cartao invalida");
+      expiryMonth = month;
+      expiryYear = yearShort.length === 2 ? `20${yearShort}` : yearShort;
     }
-
-    const asaasHeaders = {
-      "access_token": asaasApiKey,
-      "Content-Type": "application/json",
-    };
 
     let customerId: string | null = profile?.asaas_customer_id ?? null;
 
     if (!customerId) {
-      const customerPayload = {
-        name: nome,
-        cpfCnpj: cpfClean,
-        email: user.email,
-        postalCode: cepClean,
-        address: endereco,
-        addressNumber: numero,
-        complement: complemento,
-        province: bairro,
-        city: cidade,
-        state: estado,
-        externalReference: user.id,
-        notificationDisabled: true,
-      };
-      const customerUrl = `${asaasBaseUrl}/customers`;
-      let customerRes = await fetch(customerUrl, {
+      const customerRes = await asaasRequest("/customers", {
         method: "POST",
-        headers: asaasHeaders,
-        body: JSON.stringify(customerPayload),
+        body: {
+          name: nome,
+          cpfCnpj: cpfClean,
+          email: user.email,
+          postalCode: cepClean,
+          address: endereco,
+          addressNumber: numero,
+          complement: complemento,
+          province: bairro,
+          city: cidade,
+          state: estado,
+          externalReference: user.id,
+          notificationDisabled: true,
+        },
       });
-      // Se houver redirect (301/302), o Deno fetch muda POST para GET,
-      // então refazemos manualmente mantendo o POST
-      if (customerRes.status >= 301 && customerRes.status <= 308) {
-        const location = customerRes.headers.get("location");
-        if (location) {
-          log("Asaas redirect", { from: customerUrl, to: location });
-          customerRes = await fetch(location, {
-            method: "POST",
-            headers: asaasHeaders,
-            body: JSON.stringify(customerPayload),
-          });
-        }
+      if (!customerRes.ok || !customerRes.data?.id) {
+        throw new Error(asaasErrorMessage(customerRes, "Erro ao criar cliente no Asaas"));
       }
-      let customerData: any;
-      try {
-        customerData = await customerRes.json();
-      } catch {
-        const rawText = await customerRes.text().catch(() => "");
-        log("Erro ao parsear resposta do Asaas (create customer)", { status: customerRes.status, raw: rawText.slice(0, 500) });
-        throw new Error(`Asaas retornou status ${customerRes.status} com resposta invalida ao criar cliente`);
-      }
-      log("Resposta Asaas create customer", { status: customerRes.status, data: JSON.stringify(customerData).slice(0, 500) });
-      if (!customerRes.ok || !customerData.id) {
-        const errMsg = customerData.errors?.[0]?.description || customerData.error || `Resposta inesperada do Asaas (status ${customerRes.status}): ${JSON.stringify(customerData).slice(0, 200)}`;
-        throw new Error(errMsg);
-      }
-      customerId = customerData.id;
+      customerId = customerRes.data.id as string;
+      await supabaseAdmin.from("carcontrol_profiles").update({ asaas_customer_id: customerId }).eq("id", user.id);
     }
 
     const today = new Date().toISOString().slice(0, 10);
@@ -441,144 +456,82 @@ serve(async (req) => {
         province: bairro,
         city: cidade,
         complement: complemento,
-        mobilePhone: sanitizeDigits(telefone),
+        mobilePhone: sanitizeDigits(telefone as string),
       };
     }
 
-    let subRes = await fetch(`${asaasBaseUrl}/subscriptions`, {
-      method: "POST",
-      headers: asaasHeaders,
-      body: JSON.stringify(subPayload),
-    });
-    if (subRes.status >= 301 && subRes.status <= 308) {
-      const location = subRes.headers.get("location");
-      if (location) {
-        log("Asaas redirect (subscription)", { from: `${asaasBaseUrl}/subscriptions`, to: location });
-        subRes = await fetch(location, {
-          method: "POST",
-          headers: asaasHeaders,
-          body: JSON.stringify(subPayload),
-        });
-      }
+    const subRes = await asaasRequest("/subscriptions", { method: "POST", body: subPayload });
+    if (!subRes.ok || !subRes.data?.id) {
+      throw new Error(asaasErrorMessage(subRes, "Erro ao criar assinatura no Asaas"));
+    }
+    const subscriptionId = subRes.data.id as string;
+    createdSubscriptionId = subscriptionId;
+
+    if (coupon) {
+      await claimCoupon(supabaseAdmin, coupon.id);
+      claimedCouponId = coupon.id;
     }
 
-    let subData: any;
-    try {
-      subData = await subRes.json();
-    } catch {
-      const rawText = await subRes.text().catch(() => "");
-      log("Erro ao parsear resposta do Asaas (create subscription)", { status: subRes.status, raw: rawText.slice(0, 300) });
-      throw new Error(`Asaas retornou status ${subRes.status} com resposta invalida ao criar assinatura`);
-    }
-    if (!subRes.ok || !subData.id) {
-      log("Falha subscription", subData);
-      throw new Error(subData.errors?.[0]?.description || `Erro ao criar assinatura no Asaas (status ${subRes.status})`);
-    }
-    createdAsaasId = { type: "subscription", id: subData.id };
+    const paymentInfo = await firstChargeInfo(subscriptionId, metodo);
 
-    let paymentInfo: Record<string, unknown> | null = null;
-
-    if (metodo === "BOLETO") {
-      const paymentsRes = await fetch(
-        `${asaasBaseUrl}/subscriptions/${subData.id}/payments?limit=1`,
-        { headers: asaasHeaders },
-      );
-      if (paymentsRes.ok) {
-        const paymentsData = await paymentsRes.json();
-        const firstPayment = paymentsData?.data?.[0];
-        if (firstPayment) {
-          paymentInfo = {
-            invoiceUrl: firstPayment.invoiceUrl || null,
-            bankSlipUrl: firstPayment.bankSlipUrl || null,
-            boletoBarCode: firstPayment.boletoBarCode || null,
-            boletoCode: firstPayment.boletoCode || null,
-          };
-        }
-      }
-    }
-
-    if (metodo === "PIX") {
-      const paymentsRes = await fetch(
-        `${asaasBaseUrl}/subscriptions/${subData.id}/payments?limit=1`,
-        { headers: asaasHeaders },
-      );
-      if (paymentsRes.ok) {
-        const paymentsData = await paymentsRes.json();
-        const firstPayment = paymentsData?.data?.[0];
-        if (firstPayment) {
-          paymentInfo = {
-            invoiceUrl: firstPayment.invoiceUrl || null,
-            pixQrCode: firstPayment.pixQrCode || null,
-            pixCopiaECola: firstPayment.pixCopiaECola || null,
-            payload: firstPayment.payload || null,
-          };
-
-          const precisaGerarQr = !paymentInfo.pixQrCode && !paymentInfo.pixCopiaECola && !paymentInfo.payload;
-          if (precisaGerarQr && firstPayment.id) {
-            const pixRes = await fetch(
-              `${asaasBaseUrl}/payments/${firstPayment.id}/pixQrCode`,
-              { headers: asaasHeaders },
-            );
-            if (pixRes.ok) {
-              const pixData = await pixRes.json();
-              paymentInfo = {
-                invoiceUrl: firstPayment.invoiceUrl || null,
-                pixQrCode: pixData.encodedImage || pixData.pixQrCode || null,
-                pixCopiaECola: pixData.payload || pixData.pixCopiaECola || null,
-                payload: pixData.payload || pixData.pixCopiaECola || null,
-              };
-            }
-          }
-        }
-      }
-    }
-
-    await applyPlan(supabaseAdmin, user, companyId, planDef, "pending", body, customerId);
-
-    const insertPayment = await supabaseAdmin.from("payments").insert({
-      user_id: user.id,
-      plan: planDef.slug,
-      amount,
-      status: "PENDING",
-      asaas_subscription_id: subData.id,
-      billing_type: metodo,
-      payment_info: paymentInfo,
-      coupon_code: appliedCoupon,
-      discount_amount: discountAmount,
-    });
-    if (insertPayment.error) throw new Error(`DB payments: ${insertPayment.error.message}`);
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        subscriptionId: subData.id,
-        status: "PENDING",
+    const { data: inserted, error: insertError } = await supabaseAdmin
+      .from("payments")
+      .insert({
+        user_id: user.id,
         plan: planDef.slug,
-        billingType: metodo,
-        paymentInfo,
-        coupon_applied: !!appliedCoupon,
+        amount: finalAmount,
+        status: "PENDING",
+        asaas_subscription_id: subscriptionId,
+        billing_type: metodo,
+        payment_info: paymentInfo,
         coupon_code: appliedCoupon,
-        original_amount: amount,
         discount_amount: discountAmount,
-        final_amount: finalAmount,
-      }),
-      { headers: { ...corsHeaders(req.headers.get("origin")), "Content-Type": "application/json" } },
-    );
-  } catch (error: any) {
-    log("ERRO", error?.message);
+      })
+      .select("id")
+      .single();
+    if (insertError) throw new Error(`DB payments: ${insertError.message}`);
+    insertedPaymentId = inserted.id;
 
-    if (createdAsaasId) {
-      try {
-        await fetch(`${Deno.env.get("ASAAS_BASE_URL")}/${createdAsaasId.type === "subscription" ? "subscriptions" : "payments"}/${createdAsaasId.id}`, {
-          method: "DELETE",
-          headers: { "access_token": Deno.env.get("ASAAS_API_KEY")! },
-        });
-      } catch (_) { /* ignore */ }
+    await recordPendingCheckout(supabaseAdmin, user, companyId, planDef, body, customerId);
+
+    createdSubscriptionId = null;
+    insertedPaymentId = null;
+    claimedCouponId = null;
+
+    // Checkouts anteriores nunca pagos do mesmo tipo de plano deixam de cobrar.
+    try {
+      const abandoned = await otherSubscriptionRows(
+        supabaseAdmin, user.id, planDef.slug, ["PENDING", "REJECTED"], subscriptionId,
+      );
+      await cancelSubscriptionRows(supabaseAdmin, abandoned);
+    } catch (err) {
+      console.error("Falha ao cancelar checkouts anteriores", (err as Error)?.message);
     }
 
-    return new Response(
-      JSON.stringify({ error: error?.message ?? "Erro desconhecido" }),
-      { status: 400, headers: { ...corsHeaders(req.headers.get("origin")), "Content-Type": "application/json" } },
-    );
+    return reply({
+      success: true,
+      subscriptionId,
+      status: "PENDING",
+      plan: planDef.slug,
+      billingType: metodo,
+      paymentInfo,
+      coupon_applied: !!appliedCoupon,
+      coupon_code: appliedCoupon,
+      original_amount: amount,
+      discount_amount: discountAmount,
+      final_amount: finalAmount,
+    });
+  } catch (error) {
+    if (insertedPaymentId) {
+      await supabaseAdmin.from("payments").delete().eq("id", insertedPaymentId).then(() => {}, () => {});
+    }
+    if (createdSubscriptionId) {
+      await asaasRequest(`/subscriptions/${createdSubscriptionId}`, { method: "DELETE" }).catch(() => null);
+    }
+    if (claimedCouponId) {
+      await releaseCoupon(supabaseAdmin, claimedCouponId).catch(() => {});
+    }
+
+    return reply({ error: (error as Error)?.message ?? "Erro desconhecido" }, 400);
   }
 });

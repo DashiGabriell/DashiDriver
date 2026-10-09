@@ -1,1 +1,5 @@
 project_id = "igchaidmowxpyjapjybe"
+
+# Asaas chama o webhook sem JWT do Supabase; a autenticação é o token "asaas-access-token".
+[functions.asaas-webhook]
+verify_jwt = false

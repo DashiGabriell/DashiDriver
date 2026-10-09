@@ -1,5 +1,4 @@
 ﻿import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   checkRateLimit,
   rateLimitResponse,
@@ -7,102 +6,35 @@ import {
   clientIp,
 } from "../_shared/rate-limit.ts";
 import { asaasWebhookSchema } from "../_shared/schemas.ts";
-import { readAndParseJsonBody } from "../_shared/validate.ts";
-import { planDef, resolveWebhookAction } from "../_shared/asaas-webhook-logic.ts";
+import {
+  CLOSED_PAYMENT_STATUSES,
+  extractSubscriptionId,
+  isSubscriptionEndedEvent,
+  pendingRowOutcome,
+  resolveWebhookAction,
+} from "../_shared/asaas-webhook-logic.ts";
+import {
+  asaasRequest,
+  confirmSubscriptionPayment,
+  createAdminClient,
+  isCurrentSubscription,
+  revokePlan,
+} from "../_shared/billing.ts";
 
-const ALLOWED_ORIGINS = [
-  "https://dashidrive.com",
-  "https://dashidrive.com.br",
-  "http://localhost:8080",
-];
-const corsHeaders = (origin: string | null) => ({
-  "Access-Control-Allow-Origin": origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-});
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
-async function activatePlan(supabaseAdmin: any, userId: string, slug: string) {
-  const def = planDef(slug);
-
-  const { data: profile, error: profileError } = await supabaseAdmin
-    .from("carcontrol_profiles")
-    .select("company_id")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (profileError) throw profileError;
-
-  await supabaseAdmin
-    .from("carcontrol_profiles")
-    .update({ status: "ativo", plan: slug, plano_ativo: slug, trial: null })
-    .eq("id", userId);
-
-  if (!profile?.company_id) return;
-
-  const companyUpdate: Record<string, unknown> = { trial: null };
-  if (def.type === "gestao") {
-    companyUpdate.ativo = true;
-    companyUpdate.saas_plan = def.saasPlan;
-  } else {
-    companyUpdate.mkt_plan = def.mktPlan;
-  }
-
-  await supabaseAdmin
-    .from("carcontrol_companies")
-    .update(companyUpdate)
-    .eq("id", profile.company_id);
-}
-
-async function deactivatePlan(supabaseAdmin: any, userId: string, slug: string) {
-  const def = planDef(slug);
-
-  const { data: profile, error: profileError } = await supabaseAdmin
-    .from("carcontrol_profiles")
-    .select("company_id")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (profileError) throw profileError;
-
-  await supabaseAdmin
-    .from("carcontrol_profiles")
-    .update({ status: "inativo" })
-    .eq("id", userId);
-
-  if (!profile?.company_id) return;
-
-  if (def.type === "gestao") {
-    await supabaseAdmin
-      .from("carcontrol_companies")
-      .update({ ativo: false })
-      .eq("id", profile.company_id);
-  } else {
-    await supabaseAdmin
-      .from("carcontrol_companies")
-      .update({ mkt_plan: "FREE" })
-      .eq("id", profile.company_id);
-  }
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { status: 200, headers: corsHeaders(req.headers.get("origin")) });
-  }
+  if (req.method !== "POST") return json({ error: "Metodo nao permitido" }, 405);
 
-  const _secretKeys = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") ?? "[]");
-  const _secretKey = _secretKeys[0] ?? Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-  const supabaseAdmin = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    _secretKey,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-        detectSessionInUrl: false,
-      },
-      global: { headers: { apikey: _secretKey } },
-    },
-  );
+  const supabaseAdmin = createAdminClient();
 
   const ip = clientIp(req);
   const { allowed, retryAfter } = await checkRateLimit(
@@ -111,66 +43,85 @@ serve(async (req) => {
     RATE_LIMITS.asaasWebhook.max,
     RATE_LIMITS.asaasWebhook.windowSeconds,
   );
-  if (!allowed) return rateLimitResponse(req.headers.get("origin"), retryAfter);
+  if (!allowed) return rateLimitResponse(null, retryAfter);
 
-  const webhookSecret = req.headers.get("x-asaas-webhook-secret");
-  if (webhookSecret !== Deno.env.get("ASAAS_WEBHOOK_SECRET")) {
-    return new Response("Unauthorized", { status: 401 });
+  // Asaas envia o token configurado no painel no cabeçalho "asaas-access-token".
+  const expectedSecret = Deno.env.get("ASAAS_WEBHOOK_SECRET") ?? "";
+  const receivedSecret = req.headers.get("asaas-access-token") ?? req.headers.get("x-asaas-webhook-secret") ?? "";
+  if (!expectedSecret || !safeEqual(receivedSecret, expectedSecret)) {
+    return json({ error: "Unauthorized" }, 401);
   }
 
-  const headers = corsHeaders(req.headers.get("origin"));
-  const parsed = await readAndParseJsonBody(req, asaasWebhookSchema, headers);
-  if (!parsed.ok) return parsed.response;
+  let raw: unknown;
+  try {
+    raw = await req.json();
+  } catch {
+    return json({ error: "Corpo da requisicao invalido" }, 400);
+  }
+
+  // Eventos de cobranças avulsas (sem assinatura) não pertencem a este fluxo; 200 evita que o Asaas pause a fila.
+  const asaasSubscriptionId = extractSubscriptionId(raw);
+  if (!asaasSubscriptionId) return json({ ignored: "sem assinatura" });
+
+  const parsed = asaasWebhookSchema.safeParse(raw);
+  if (!parsed.success) return json({ ignored: "payload fora do formato esperado" });
 
   const payload = parsed.data;
   const event = payload.event;
-  const asaasSubscriptionId = payload.payment?.subscription ?? payload.subscription;
-
-  if (!asaasSubscriptionId) {
-    return new Response("No subscription ID", { status: 400 });
-  }
+  const action = resolveWebhookAction(event);
+  if (action === "ignore") return json({ ignored: event });
 
   try {
-    const { data: payment, error: paymentError } = await supabaseAdmin
+    const { data: row, error: rowError } = await supabaseAdmin
       .from("payments")
-      .select("user_id, plan")
+      .select("id, user_id, plan, status, asaas_subscription_id")
       .eq("asaas_subscription_id", asaasSubscriptionId)
       .maybeSingle();
+    if (rowError) throw new Error(`DB payments: ${rowError.message}`);
+    if (!row) return json({ ignored: "assinatura desconhecida" });
+    if (CLOSED_PAYMENT_STATUSES.has(row.status)) return json({ ignored: "assinatura substituida" });
 
-    if (paymentError || !payment) {
-      throw new Error("Assinatura nao encontrada na tabela de pagamentos");
-    }
-
-    const action = resolveWebhookAction(event);
+    const asaasPaymentId = payload.payment?.id ?? null;
 
     if (action === "activate") {
-      await activatePlan(supabaseAdmin, payment.user_id, payment.plan);
-
-      await supabaseAdmin
-        .from("payments")
-        .update({
-          status: "APPROVED",
-          asaas_payment_id: payload.payment?.id ?? null,
-          paid_at: new Date().toISOString(),
-        })
-        .eq("asaas_subscription_id", asaasSubscriptionId);
-    } else if (action === "deactivate") {
-      await deactivatePlan(supabaseAdmin, payment.user_id, payment.plan);
-
-      await supabaseAdmin
-        .from("payments")
-        .update({
-          status: "REJECTED",
-          asaas_payment_id: payload.payment?.id ?? null,
-        })
-        .eq("asaas_subscription_id", asaasSubscriptionId);
+      const dueDate = typeof payload.payment?.dueDate === "string" ? payload.payment.dueDate : null;
+      await confirmSubscriptionPayment(supabaseAdmin, {
+        userId: row.user_id,
+        subscriptionId: asaasSubscriptionId,
+        plan: row.plan,
+        asaasPaymentId,
+        dueDate,
+      });
+      return json({ ok: true, action });
     }
 
-    return new Response("OK", { status: 200, headers: corsHeaders(req.headers.get("origin")) });
-  } catch (error: any) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
-      headers: { ...corsHeaders(req.headers.get("origin")), "Content-Type": "application/json" },
-    });
+    if (row.status === "APPROVED" && (await isCurrentSubscription(supabaseAdmin, row.user_id, row))) {
+      await revokePlan(supabaseAdmin, row.user_id, row.plan);
+    }
+
+    let nextStatus = isSubscriptionEndedEvent(event) ? "CANCELED" : "REJECTED";
+    if (row.status === "PENDING") {
+      const outcome = pendingRowOutcome(event);
+      if (outcome === "cancel_remote") {
+        const res = await asaasRequest(`/subscriptions/${asaasSubscriptionId}`, { method: "DELETE" });
+        nextStatus = res.ok || res.status === 404 ? "CANCELED" : "REJECTED";
+      } else {
+        nextStatus = outcome === "canceled" ? "CANCELED" : "REJECTED";
+      }
+    }
+
+    const patch: Record<string, unknown> = { status: nextStatus };
+    if (asaasPaymentId) patch.asaas_payment_id = asaasPaymentId;
+    const { error: updateError } = await supabaseAdmin
+      .from("payments")
+      .update(patch)
+      .eq("id", row.id)
+      .eq("status", row.status);
+    if (updateError) throw new Error(`DB payments: ${updateError.message}`);
+
+    return json({ ok: true, action, status: nextStatus });
+  } catch (error) {
+    console.error("asaas-webhook", event, asaasSubscriptionId, (error as Error)?.message);
+    return json({ error: (error as Error)?.message ?? "Erro" }, 500);
   }
 });
