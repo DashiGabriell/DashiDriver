@@ -41,6 +41,12 @@ const formatarWhatsapp = (valor: string): string => {
   return `(${limitado.slice(0, 2)}) ${limitado.slice(2, 7)}-${limitado.slice(7, 11)}`;
 };
 
+const FLEET_SIZES = [
+  { label: "Até 5 veículos", plan: { slug: "gestao-basico", title: "Plano Gestão Básico", price: "R$ 199/mês", iconSrc: "/assets/logoGestaoBasico.png", description: "Até 5 veículos e 10 motoristas." } },
+  { label: "Até 20 veículos", plan: { slug: "gestao-pro", title: "Plano Gestão Pro", price: "R$ 399/mês", iconSrc: "/assets/logoGestaopro.png", description: "Até 20 veículos e 40 motoristas." } },
+  { label: "Mais de 20 veículos", plan: { slug: "gestao-master", title: "Plano Gestão Master", price: "R$ 799/mês", iconSrc: "/assets/logoGestaomaster.png", description: "Até 100 veículos e 200 motoristas." } },
+] as const;
+
 const RoleSelectionCard = memo(({ 
   onClick, 
   label, 
@@ -121,7 +127,6 @@ const OnboardingCadastro = () => {
   const navigate = useNavigate();
   const { data: profile } = useProfile();
   const [step, setStep] = useState(0);
-  const [alreadyUsedTrial, setAlreadyUsedTrial] = useState(false);
   const [showFeatureModal, setShowFeatureModal] = useState(false);
   const [progresso, setProgresso] = useState(0);
   const [respostas, setRespostas] = useState<Partial<Respostas>>({});
@@ -129,10 +134,7 @@ const OnboardingCadastro = () => {
   useEffect(() => {
     setProgresso((step / 5) * 100);
     
-    // Verifica se o usuário já utilizou o trial no banco de dados e preenche dados básicos
     if (profile) {
-      setAlreadyUsedTrial(!!(profile as any).has_used_free_trial);
-      
       // Pré-preenche o nome se ainda não estiver definido
       if (!respostas.nome && (profile as any).nome) {
         setRespostas(prev => ({ ...prev, nome: (profile as any).nome }));
@@ -151,6 +153,10 @@ const OnboardingCadastro = () => {
   }, [step, profile, respostas.role]);
 
   const handleNextStep = () => setStep(prev => prev + 1);
+
+  // O banco também recusa um segundo trial; aqui só evitamos oferecer a opção.
+  const canUseTrial = !!profile && !profile.has_used_free_trial;
+  const fleetPlan = (FLEET_SIZES.find((f) => f.label === respostas.fleetSize) ?? FLEET_SIZES[0]).plan;
 
   const handleSelectTrial = () => {
     setRespostas(prev => ({ ...prev, plan: "free7dias", trial_intent: true }));
@@ -194,7 +200,8 @@ const OnboardingCadastro = () => {
         navigate("/onboarding");
       }
     } catch (error) {
-      toast({ title: "Erro", description: "Falha ao salvar dados.", variant: "destructive" });
+      const message = error instanceof Error && error.message ? error.message : "Falha ao salvar dados.";
+      toast({ title: "Erro", description: message, variant: "destructive" });
     }
   };
 
@@ -265,8 +272,8 @@ const OnboardingCadastro = () => {
                 <ArrowLeft className="w-4 h-4" /> Voltar
               </button>
               <h2 className="text-2xl font-black">Qual o tamanho da sua frota?</h2>
-              {["Até 5 veículos", "Até 20 veículos", "Mais de 20 veículos"].map(size => (
-                 <Button key={size} onClick={() => handleAnswer("fleetSize", size)} className="w-full h-14 rounded-2xl">{size}</Button>
+              {FLEET_SIZES.map(({ label }) => (
+                 <Button key={label} onClick={() => handleAnswer("fleetSize", label)} className="w-full h-14 rounded-2xl">{label}</Button>
               ))}
             </motion.div>
           )}
@@ -317,7 +324,7 @@ const OnboardingCadastro = () => {
                   </>
                 ) : (
                   <>
-                    {!alreadyUsedTrial && (
+                    {canUseTrial && (
                       <PlanCard
                         onClick={handleSelectTrial}
                         title="Teste 7 Dias Grátis"
@@ -327,25 +334,11 @@ const OnboardingCadastro = () => {
                       />
                     )}
                     <PlanCard
-                      onClick={() => handleAnswer("plan", "gestao-basico")}
-                      title="Plano Gestão Básico"
-                      price="R$ 199/mês"
-                      iconSrc="/assets/logoGestaoBasico.png"
-                      description="Para pequenas operações."
-                    />
-                    <PlanCard
-                      onClick={() => handleAnswer("plan", "gestao-pro")}
-                      title="Plano Gestão Pro"
-                      price="R$ 399/mês"
-                      iconSrc="/assets/logoGestaopro.png"
-                      description="Para operações em crescimento."
-                    />
-                    <PlanCard
-                      onClick={() => handleAnswer("plan", "gestao-master")}
-                      title="Plano Gestão Master"
-                      price="R$ 799/mês"
-                      iconSrc="/assets/logoGestaomaster.png"
-                      description="Para locadoras estruturadas."
+                      onClick={() => handleAnswer("plan", fleetPlan.slug)}
+                      title={fleetPlan.title}
+                      price={fleetPlan.price}
+                      iconSrc={fleetPlan.iconSrc}
+                      description={fleetPlan.description}
                     />
                   </>
                 )}
