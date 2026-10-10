@@ -96,52 +96,23 @@ export function useCreateCompany() {
     mutationFn: async (companyData: CompanyFormData) => {
       if (!user) throw new Error("Usuário não autenticado");
 
-      // Mapeamento de plano para o padrão do banco
-      const planMapping: Record<string, "BASICO" | "PRO" | "MASTER"> = {
-        'gestao-basico': 'BASICO',
-        'gestao-pro': 'PRO',
-        'gestao-master': 'MASTER',
-      };
-
-      // 1. Criar empresa
-      const isTrial = companyData.plan === 'free7dias' || companyData.plan === 'trial';
-      const saasPlan = companyData.plan ? planMapping[companyData.plan] ?? 'BASICO' : 'BASICO';
-      
-      const { data: company, error: companyError } = await supabase
-        .from("carcontrol_companies")
-        .insert({
-          nome: companyData.nome,
-          cnpj: companyData.cnpj || null,
-          email: companyData.email || null,
-          telefone: companyData.telefone || null,
-          endereco: companyData.endereco || null,
-          ativo: isTrial, // Ativo apenas se for trial
-          trial: isTrial ? 'ativo' : null,
-          saas_plan: saasPlan,
-        } as any)
-        .select()
-        .single();
+      // Plano, trial e vínculo do usuário como admin são decididos no servidor
+      const { data: company, error: companyError } = await supabase.rpc(
+        "create_company_onboarding",
+        {
+          p_nome: companyData.nome,
+          p_cnpj: companyData.cnpj || null,
+          p_email: companyData.email || null,
+          p_telefone: companyData.telefone || null,
+          p_endereco: companyData.endereco || null,
+        }
+      );
 
       if (companyError) {
-
         throw new Error(`Falha ao criar empresa: ${companyError.message}`);
       }
 
-      // 2. Vincular empresa ao perfil do usuário (tornar admin)
-      const { error: profileError } = await supabase
-        .from("carcontrol_profiles")
-        .update({
-          company_id: company.id,
-          role: "admin", // Primeiro usuário é admin
-        })
-        .eq("id", user.id);
-
-      if (profileError) {
-
-        throw new Error(`Falha ao vincular empresa: ${profileError.message}`);
-      }
-
-      return company;
+      return company as unknown as Company;
     },
     onSuccess: () => {
       // Invalidar cache da empresa e perfil

@@ -1,6 +1,12 @@
-# Supabase — DashiDrive (Epic 13)
+<p align="center">
+  <img src="../public/logo.png" alt="DashiDriver logo" width="220" />
+</p>
+
+# Supabase — DashiDriver
 
 Fonte oficial de schema, Edge Functions e testes SQL deste monorepo.
+
+> Repositório: `DashiDriver` · Epic 13
 
 ## Fonte da verdade
 
