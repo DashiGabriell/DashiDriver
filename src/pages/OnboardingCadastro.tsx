@@ -229,6 +229,7 @@ const OnboardingCadastro = () => {
               </button>
               <h2 className="text-2xl font-black">Como você deseja usar?</h2>
               
+              {/* Motorista e Locador Marketplace ocultos nesta fase; reativar quando os perfis forem lançados.
               <RoleSelectionCard 
                 onClick={() => handleAnswer("role", "driver")} 
                 label="Motorista" 
@@ -244,6 +245,7 @@ const OnboardingCadastro = () => {
                 badge="Marketplace" 
                 iconSrc="/assets/plataformas.png" 
               />
+              */}
 
               <RoleSelectionCard 
                 onClick={() => handleAnswer("role", "fleet_management")} 
